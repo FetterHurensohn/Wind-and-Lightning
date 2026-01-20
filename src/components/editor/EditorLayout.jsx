@@ -591,9 +591,83 @@ export default function EditorLayout({ projectPath, onBackToDashboard }) {
   const [loading, setLoading] = useState(true);
   const [activeMainTab, setActiveMainTab] = useState('media'); // 'media', 'audio', 'text', etc.
 
+  // Dialog States für neue Komponenten
+  const [showKeyframeEditor, setShowKeyframeEditor] = useState(false);
+  const [keyframeClip, setKeyframeClip] = useState(null);
+  const [showSpeedControl, setShowSpeedControl] = useState(false);
+  const [speedClip, setSpeedClip] = useState(null);
+  const [showTextEditor, setShowTextEditor] = useState(false);
+  const [textClip, setTextClip] = useState(null);
+  const [showExportDialog, setShowExportDialog] = useState(false);
+  const [showTransitionPicker, setShowTransitionPicker] = useState(false);
+  const [transitionClips, setTransitionClips] = useState({ clipA: null, clipB: null });
+  const [showInspector, setShowInspector] = useState(true);
+
   const playhead = usePlayhead(state.fps);
   const { undo, redo, canUndo, canRedo, saveState } = useUndoRedo();
   const zoom = useTimelineZoom();
+
+  // Handler für Dialoge
+  const handleOpenKeyframes = (clip) => {
+    setKeyframeClip(clip);
+    setShowKeyframeEditor(true);
+  };
+
+  const handleOpenSpeed = (clip) => {
+    setSpeedClip(clip);
+    setShowSpeedControl(true);
+  };
+
+  const handleOpenText = (clip) => {
+    setTextClip(clip);
+    setShowTextEditor(true);
+  };
+
+  const handleUpdateKeyframes = (keyframes) => {
+    if (keyframeClip) {
+      dispatch({
+        type: 'UPDATE_CLIP_KEYFRAMES',
+        payload: { clipId: keyframeClip.id, keyframes }
+      });
+    }
+  };
+
+  const handleSpeedChange = (speedData) => {
+    if (speedClip) {
+      dispatch({
+        type: 'UPDATE_CLIP_SPEED',
+        payload: { clipId: speedClip.id, speedData }
+      });
+    }
+  };
+
+  const handleAddText = (textData) => {
+    dispatch({
+      type: 'ADD_TEXT_CLIP',
+      payload: { textData, start: playhead.currentTime }
+    });
+    setShowTextEditor(false);
+  };
+
+  const handleExport = (exportSettings) => {
+    console.log('Export with settings:', exportSettings);
+    // Hier würde der tatsächliche Export stattfinden
+    setShowExportDialog(false);
+  };
+
+  const handleApplyTransition = (transition) => {
+    if (transitionClips.clipA && transitionClips.clipB) {
+      dispatch({
+        type: 'ADD_TRANSITION',
+        payload: {
+          clipAId: transitionClips.clipA.id,
+          clipBId: transitionClips.clipB.id,
+          transition
+        }
+      });
+    }
+    setShowTransitionPicker(false);
+  };
 
   // Load Project Function
   const loadProject = async (projectPath) => {
