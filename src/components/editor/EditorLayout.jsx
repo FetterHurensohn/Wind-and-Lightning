@@ -34,6 +34,12 @@ import MediaInputPanel from './MediaInputPanel';
 import PreviewPanel from '../PreviewPanel'; // Bestehende Komponente anpassen
 import AIChat from './AIChat';
 import TimelinePanel from './TimelinePanel';
+import InspectorPanel from './InspectorPanel';
+import KeyframeEditor from './KeyframeEditor';
+import SpeedControl from './SpeedControl';
+import TextEditor from './TextEditor';
+import ExportDialog from './ExportDialog';
+import TransitionPicker from './TransitionPicker';
 
 // Editor Context
 const EditorContext = createContext(null);
