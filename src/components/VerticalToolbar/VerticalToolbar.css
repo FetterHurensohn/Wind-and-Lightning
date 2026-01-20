@@ -1,0 +1,35 @@
+.pp-vertical-toolbar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 4px;
+  background: var(--pp-panel-alt);
+  border-left: 1px solid var(--pp-border);
+  gap: 4px;
+  height: 100%;
+}
+
+.pp-tool-button {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: var(--pp-text-secondary);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 150ms;
+  font-size: 16px;
+}
+
+.pp-tool-button:hover {
+  background: var(--pp-button-hover);
+  color: var(--pp-text-primary);
+}
+
+.pp-tool-button.active {
+  background: var(--pp-blue);
+  color: #FFF;
+}

@@ -1,0 +1,41 @@
+.clip-properties {
+  height: 100%;
+  overflow-y: auto;
+}
+
+.clip-properties .no-selection {
+  text-align: center;
+  padding: var(--space-8);
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+.property-section {
+  margin-bottom: var(--space-3);
+}
+
+.property-section h4 {
+  margin: 0 0 var(--space-2) 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.property-item {
+  display: flex;
+  justify-content: space-between;
+  padding: var(--space-2) 0;
+  font-size: 13px;
+}
+
+.property-label {
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.property-value {
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+}

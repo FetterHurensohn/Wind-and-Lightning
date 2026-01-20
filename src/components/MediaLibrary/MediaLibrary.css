@@ -1,0 +1,187 @@
+/* Premiere Pro Media Library */
+.pp-media-library {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--pp-panel-bg);
+}
+
+.pp-media-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  border-bottom: 1px solid var(--pp-border);
+  background: var(--pp-panel-alt);
+}
+
+.pp-media-title {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--pp-text-primary);
+}
+
+.pp-media-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  padding: 12px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.pp-media-item {
+  cursor: pointer;
+  border: 1px solid transparent;
+  border-radius: 2px;
+  transition: all var(--transition-fast);
+}
+
+.pp-media-item:hover {
+  border-color: var(--pp-blue);
+}
+
+.pp-media-item.selected {
+  border-color: var(--pp-blue);
+  box-shadow: 0 0 0 1px var(--pp-blue);
+}
+
+.pp-media-thumb {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16/9;
+  background: #000;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.pp-media-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.pp-media-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--pp-text-tertiary);
+  font-size: 24px;
+}
+
+.pp-duration {
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
+  background: rgba(0, 0, 0, 0.8);
+  color: #FFF;
+  padding: 2px 4px;
+  font-size: 10px;
+  border-radius: 2px;
+  font-family: var(--font-mono);
+}
+
+.pp-media-name {
+  font-size: 11px;
+  color: var(--pp-text-secondary);
+  padding: 4px 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pp-media-empty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  text-align: center;
+}
+
+/* Legacy styles for backward compatibility */
+.media-library {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 24px;
+  background: var(--pp-panel-bg);
+}
+
+.media-library-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.media-library-header h3 {
+  margin: 0;
+  color: var(--pp-text-primary);
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.media-library-content {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.media-card {
+  background: var(--pp-panel-alt);
+  border: 1px solid var(--pp-border);
+  transition: all var(--transition-fast);
+  border-radius: 4px;
+}
+
+.media-card:hover {
+  border-color: var(--pp-blue);
+  transform: translateY(-2px);
+}
+
+.media-card.selected {
+  border-color: var(--pp-blue);
+  box-shadow: 0 0 0 2px rgba(0, 154, 222, 0.2);
+}
+
+.media-thumbnail {
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #000;
+  overflow: hidden;
+}
+
+.media-thumbnail img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.media-info {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+  font-size: 11px;
+  color: var(--pp-text-secondary);
+}
+
+.media-title {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--pp-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.media-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--pp-text-primary);
+  margin-bottom: 4px;
+}

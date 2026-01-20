@@ -1,0 +1,190 @@
+/* Premiere Pro Header */
+.pp-header {
+  height: 32px !important;
+  background: var(--pp-panel-bg);
+  padding: 0 12px !important;
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid var(--pp-border);
+  line-height: 32px;
+}
+
+.pp-menubar {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 8px;
+}
+
+.pp-logo {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--pp-text-primary);
+  margin-right: 20px;
+  white-space: nowrap;
+}
+
+.pp-menu-items {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+.pp-menu-item {
+  padding: 6px 12px;
+  font-size: 13px;
+  color: var(--pp-text-primary);
+  cursor: pointer;
+  border-radius: 2px;
+  transition: background var(--transition-fast);
+  white-space: nowrap;
+}
+
+.pp-menu-item:hover {
+  background: var(--pp-button-hover);
+}
+
+.pp-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Premiere Pro Sidebars */
+.pp-media-sidebar {
+  background: var(--pp-panel-bg) !important;
+  border-right: 1px solid var(--pp-border);
+}
+
+.pp-toolbar-sidebar {
+  background: var(--pp-panel-alt) !important;
+  border-left: 1px solid var(--pp-border);
+}
+
+/* Main Content Area */
+.pp-main-content {
+  background: var(--pp-dark-bg);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  height: calc(100vh - 32px);
+}
+
+/* Dual Monitor Container */
+.pp-monitor-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  height: 55%;
+  padding: 4px;
+  background: var(--pp-dark-bg);
+}
+
+.pp-source-monitor,
+.pp-program-monitor {
+  display: flex;
+  flex-direction: column;
+  background: var(--pp-panel-bg);
+  border: 1px solid var(--pp-border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.pp-monitor-header {
+  height: 28px;
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+  background: var(--pp-panel-alt);
+  border-bottom: 1px solid var(--pp-border);
+  font-size: 12px;
+  color: var(--pp-text-secondary);
+  font-weight: 500;
+}
+
+.pp-monitor-content {
+  flex: 1;
+  display: flex;
+  background: #000;
+  overflow: hidden;
+}
+
+.pp-timeline-container {
+  height: 45%;
+  background: var(--pp-dark-bg);
+  border-top: 1px solid var(--pp-border);
+  overflow: hidden;
+}
+
+/* Legacy header styles (keep for compatibility) */
+.app-layout {
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  background: var(--main-surface-tertiary);
+}
+
+.app-header {
+  background: var(--main-surface-secondary);
+  padding: 0 var(--space-6);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border-medium);
+  height: 60px;
+  box-shadow: var(--shadow-sm);
+}
+
+.logo {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  user-select: none;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  letter-spacing: -0.01em;
+}
+
+.header-controls {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+.left-sider,
+.right-sider {
+  background: var(--sidebar-surface-primary);
+  border-right: 1px solid var(--border-light);
+  overflow-y: auto;
+}
+
+.right-sider {
+  border-right: none;
+  border-left: 1px solid var(--border-light);
+}
+
+.main-content {
+  background: var(--main-surface-tertiary);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.preview-container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--main-surface-tertiary);
+  border-bottom: 1px solid var(--border-light);
+  min-height: 0;
+  padding: var(--space-4);
+}
+
+.timeline-container {
+  height: 350px;
+  background: var(--main-surface-secondary);
+  border-top: 1px solid var(--border-medium);
+  overflow: hidden;
+}

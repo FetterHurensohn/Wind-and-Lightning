@@ -1,0 +1,113 @@
+.preview-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  background: #000;
+}
+
+.preview-viewport {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #000;
+  position: relative;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.preview-canvas {
+  max-width: 100%;
+  max-height: 100%;
+  background: #000;
+  border-radius: var(--radius-md);
+}
+
+.preview-empty {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.preview-placeholder {
+  color: var(--pp-text-tertiary);
+  font-size: 14px;
+  user-select: none;
+  font-weight: 500;
+}
+
+.preview-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: var(--pp-panel-alt);
+  border-top: 1px solid var(--pp-border);
+  gap: 12px;
+  min-height: 44px;
+}
+
+.preview-playback {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.insert-buttons {
+  display: flex;
+  gap: 4px;
+}
+
+.timecode-display {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--pp-text-primary);
+  background: var(--pp-button-bg);
+  padding: 4px 8px;
+  border-radius: 2px;
+  min-width: 95px;
+  text-align: center;
+  font-weight: 500;
+}
+
+.timecode-display {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  color: var(--text-primary);
+  min-width: 140px;
+  text-align: center;
+  font-weight: 500;
+  background: var(--button-secondary);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-light);
+}
+
+.quality-selector {
+  display: flex;
+  gap: var(--space-1);
+}
+
+.preview-scrubber {
+  padding: 0 var(--space-6) var(--space-4);
+  background: var(--main-surface-secondary);
+}
+
+.preview-scrubber .ant-slider-rail {
+  background: rgba(255, 255, 255, 0.1);
+  height: 6px;
+}
+
+.preview-scrubber .ant-slider-track {
+  background: var(--accent-main);
+  height: 6px;
+}
+
+.preview-scrubber .ant-slider-handle::after {
+  box-shadow: 0 0 0 2px var(--accent-main);
+  width: 14px;
+  height: 14px;
+}

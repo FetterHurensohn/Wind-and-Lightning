@@ -1,0 +1,8 @@
+.audio-waveform {
+  width: 100%;
+  overflow: hidden;
+}
+
+.audio-waveform wave {
+  cursor: default !important;
+}

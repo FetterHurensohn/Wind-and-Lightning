@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CSS Test - Design Verification</title>
+  <style>
+    body {
+      font-family: monospace;
+      padding: 20px;
+      background: #0f1720;
+      color: #e6eef8;
+    }
+    .test-box {
+      margin: 10px 0;
+      padding: 10px;
+      background: #0b1220;
+      border: 1px solid #333;
+    }
+    .text-11 { font-size: 11px; }
+    .text-12 { font-size: 12px; }
+    .text-13 { font-size: 13px; }
+    .text-14 { font-size: 14px; }
+    .w-2px { width: 2px; height: 20px; background: red; display: inline-block; }
+  </style>
+</head>
+<body>
+  <h1>🎯 CSS Design Test</h1>
+  
+  <div class="test-box">
+    <h2>Font Sizes Test:</h2>
+    <div class="text-11">✅ text-11: 11px - Timeline Duration Badge</div>
+    <div class="text-12">✅ text-12: 12px - Timeline Ruler, Inspector Labels</div>
+    <div class="text-13">✅ text-13: 13px - Clip Title, Inspector Inputs</div>
+    <div class="text-14">❌ text-14: 14px - OLD SIZE (sollte nicht mehr verwendet werden)</div>
+  </div>
+
+  <div class="test-box">
+    <h2>Width Test:</h2>
+    <div>Playhead width (2px): <span class="w-2px"></span> ← Sollte SEHR dünn sein</div>
+  </div>
+
+  <div class="test-box">
+    <h2>App Status:</h2>
+    <div id="status">Lade Status...</div>
+  </div>
+
+  <script>
+    // Test ob die CSS-Klassen geladen sind
+    const test11 = document.querySelector('.text-11');
+    const computedSize = window.getComputedStyle(test11).fontSize;
+    
+    document.getElementById('status').innerHTML = `
+      <strong>Computed Font Size von text-11:</strong> ${computedSize}<br>
+      <strong>Erwarteter Wert:</strong> 11px<br>
+      <strong>Status:</strong> ${computedSize === '11px' ? '✅ KORREKT' : '❌ FALSCH'}
+    `;
+
+    // Prüfe ob App läuft
+    fetch('http://localhost:3000')
+      .then(r => r.text())
+      .then(html => {
+        console.log('✅ Vite Dev Server läuft');
+        console.log('HTML enthält:', html.substring(0, 200));
+      })
+      .catch(e => {
+        console.error('❌ Vite Dev Server nicht erreichbar:', e);
+      });
+  </script>
+</body>
+</html>

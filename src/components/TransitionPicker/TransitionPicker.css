@@ -1,0 +1,21 @@
+.transition-card {
+  text-align: center;
+}
+
+.transition-preview {
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #0a0a0a;
+  margin-bottom: 12px;
+  border-radius: 4px;
+}
+
+.transition-card .ant-card-meta-title {
+  font-size: 13px;
+}
+
+.transition-card .ant-card-meta-description {
+  font-size: 11px;
+}

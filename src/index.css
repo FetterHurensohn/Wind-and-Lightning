@@ -1,0 +1,248 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* === NEUE SCREENSHOT-BASIERTE FARBEN === */
+  
+  /* Backgrounds - Sehr dunkel, subtile Abstufungen */
+  --bg-main: #0a0e13;           /* Haupt-Hintergrund (fast schwarz) */
+  --bg-panel: #12161c;          /* Panel-Hintergrund (leicht heller) */
+  --bg-surface: #1a1f27;        /* Surface/Cards (etwas heller) */
+  --bg-hover: #21262e;          /* Hover-State */
+  
+  /* Borders - Sehr subtil */
+  --border-subtle: rgba(255, 255, 255, 0.03);  /* Kaum sichtbar */
+  --border-normal: rgba(255, 255, 255, 0.06);  /* Normal */
+  --border-emphasis: rgba(255, 255, 255, 0.1); /* Betont */
+  
+  /* Text Colors */
+  --text-primary: #e8eaed;      /* Haupt-Text (leicht gedimmt) */
+  --text-secondary: #9aa0a6;    /* Sekundär-Text (grau) */
+  --text-tertiary: #5f6368;     /* Tertiary (dunkelgrau) */
+  --text-disabled: #3c4043;     /* Disabled */
+  
+  /* Accents */
+  --accent-turquoise: #13c7d4;  /* Türkis für Generate/Export */
+  --accent-purple: #7c3aed;     /* Violett für Pro */
+  --accent-yellow: #f3e02b;     /* Gelb für Notices */
+  --accent-blue: #4285f4;       /* Blau für Selection */
+  
+  /* Timeline-spezifisch */
+  --timeline-ruler-bg: #0d1117;
+  --timeline-tick: #30363d;
+  --playhead-red: #f85149;
+  
+  /* CapCut UI-spezifisch */
+  --capcut-nav-active: #1a3d4a;      /* Türkiser Hintergrund für aktive Nav-Items */
+  --capcut-accent-turquoise: #00d4aa; /* Türkis für Buttons */
+  --capcut-accent-purple: #8b5cf6;   /* Lila für Badges */
+  --capcut-info-bg: #1e3a4a;         /* Info-Banner Hintergrund */
+  --capcut-info-border: #2a5a6a;     /* Info-Banner Border */
+  
+  /* Schriftgrößen - Sehr klein! */
+  --font-xs: 10px;   /* Labels, Badges */
+  --font-sm: 11px;   /* Body, Buttons */
+  --font-md: 12px;   /* Headers, Inputs */
+  --font-lg: 13px;   /* Titles */
+  
+  /* === LEGACY/DASHBOARD VARIABLEN (kompatibilität) === */
+  --bg: #0a0e13;
+  --panel: #12161c;
+  --card: #1a1f27;
+  --surface: #1a1f27;
+  --text: #e8eaed;
+  --muted: #9aa0a6;
+  --border: rgba(255, 255, 255, 0.03);
+  --accent-hero: #13c7d4;
+  --accent-primary: #13c7d4;
+  --accent: #13c7d4;
+  --accent-2: #7c3aed;
+  --accent-pro: #7c3aed;
+  --warning: #facc15;
+  --notice-yellow: #f3e02b;
+  --muted-contrast: rgba(230, 238, 248, 0.6);
+  --hover: rgba(255, 255, 255, 0.04);
+  --success: #10b981;
+  --ui-font-size: 13px;
+  --icon-size: 18px;
+  --icon-small: 16px;
+
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: var(--bg);
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* CUSTOM SIZE CLASSES - Präzise Typografie */
+@layer utilities {
+  /* Font Sizes - Wie im Screenshot */
+  .text-xs { font-size: 10px; }  /* Labels, Badges */
+  .text-sm { font-size: 11px; }  /* Body, Buttons */
+  .text-base { font-size: 12px; }  /* Headers, Inputs */
+  .text-md { font-size: 13px; }  /* Titles */
+  
+  /* Legacy (backwards compatibility) */
+  .text-11 { font-size: 11px; }
+  .text-12 { font-size: 12px; }
+  .text-13 { font-size: 13px; }
+  
+  /* Präzise Dimensionen */
+  .w-1px { width: 1px; }
+  .w-2px { width: 2px; }
+  .w-16px { width: 16px; }
+  .w-18px { width: 18px; }
+  .w-20px { width: 20px; }
+  
+  .h-1px { height: 1px; }
+  .h-2px { height: 2px; }
+  .h-16px { height: 16px; }
+  .h-18px { height: 18px; }
+  .h-20px { height: 20px; }
+  
+  /* Spezielle Dimensionen für Layout */
+  .w-200 { width: 200px; }
+  .w-280 { width: 280px; }
+  .w-120 { width: 120px; }
+  .h-280 { height: 280px; }
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+#root {
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* Custom Scrollbar - Dunkler, subtiler */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-main);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--bg-surface);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--bg-hover);
+}
+
+/* Focus Styles - Subtiler */
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 1px solid var(--accent-blue);
+  outline-offset: 1px;
+}
+
+/* Smooth Transitions für alle Hover-States */
+button,
+input,
+select,
+textarea,
+a {
+  transition: all 0.15s ease;
+}
+
+/* Utility Classes */
+.drag-handle {
+  cursor: ew-resize;
+}
+
+.dragging {
+  cursor: grabbing !important;
+}
+
+.no-select {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+}
+
+/* VideoBar Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@keyframes progressBar {
+  0% {
+    width: 0%;
+  }
+
+  100% {
+    width: 100%;
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 150ms ease-out;
+}
+
+.animate-slideDown {
+  animation: slideDown 150ms ease-out;
+}
+
+.animate-scaleIn {
+  animation: scaleIn 200ms ease-out;
+}
+
+.animate-progressBar {
+  animation: progressBar 2s linear forwards;
+}

@@ -1,0 +1,91 @@
+.audio-mixer {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--main-surface-secondary);
+  overflow: auto;
+}
+
+.audio-mixer-header {
+  padding: var(--space-4) var(--space-5);
+  background: var(--main-surface-primary);
+  border-bottom: 1px solid var(--border-light);
+}
+
+.audio-mixer-header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.audio-tracks {
+  flex: 1;
+  padding: var(--space-4);
+}
+
+.audio-track {
+  margin-bottom: var(--space-5);
+  background: var(--main-surface-primary);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+}
+
+.audio-track-header {
+  margin-bottom: var(--space-3);
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--border-light);
+}
+
+.track-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.audio-track-clips {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.audio-clip-control {
+  padding: var(--space-3);
+  background: var(--main-surface-secondary);
+  border-radius: var(--radius-md);
+}
+
+.audio-clip-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-2);
+}
+
+.audio-clip-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.audio-clip-volume {
+  font-size: 12px;
+  font-family: var(--font-mono);
+  color: var(--text-secondary);
+  margin-left: var(--space-2);
+}
+
+.audio-empty {
+  text-align: center;
+  padding: var(--space-8);
+  color: var(--text-secondary);
+}
+
+.audio-empty p {
+  margin: 0;
+  font-size: 14px;
+}
