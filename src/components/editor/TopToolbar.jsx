@@ -30,8 +30,8 @@ const categories = [
   { id: 'ai', name: 'KI-Avatar', icon: 'ai' }
 ];
 
-export default function TopToolbar({ onBackToDashboard }) {
-  const { state, dispatch, saveProject, handleSaveAndExit: contextSaveAndExit, activeMainTab, setActiveMainTab } = useEditor();
+export default function TopToolbar({ onBackToDashboard, onExport }) {
+  const { state, dispatch, saveProject, handleSaveAndExit: contextSaveAndExit, activeMainTab, setActiveMainTab, setShowExportDialog } = useEditor();
   const [editingName, setEditingName] = useState(false);
   const [saving, setSaving] = useState(false);
 
@@ -68,7 +68,12 @@ export default function TopToolbar({ onBackToDashboard }) {
 
   const handleExport = () => {
     console.log('Export clicked');
-    // TODO: Implement export dialog
+    // Öffne Export Dialog
+    if (onExport) {
+      onExport();
+    } else if (setShowExportDialog) {
+      setShowExportDialog(true);
+    }
   };
 
   return (
