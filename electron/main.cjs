@@ -552,16 +552,18 @@ function setupIPCHandlers() {
 
   // List all projects in the draft directory
   ipcMain.handle('project:listProjects', async () => {
-    const basePath = path.join('C:', 'Users', 'jacqu', 'OneDrive', 'Desktop', 'Wind and Lightning Projekts', 'com.lveditor.draft');
+    // Verwende den konfigurierbaren Basis-Pfad aus projectManager
+    const basePath = projectManager.getBasePath();
 
     try {
       // Check if base path exists
       if (!fsSync.existsSync(basePath)) {
-        console.log('[IPC] Base path does not exist:', basePath);
+        console.log('[IPC] Base path does not exist, creating:', basePath);
+        await fs.mkdir(basePath, { recursive: true });
         return {
-          success: false,
-          error: 'Projektordner existiert nicht',
-          projects: []
+          success: true,
+          projects: [],
+          count: 0
         };
       }
 
