@@ -53,19 +53,24 @@ const getBasePath = () => {
     return customPath;
   }
   
-  // Default: Aktueller Pfad oder Documents
-  const defaultPath = 'C:\\Users\\jacqu\\OneDrive\\Desktop\\Wind and Lightning Projekts\\com.lveditor.draft';
+  // Default: Documents/CapCut Video Editor/Projects
+  const defaultPath = path.join(
+    app.getPath('documents'),
+    'CapCut Video Editor',
+    'Projects'
+  );
   
-  if (fsSync.existsSync(defaultPath)) {
-    return defaultPath;
+  // Erstelle den Ordner falls er nicht existiert
+  if (!fsSync.existsSync(defaultPath)) {
+    try {
+      fsSync.mkdirSync(defaultPath, { recursive: true });
+      console.log('[ProjectManager] Created default projects directory:', defaultPath);
+    } catch (err) {
+      console.warn('[ProjectManager] Could not create default directory:', err.message);
+    }
   }
   
-  // Fallback: Documents/Wind and Lightning Projekts/com.lveditor.draft
-  return path.join(
-    app.getPath('documents'),
-    'Wind and Lightning Projekts',
-    'com.lveditor.draft'
-  );
+  return defaultPath;
 };
 
 const setBasePath = (newPath) => {
