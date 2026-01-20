@@ -374,6 +374,209 @@ function reducer(state, action) {
       };
     }
 
+    // SPLIT_CLIP - Teilt einen Clip an einer bestimmten Zeit
+    case 'SPLIT_CLIP': {
+      const { clipId, splitTime } = action.payload;
+      
+      return {
+        ...state,
+        tracks: state.tracks.map(track => {
+          const clipIndex = track.clips?.findIndex(c => c.id === clipId);
+          if (clipIndex === -1 || clipIndex === undefined) return track;
+          
+          const clip = track.clips[clipIndex];
+          const relativeTime = splitTime - clip.start;
+          
+          // Prüfe ob Split-Zeit innerhalb des Clips liegt
+          if (relativeTime <= 0 || relativeTime >= clip.duration) return track;
+          
+          // Erstelle zwei neue Clips
+          const clipA = {
+            ...clip,
+            id: clip.id + '_a',
+            duration: relativeTime,
+          };
+          
+          const clipB = {
+            ...clip,
+            id: clip.id + '_b',
+            start: splitTime,
+            duration: clip.duration - relativeTime,
+          };
+          
+          // Ersetze den Original-Clip durch die zwei neuen
+          const newClips = [...track.clips];
+          newClips.splice(clipIndex, 1, clipA, clipB);
+          
+          return { ...track, clips: newClips };
+        })
+      };
+    }
+
+    // UPDATE_CLIP_KEYFRAMES - Aktualisiert Keyframes eines Clips
+    case 'UPDATE_CLIP_KEYFRAMES': {
+      const { clipId, keyframes } = action.payload;
+      return {
+        ...state,
+        tracks: state.tracks.map(track => ({
+          ...track,
+          clips: track.clips?.map(clip =>
+            clip.id === clipId
+              ? { ...clip, keyframes }
+              : clip
+          ) || []
+        }))
+      };
+    }
+
+    // UPDATE_CLIP_SPEED - Aktualisiert Geschwindigkeitseinstellungen
+    case 'UPDATE_CLIP_SPEED': {
+      const { clipId, speedData } = action.payload;
+      return {
+        ...state,
+        tracks: state.tracks.map(track => ({
+          ...track,
+          clips: track.clips?.map(clip => {
+            if (clip.id !== clipId) return clip;
+            
+            const originalDuration = clip.originalDuration || clip.duration;
+            const newDuration = originalDuration / speedData.speed;
+            
+            return {
+              ...clip,
+              duration: newDuration,
+              originalDuration: originalDuration,
+              props: {
+                ...clip.props,
+                speed: speedData.speed,
+                reverse: speedData.reverse,
+                smoothSlowMo: speedData.smoothSlowMo,
+                speedCurve: speedData.speedCurve,
+              }
+            };
+          }) || []
+        }))
+      };
+    }
+
+    // ADD_TEXT_CLIP - Fügt einen Text-Clip hinzu
+    case 'ADD_TEXT_CLIP': {
+      const { trackId, textData, start } = action.payload;
+      
+      const textClip = {
+        id: `text_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        type: 'text',
+        title: textData.text.substring(0, 20) + '...',
+        text: textData.text,
+        style: textData.style,
+        start: start || 0,
+        duration: textData.duration || 5,
+        props: {
+          opacity: 100,
+          scale: 100,
+          rotation: 0,
+          posX: 0,
+          posY: 0,
+        }
+      };
+      
+      // Finde oder erstelle einen Video-Track für Text
+      let targetTrackId = trackId;
+      if (!targetTrackId) {
+        const videoTrack = state.tracks.find(t => t.type === 'video');
+        if (videoTrack) {
+          targetTrackId = videoTrack.id;
+        } else {
+          // Erstelle neuen Track für Text
+          const newTrackId = `vt${Date.now()}`;
+          return {
+            ...state,
+            tracks: [
+              {
+                id: newTrackId,
+                name: 'Text Track',
+                type: 'video',
+                clips: [textClip]
+              },
+              ...state.tracks
+            ],
+            trackControls: {
+              ...state.trackControls,
+              [newTrackId]: { muted: false, solo: false, locked: false, height: 80 }
+            }
+          };
+        }
+      }
+      
+      return {
+        ...state,
+        tracks: state.tracks.map(track =>
+          track.id === targetTrackId
+            ? { ...track, clips: [...(track.clips || []), textClip] }
+            : track
+        )
+      };
+    }
+
+    // ADD_TRANSITION - Fügt einen Übergang zwischen Clips hinzu
+    case 'ADD_TRANSITION': {
+      const { clipAId, clipBId, transition } = action.payload;
+      return {
+        ...state,
+        tracks: state.tracks.map(track => ({
+          ...track,
+          clips: track.clips?.map(clip => {
+            if (clip.id === clipAId) {
+              return { ...clip, transitionOut: transition };
+            }
+            if (clip.id === clipBId) {
+              return { ...clip, transitionIn: transition };
+            }
+            return clip;
+          }) || []
+        }))
+      };
+    }
+
+    // COPY_CLIPS - Kopiert ausgewählte Clips in Clipboard
+    case 'COPY_CLIPS': {
+      const clipsToCopy = [];
+      state.tracks.forEach(track => {
+        track.clips?.forEach(clip => {
+          if (state.selectedClipIds.includes(clip.id)) {
+            clipsToCopy.push({ ...clip, trackId: track.id });
+          }
+        });
+      });
+      return { ...state, clipboard: clipsToCopy };
+    }
+
+    // PASTE_CLIPS - Fügt Clips aus Clipboard ein
+    case 'PASTE_CLIPS': {
+      const { pasteTime } = action.payload;
+      if (!state.clipboard || state.clipboard.length === 0) return state;
+      
+      const minStart = Math.min(...state.clipboard.map(c => c.start));
+      const newClips = state.clipboard.map(clip => ({
+        ...clip,
+        id: `${clip.id}_paste_${Date.now()}`,
+        start: pasteTime + (clip.start - minStart)
+      }));
+      
+      return {
+        ...state,
+        tracks: state.tracks.map(track => {
+          const clipsForTrack = newClips.filter(c => c.trackId === track.id);
+          if (clipsForTrack.length === 0) return track;
+          
+          return {
+            ...track,
+            clips: [...(track.clips || []), ...clipsForTrack.map(({ trackId, ...clip }) => clip)]
+          };
+        })
+      };
+    }
+
     default:
       return state;
   }
