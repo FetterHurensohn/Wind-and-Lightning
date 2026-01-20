@@ -899,8 +899,26 @@ export default function EditorLayout({ projectPath, onBackToDashboard }) {
     saveProject,
     handleSaveAndExit,
     activeMainTab,
-    setActiveMainTab
+    setActiveMainTab,
+    // Neue Dialog-Handler
+    handleOpenKeyframes,
+    handleOpenSpeed,
+    handleOpenText,
+    setShowExportDialog,
+    setShowTransitionPicker,
+    setTransitionClips,
+    showInspector,
+    setShowInspector,
   };
+
+  // Berechne Projektdauer
+  const projectDuration = React.useMemo(() => {
+    return state.tracks.reduce((max, track) => {
+      const trackEnd = track.clips?.reduce((m, clip) => 
+        Math.max(m, clip.start + clip.duration), 0) || 0;
+      return Math.max(max, trackEnd);
+    }, 180);
+  }, [state.tracks]);
 
   return (
     <EditorContext.Provider value={contextValue}>
@@ -917,7 +935,10 @@ export default function EditorLayout({ projectPath, onBackToDashboard }) {
           <div className="h-screen flex flex-col">
 
             {/* Top Toolbar - 44px hoch */}
-            <TopToolbar onBackToDashboard={onBackToDashboard} />
+            <TopToolbar 
+              onBackToDashboard={onBackToDashboard}
+              onExport={() => setShowExportDialog(true)}
+            />
 
             {/* Main Content Area */}
             <div className="flex-1 flex overflow-hidden">
@@ -950,12 +971,133 @@ export default function EditorLayout({ projectPath, onBackToDashboard }) {
                 </div>
               </div>
 
-              {/* Right Column - AI Chat - volle Höhe */}
-              <div className="w-[280px] border-l border-[var(--border-subtle)]">
-                <AIChat />
+              {/* Right Column - Inspector Panel oder AI Chat - volle Höhe */}
+              <div className="w-[280px] border-l border-[var(--border-subtle)] flex flex-col">
+                {/* Tab-Switcher */}
+                <div className="h-10 flex border-b border-[var(--border-subtle)]">
+                  <button
+                    onClick={() => setShowInspector(true)}
+                    className={`flex-1 text-xs font-medium transition-colors ${
+                      showInspector 
+                        ? 'text-[var(--accent-turquoise)] border-b-2 border-[var(--accent-turquoise)]' 
+                        : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                    }`}
+                  >
+                    Eigenschaften
+                  </button>
+                  <button
+                    onClick={() => setShowInspector(false)}
+                    className={`flex-1 text-xs font-medium transition-colors ${
+                      !showInspector 
+                        ? 'text-[var(--accent-turquoise)] border-b-2 border-[var(--accent-turquoise)]' 
+                        : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                    }`}
+                  >
+                    KI-Assistent
+                  </button>
+                </div>
+                
+                {/* Content */}
+                <div className="flex-1 overflow-hidden">
+                  {showInspector ? (
+                    <InspectorPanel
+                      onOpenKeyframes={handleOpenKeyframes}
+                      onOpenSpeed={handleOpenSpeed}
+                      onOpenText={handleOpenText}
+                    />
+                  ) : (
+                    <AIChat />
+                  )}
+                </div>
               </div>
             </div>
           </div>
+
+          {/* Modals & Dialogs */}
+          
+          {/* Keyframe Editor */}
+          {showKeyframeEditor && keyframeClip && (
+            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 animate-fadeIn">
+              <div className="animate-scaleIn">
+                <KeyframeEditor
+                  clip={keyframeClip}
+                  currentTime={playhead.currentTime}
+                  onUpdateKeyframes={handleUpdateKeyframes}
+                  onClose={() => {
+                    setShowKeyframeEditor(false);
+                    setKeyframeClip(null);
+                  }}
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Speed Control */}
+          {showSpeedControl && speedClip && (
+            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 animate-fadeIn">
+              <div className="animate-scaleIn">
+                <SpeedControl
+                  clip={speedClip}
+                  onSpeedChange={handleSpeedChange}
+                  onClose={() => {
+                    setShowSpeedControl(false);
+                    setSpeedClip(null);
+                  }}
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Text Editor */}
+          {showTextEditor && (
+            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 animate-fadeIn">
+              <div className="animate-scaleIn w-[400px]">
+                <TextEditor
+                  clip={textClip}
+                  onTextChange={(data) => {
+                    if (textClip) {
+                      dispatch({
+                        type: 'UPDATE_CLIP',
+                        payload: { clipId: textClip.id, ...data }
+                      });
+                    }
+                  }}
+                  onAddText={handleAddText}
+                  onClose={() => {
+                    setShowTextEditor(false);
+                    setTextClip(null);
+                  }}
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Export Dialog */}
+          {showExportDialog && (
+            <ExportDialog
+              project={{ name: state.projectName, isPro: false }}
+              duration={projectDuration}
+              onExport={handleExport}
+              onClose={() => setShowExportDialog(false)}
+            />
+          )}
+
+          {/* Transition Picker */}
+          {showTransitionPicker && (
+            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 animate-fadeIn">
+              <div className="animate-scaleIn">
+                <TransitionPicker
+                  clipA={transitionClips.clipA}
+                  clipB={transitionClips.clipB}
+                  onApply={handleApplyTransition}
+                  onClose={() => {
+                    setShowTransitionPicker(false);
+                    setTransitionClips({ clipA: null, clipB: null });
+                  }}
+                />
+              </div>
+            </div>
+          )}
         </div>
       )}
     </EditorContext.Provider>
