@@ -73,12 +73,14 @@ export default function NewProjectModal({ onClose, onCreate }) {
                 // Fallback: alte Logik für Browser-Modus
                 const projectData = {
                     ...formData,
-                    resolution: formData.resolution
+                    resolution: formData.resolution,
+                    id: `browser_${Date.now()}`,
+                    path: null  // Browser-Modus hat keinen echten Pfad
                 };
 
-                console.log('[Modal] Calling onCreate with:', projectData);
+                console.log('[Modal] Browser mode - Calling onCreate with:', projectData);
                 onCreate(projectData);
-                setCreating(false);
+                onClose();  // Schließe Modal auch im Browser-Modus
             }
         } catch (error) {
             console.error('[Modal] Error in handleSubmit:', error);
