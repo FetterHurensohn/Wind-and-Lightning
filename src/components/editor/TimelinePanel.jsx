@@ -433,9 +433,14 @@ export default function TimelinePanel() {
       duration = mediaItem.duration || 5;
     }
 
+    // Generiere eine eindeutige ID (UUID-ähnlich)
+    const generateId = () => {
+      return 'clip_' + crypto.randomUUID();
+    };
+
     // Erstelle neuen Clip
     const newClip = {
-      id: `clip_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      id: generateId(),
       mediaId: mediaItem.id,
       title: mediaItem.name,
       start: startPosition,
