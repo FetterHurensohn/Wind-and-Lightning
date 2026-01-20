@@ -221,8 +221,10 @@ export default function ClipComponent({
         {clip.type === 'audio' && (
           <div className="absolute inset-0 flex items-center justify-center overflow-hidden">
             <svg className="w-full h-3/4 opacity-30" preserveAspectRatio="none" viewBox="0 0 100 40">
+              {/* Deterministische Waveform basierend auf Index */}
               {Array.from({ length: 50 }).map((_, i) => {
-                const height = Math.random() * 30 + 5;
+                // Deterministische Höhe basierend auf Sinus
+                const height = Math.abs(Math.sin(i * 0.5) * 25) + 5;
                 return (
                   <rect
                     key={i}
