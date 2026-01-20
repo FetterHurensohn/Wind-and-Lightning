@@ -685,7 +685,7 @@ const mockTextTemplatesData = {
     { id: 7, preview: 'CASUAL', title: 'Casual', style: 'font-bold text-2xl' },
     { id: 8, preview: 'Every story begins\nwith courage', title: 'Story', style: 'text-xs' },
     { id: 9, preview: <><span className="text-blue-400 font-bold">MINIMALIST TEXT</span></>, title: 'Minimalist' },
-    { id: 10, preview: <><span className="text-yellow-400 font-black text-xl">DON'T<br />MISS IT!</span></>, title: 'Bold' },
+    { id: 10, preview: <><span className="text-yellow-400 font-black text-xl">DON&apos;T<br />MISS IT!</span></>, title: 'Bold' },
     { id: 11, preview: <><span className="text-yellow-300 font-bold text-2xl">2026</span><br /><span className="text-xs">COUNTDOWN</span></>, title: 'Countdown' },
     { id: 12, preview: <><span className="text-cyan-300 font-bold tracking-wider">EXCLUSIVE</span></>, title: 'Exclusive' },
   ]
