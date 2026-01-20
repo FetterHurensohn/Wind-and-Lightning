@@ -9,7 +9,96 @@ import Icon from './Icon';
 
 // Timeline Toolbar
 function TimelineToolbar() {
-  const { playhead, state, undo, redo, canUndo, canRedo, dispatch } = useEditor();
+  const { playhead, state, undo, redo, canUndo, canRedo, dispatch, handleOpenKeyframes, handleOpenSpeed } = useEditor();
+
+  // Split Clip at Playhead
+  const handleSplit = () => {
+    if (!state.selectedClipId) {
+      // Finde alle Clips unter dem Playhead
+      state.tracks.forEach(track => {
+        track.clips?.forEach(clip => {
+          if (playhead.currentTime > clip.start && playhead.currentTime < clip.start + clip.duration) {
+            dispatch({
+              type: 'SPLIT_CLIP',
+              payload: { clipId: clip.id, splitTime: playhead.currentTime }
+            });
+          }
+        });
+      });
+    } else {
+      // Splitte nur den ausgewählten Clip
+      dispatch({
+        type: 'SPLIT_CLIP',
+        payload: { clipId: state.selectedClipId, splitTime: playhead.currentTime }
+      });
+    }
+  };
+
+  // Delete selected clips
+  const handleDelete = () => {
+    if (state.selectedClipId) {
+      dispatch({ type: 'DELETE_CLIP', payload: { clipId: state.selectedClipId } });
+    } else if (state.selectedClipIds?.length > 0) {
+      state.selectedClipIds.forEach(clipId => {
+        dispatch({ type: 'DELETE_CLIP', payload: { clipId } });
+      });
+    }
+  };
+
+  // Copy/Paste handlers
+  const handleCopy = () => {
+    if (state.selectedClipIds?.length > 0 || state.selectedClipId) {
+      dispatch({ type: 'COPY_CLIPS' });
+    }
+  };
+
+  const handlePaste = () => {
+    dispatch({ type: 'PASTE_CLIPS', payload: { pasteTime: playhead.currentTime } });
+  };
+
+  // Keyboard shortcuts
+  React.useEffect(() => {
+    const handleKeyDown = (e) => {
+      // Ignoriere wenn in Input-Feld
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+      if (e.key === 'Delete' || e.key === 'Backspace') {
+        e.preventDefault();
+        handleDelete();
+      } else if (e.key === ' ') {
+        e.preventDefault();
+        playhead.playing ? playhead.pause() : playhead.play();
+      } else if (e.key === 's' && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault();
+        // Save wird von TopToolbar gehandled
+      } else if (e.key === 'z' && (e.ctrlKey || e.metaKey) && !e.shiftKey) {
+        e.preventDefault();
+        undo();
+      } else if ((e.key === 'z' && (e.ctrlKey || e.metaKey) && e.shiftKey) || (e.key === 'y' && (e.ctrlKey || e.metaKey))) {
+        e.preventDefault();
+        redo();
+      } else if (e.key === 'c' && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault();
+        handleCopy();
+      } else if (e.key === 'v' && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault();
+        handlePaste();
+      } else if (e.key === 'b' || e.key === 'B') {
+        // Split at playhead (wie in CapCut)
+        e.preventDefault();
+        handleSplit();
+      } else if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        playhead.seek(Math.max(0, playhead.currentTime - 1 / state.fps));
+      } else if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        playhead.seek(playhead.currentTime + 1 / state.fps);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [playhead, state, undo, redo, dispatch]);
 
   return (
     <div className="h-10 bg-[var(--bg-panel)] border-b border-[var(--border-subtle)] px-3 flex items-center">
@@ -19,7 +108,7 @@ function TimelineToolbar() {
           onClick={undo}
           disabled={!canUndo}
           className="w-9 h-9 flex items-center justify-center rounded text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] transition-all disabled:opacity-30"
-          title="Rückgängig"
+          title="Rückgängig (Strg+Z)"
         >
           <Icon name="undo" size={18} strokeWidth={1.5} />
         </button>
@@ -27,15 +116,24 @@ function TimelineToolbar() {
           onClick={redo}
           disabled={!canRedo}
           className="w-9 h-9 flex items-center justify-center rounded text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] transition-all disabled:opacity-30"
-          title="Wiederherstellen"
+          title="Wiederherstellen (Strg+Y)"
         >
           <Icon name="redo" size={18} strokeWidth={1.5} />
         </button>
         <div className="w-px h-6 bg-[var(--border-subtle)] mx-1"></div>
-        <button className="w-9 h-9 flex items-center justify-center rounded text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] transition-all" title="Teilen">
+        <button 
+          onClick={handleSplit}
+          className="w-9 h-9 flex items-center justify-center rounded text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] transition-all" 
+          title="Teilen (B)"
+        >
           <Icon name="split" size={18} strokeWidth={1.5} />
         </button>
-        <button className="w-9 h-9 flex items-center justify-center rounded text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] transition-all" title="Löschen">
+        <button 
+          onClick={handleDelete}
+          disabled={!state.selectedClipId && (!state.selectedClipIds || state.selectedClipIds.length === 0)}
+          className="w-9 h-9 flex items-center justify-center rounded text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] transition-all disabled:opacity-30" 
+          title="Löschen (Entf)"
+        >
           <Icon name="delete" size={18} strokeWidth={1.5} />
         </button>
         <button 
@@ -44,6 +142,14 @@ function TimelineToolbar() {
           title="Snap"
         >
           <Icon name="snap" size={18} strokeWidth={1.5} />
+        </button>
+        <button 
+          onClick={handleCopy}
+          disabled={!state.selectedClipId && (!state.selectedClipIds || state.selectedClipIds.length === 0)}
+          className="w-9 h-9 flex items-center justify-center rounded text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] transition-all disabled:opacity-30" 
+          title="Kopieren (Strg+C)"
+        >
+          <Icon name="link" size={18} strokeWidth={1.5} />
         </button>
       </div>
 
