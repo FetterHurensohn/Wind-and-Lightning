@@ -3,15 +3,16 @@
  * 
  * Features:
  * - KI-Modell-Auswahl für Transkription
+ * - OpenAI Whisper für echte Audio-zu-Text
  * - Multi-Sprach-Unterstützung
  * - Untertitel-Styling
  * - Timing-Anpassung
  */
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import Icon from './Icon';
 import { ModelSelector } from './AIModelSelectorUI';
-import { quickPrompt } from '../../modules/ai/AIClient';
+import { quickPrompt, transcribeAudio } from '../../modules/ai/AIClient';
 import { loadAISettings, AI_FUNCTION_MODELS } from '../../modules/ai/AIModelSelector';
 
 // Verfügbare Sprachen
