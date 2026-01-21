@@ -155,6 +155,156 @@ export default function SettingsPanel({ onClose }) {
           </div>
         );
         
+      case 'ai':
+        return (
+          <div className="space-y-6">
+            {/* Status Indicator */}
+            {aiSettingsSaved && (
+              <div className="flex items-center gap-2 px-3 py-2 bg-green-500/20 text-green-400 rounded-lg text-sm">
+                <Icon name="check" size={16} />
+                <span>Einstellungen gespeichert</span>
+              </div>
+            )}
+            
+            {/* Standard-Modell */}
+            <div>
+              <div className="text-sm font-medium text-[var(--text-primary)] mb-2">
+                Standard KI-Modell
+              </div>
+              <p className="text-xs text-[var(--text-tertiary)] mb-3">
+                Wird für den KI-Assistenten und allgemeine Aufgaben verwendet
+              </p>
+              <div className="grid grid-cols-3 gap-2">
+                {Object.entries(AI_PROVIDERS).map(([providerId, provider]) => (
+                  <button
+                    key={providerId}
+                    onClick={() => {
+                      updateAISetting('defaultProvider', providerId);
+                      updateAISetting('defaultModel', provider.models[0].id);
+                    }}
+                    className={`p-3 rounded-lg border transition-all ${
+                      aiSettings.defaultProvider === providerId
+                        ? 'border-[var(--accent-turquoise)] bg-[var(--accent-turquoise)]/10'
+                        : 'border-[var(--border-subtle)] hover:border-[var(--border-normal)]'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2 mb-2">
+                      <span 
+                        className="w-3 h-3 rounded-full" 
+                        style={{ backgroundColor: provider.color }}
+                      />
+                      <span className="text-sm font-medium text-[var(--text-primary)]">{provider.name}</span>
+                    </div>
+                    <span className="text-xs text-[var(--text-tertiary)]">
+                      {provider.models.length} Modelle
+                    </span>
+                  </button>
+                ))}
+              </div>
+              
+              {/* Model Selection for chosen provider */}
+              {aiSettings.defaultProvider && (
+                <div className="mt-3">
+                  <select
+                    value={aiSettings.defaultModel}
+                    onChange={(e) => updateAISetting('defaultModel', e.target.value)}
+                    className="w-full h-10 px-3 bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-lg text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-turquoise)]"
+                  >
+                    {AI_PROVIDERS[aiSettings.defaultProvider]?.models.map(model => (
+                      <option key={model.id} value={model.id}>
+                        {model.name} - {model.description}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+            </div>
+            
+            {/* Funktion-spezifische Modelle */}
+            <div>
+              <div className="text-sm font-medium text-[var(--text-primary)] mb-2">
+                Modelle pro Funktion
+              </div>
+              <p className="text-xs text-[var(--text-tertiary)] mb-3">
+                Wähle für jede KI-Funktion das bevorzugte Modell
+              </p>
+              
+              <div className="space-y-3">
+                {Object.entries(AI_FUNCTION_MODELS).map(([funcId, func]) => (
+                  <div key={funcId} className="p-3 bg-[var(--bg-surface)] rounded-lg">
+                    <div className="flex items-center justify-between mb-2">
+                      <div>
+                        <div className="text-sm text-[var(--text-primary)]">{func.name}</div>
+                        <div className="text-xs text-[var(--text-tertiary)]">{func.description}</div>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <select
+                        value={aiSettings.functionModels?.[funcId]?.provider || func.recommended.provider}
+                        onChange={(e) => {
+                          const provider = e.target.value;
+                          const model = AI_PROVIDERS[provider].models[0].id;
+                          updateFunctionModel(funcId, provider, model);
+                        }}
+                        className="h-9 px-3 bg-[var(--bg-main)] border border-[var(--border-subtle)] rounded text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-turquoise)]"
+                      >
+                        {Object.entries(AI_PROVIDERS).map(([id, provider]) => (
+                          <option key={id} value={id}>{provider.name}</option>
+                        ))}
+                      </select>
+                      <select
+                        value={aiSettings.functionModels?.[funcId]?.model || func.recommended.model}
+                        onChange={(e) => {
+                          const provider = aiSettings.functionModels?.[funcId]?.provider || func.recommended.provider;
+                          updateFunctionModel(funcId, provider, e.target.value);
+                        }}
+                        className="h-9 px-3 bg-[var(--bg-main)] border border-[var(--border-subtle)] rounded text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-turquoise)]"
+                      >
+                        {AI_PROVIDERS[aiSettings.functionModels?.[funcId]?.provider || func.recommended.provider]?.models.map(model => (
+                          <option key={model.id} value={model.id}>{model.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            
+            {/* API Key */}
+            <div>
+              <div className="text-sm font-medium text-[var(--text-primary)] mb-2">
+                API-Schlüssel (optional)
+              </div>
+              <p className="text-xs text-[var(--text-tertiary)] mb-3">
+                Leer lassen, um den Emergent Universal Key zu verwenden
+              </p>
+              <input
+                type="password"
+                value={aiSettings.apiKey || ''}
+                onChange={(e) => updateAISetting('apiKey', e.target.value || null)}
+                placeholder="sk-..."
+                className="w-full h-10 px-3 bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-lg text-sm text-[var(--text-primary)] placeholder-[var(--text-tertiary)] focus:outline-none focus:border-[var(--accent-turquoise)]"
+              />
+            </div>
+            
+            {/* Info Box */}
+            <div className="p-4 bg-[var(--accent-turquoise)]/10 rounded-lg border border-[var(--accent-turquoise)]/20">
+              <div className="flex items-start gap-3">
+                <Icon name="info" size={18} className="text-[var(--accent-turquoise)] mt-0.5" />
+                <div>
+                  <div className="text-sm font-medium text-[var(--accent-turquoise)]">
+                    Emergent Universal Key
+                  </div>
+                  <p className="text-xs text-[var(--text-secondary)] mt-1">
+                    Der Emergent Universal Key ermöglicht dir Zugang zu allen unterstützten KI-Modellen 
+                    (OpenAI, Anthropic, Google Gemini) ohne separate API-Schlüssel.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+        
       case 'appearance':
         return (
           <div className="space-y-4">
