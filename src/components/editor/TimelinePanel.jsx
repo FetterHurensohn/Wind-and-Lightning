@@ -142,7 +142,7 @@ function TimeRuler({ pxPerSec, scrollLeft, totalWidth }) {
   }
   
   return (
-    <div className="h-6 bg-[var(--bg-panel)] border-b border-[var(--border-subtle)] relative overflow-hidden" style={{ marginLeft: '120px' }}>
+    <div className="h-6 bg-[var(--bg-panel)] border-b border-[var(--border-subtle)] relative overflow-hidden" style={{ marginLeft: '160px' }}>
       <div className="absolute top-0 h-full" style={{ transform: `translateX(-${scrollLeft}px)` }}>
         {ticks}
       </div>
