@@ -1,12 +1,14 @@
 /**
  * AI Client - Vereinheitlichter Client für KI-Anfragen
  * Unterstützt OpenAI, Anthropic Claude und Google Gemini via Emergent API
+ * Inkl. Whisper Speech-to-Text und Image Generation
  */
 
 import { loadAISettings, getModelForFunction, AI_PROVIDERS } from './AIModelSelector';
 
 // Emergent LLM API Konfiguration
 const EMERGENT_API_URL = 'https://api.emergentai.io/v1';
+const OPENAI_API_URL = 'https://api.openai.com/v1';
 const DEFAULT_EMERGENT_KEY = 'sk-emergent-67b5f95099879B4541';
 
 // Session-Speicher für Chat-Verläufe
