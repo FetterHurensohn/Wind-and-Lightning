@@ -792,9 +792,17 @@ export default function TimelinePanel() {
       }
     });
 
-    // Move clip to new track
+    // Move clip to new track using the proper action
     setTimeout(() => {
-      dispatch({ type: 'MOVE_CLIP', payload: { clipId, trackId: newTrackId, newStart: clipStart } });
+      dispatch({ 
+        type: 'MOVE_CLIP_BETWEEN_TRACKS', 
+        payload: { 
+          clipId, 
+          sourceTrackId: currentTrackId, 
+          targetTrackId: newTrackId, 
+          newStart: clipStart 
+        } 
+      });
     }, 10);
   }, [state.tracks, dispatch]);
 
