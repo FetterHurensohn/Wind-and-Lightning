@@ -185,6 +185,51 @@ export default function PreviewPanel({
       );
     }
 
+    // Text Clip
+    if (type === 'text') {
+      const textProps = props;
+      const textStyle = {
+        ...transformStyle,
+        fontSize: `${textProps.fontSize || 48}px`,
+        fontWeight: textProps.fontWeight || 'bold',
+        fontFamily: textProps.fontFamily || 'Inter, sans-serif',
+        color: textProps.color || '#ffffff',
+        textAlign: textProps.textAlign || 'center',
+        backgroundColor: textProps.backgroundColor || 'transparent',
+        padding: '0.5em',
+        lineHeight: 1.2,
+        // Text effects
+        ...(textProps.textEffect === 'shadow' && {
+          textShadow: '2px 2px 4px rgba(0,0,0,0.5)'
+        }),
+        ...(textProps.textEffect === 'outline' && {
+          WebkitTextStroke: '2px black',
+          textShadow: 'none'
+        }),
+        ...(textProps.textEffect === 'glow' && {
+          textShadow: '0 0 10px rgba(255,255,255,0.8), 0 0 20px rgba(255,255,255,0.6), 0 0 30px rgba(255,255,255,0.4)'
+        }),
+        ...(textProps.textEffect === 'neon' && {
+          textShadow: '0 0 5px #fff, 0 0 10px #fff, 0 0 15px #0ff, 0 0 20px #0ff, 0 0 35px #0ff'
+        }),
+        ...(textProps.textEffect === 'gradient' && {
+          background: 'linear-gradient(45deg, #ff00ff, #00ffff)',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+          backgroundClip: 'text'
+        })
+      };
+
+      return (
+        <div 
+          className={`flex items-center justify-center ${effectClasses}`}
+          style={textStyle}
+        >
+          {textProps.text || title}
+        </div>
+      );
+    }
+
     // Image Clip
     if ((type === 'image' || type === 'video') && mediaItem?.thumbnail) {
       return (
@@ -198,8 +243,8 @@ export default function PreviewPanel({
     }
 
     // Demo/Placeholder Clip
-    const iconColor = type === 'video' ? 'text-blue-400' : type === 'image' ? 'text-purple-400' : 'text-gray-400';
-    const bgColor = mediaItem?.color || (type === 'video' ? '#3b82f6' : type === 'image' ? '#8b5cf6' : '#666');
+    const iconColor = type === 'video' ? 'text-blue-400' : type === 'image' ? 'text-purple-400' : type === 'text' ? 'text-yellow-400' : 'text-gray-400';
+    const bgColor = mediaItem?.color || (type === 'video' ? '#3b82f6' : type === 'image' ? '#8b5cf6' : type === 'text' ? '#eab308' : '#666');
     
     return (
       <div 
@@ -207,7 +252,7 @@ export default function PreviewPanel({
         style={{ ...transformStyle, backgroundColor: `${bgColor}20` }}
       >
         <div className={`text-5xl mb-3 ${iconColor}`}>
-          {type === 'video' ? '🎬' : type === 'image' ? '🖼️' : '📄'}
+          {type === 'video' ? '🎬' : type === 'image' ? '🖼️' : type === 'text' ? '📝' : '📄'}
         </div>
         <div className="text-sm text-white font-medium">{title}</div>
         <div className="text-xs text-white/60 mt-1">
