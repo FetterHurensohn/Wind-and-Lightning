@@ -365,6 +365,57 @@ export default function InspectorPanel({
           />
         </Section>
         
+        {/* Effects Section */}
+        <Section title="Effekte" icon="effects" defaultOpen={true}>
+          {selectedClip.effects && selectedClip.effects.length > 0 ? (
+            <div className="space-y-2">
+              {selectedClip.effects.map(effect => (
+                <div key={effect.id} className="flex items-center justify-between p-2 bg-[var(--bg-panel)] rounded">
+                  <span className="text-xs text-[var(--text-primary)]">{effect.name}</span>
+                  <button
+                    onClick={() => dispatch({ type: 'REMOVE_EFFECT_FROM_CLIP', payload: { clipId: selectedClip.id, effectId: effect.id } })}
+                    className="w-5 h-5 flex items-center justify-center rounded hover:bg-red-500/20 text-[var(--text-tertiary)] hover:text-red-400"
+                  >
+                    <Icon name="close" size={10} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-xs text-[var(--text-tertiary)] text-center py-2">
+              Keine Effekte angewendet
+            </div>
+          )}
+          <div className="text-[9px] text-[var(--text-tertiary)] mt-2">
+            Wähle "Effekte" im oberen Menü, um Effekte hinzuzufügen.
+          </div>
+        </Section>
+        
+        {/* Transition Section */}
+        <Section title="Übergang" icon="transitions" defaultOpen={true}>
+          {selectedClip.transition ? (
+            <div className="flex items-center justify-between p-2 bg-[var(--bg-panel)] rounded">
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-[var(--text-primary)]">{selectedClip.transition.name}</span>
+                <span className="text-[10px] text-[var(--text-tertiary)]">{selectedClip.transition.duration}s</span>
+              </div>
+              <button
+                onClick={() => dispatch({ type: 'REMOVE_TRANSITION_FROM_CLIP', payload: { clipId: selectedClip.id } })}
+                className="w-5 h-5 flex items-center justify-center rounded hover:bg-red-500/20 text-[var(--text-tertiary)] hover:text-red-400"
+              >
+                <Icon name="close" size={10} />
+              </button>
+            </div>
+          ) : (
+            <div className="text-xs text-[var(--text-tertiary)] text-center py-2">
+              Kein Übergang hinzugefügt
+            </div>
+          )}
+          <div className="text-[9px] text-[var(--text-tertiary)] mt-2">
+            Wähle "Übergänge" im oberen Menü, um Übergänge hinzuzufügen.
+          </div>
+        </Section>
+        
         {/* Actions */}
         <div className="p-3 space-y-2">
           <button
