@@ -88,35 +88,51 @@ const SearchBar = ({ placeholder, value, onChange }) => (
   </div>
 );
 
-// Grid Tile für Medien/Effekte
-const MediaTile = ({ thumbnail, title, duration, onDownload, onClick }) => (
-  <div 
-    onClick={onClick}
-    className="group relative bg-[var(--bg-surface)] rounded-lg overflow-hidden border border-[var(--border-subtle)] hover:border-[var(--accent-turquoise)] cursor-pointer transition-all"
-  >
-    <div className="aspect-video bg-[var(--bg-panel)] flex items-center justify-center relative">
-      {thumbnail ? (
-        <img src={thumbnail} alt={title} className="w-full h-full object-cover" />
-      ) : (
-        <Icon name="video" size={32} className="text-[var(--text-tertiary)]" />
+// Grid Tile für Medien/Effekte - MIT DRAG SUPPORT
+const MediaTile = ({ id, thumbnail, title, duration, type, onDownload, onClick, draggable = false }) => {
+  const handleDragStart = (e) => {
+    if (!draggable || !id) return;
+    e.dataTransfer.setData('mediaId', id);
+    e.dataTransfer.effectAllowed = 'copy';
+    // Visual feedback
+    e.currentTarget.style.opacity = '0.5';
+  };
+
+  const handleDragEnd = (e) => {
+    e.currentTarget.style.opacity = '1';
+  };
+
+  return (
+    <div 
+      onClick={onClick}
+      draggable={draggable}
+      onDragStart={handleDragStart}
+      onDragEnd={handleDragEnd}
+      className={`group relative bg-[var(--bg-surface)] rounded-lg overflow-hidden border border-[var(--border-subtle)] hover:border-[var(--accent-turquoise)] cursor-pointer transition-all ${draggable ? 'cursor-grab active:cursor-grabbing' : ''}`}
+    >
+      <div className="aspect-video bg-[var(--bg-panel)] flex items-center justify-center relative">
+        {thumbnail ? (
+          <img src={thumbnail} alt={title} className="w-full h-full object-cover pointer-events-none" />
+        ) : (
+          <Icon name={type === 'audio' ? 'audio' : type === 'image' ? 'image' : 'video'} size={24} className="text-[var(--text-tertiary)]" />
+        )}
+        {duration && (
+          <span className="absolute bottom-1 right-1 px-1 py-0.5 bg-black/70 text-white text-[10px] rounded">
+            {duration}
+          </span>
+        )}
+        {draggable && (
+          <div className="absolute top-1 left-1 px-1 py-0.5 bg-blue-500/80 text-white text-[8px] rounded opacity-0 group-hover:opacity-100 transition-opacity">
+            DRAG
+          </div>
+        )}
+      </div>
+      {title && (
+        <div className="p-1.5 text-[10px] text-[var(--text-secondary)] truncate">{title}</div>
       )}
-      {duration && (
-        <span className="absolute bottom-1 right-1 px-1.5 py-0.5 bg-black/70 text-white text-xs rounded">
-          {duration}
-        </span>
-      )}
-      <button
-        onClick={(e) => { e.stopPropagation(); onDownload?.(); }}
-        className="absolute bottom-1 left-1 w-6 h-6 bg-black/60 hover:bg-[var(--accent-turquoise)] rounded flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-      >
-        <Icon name="download" size={14} className="text-white" />
-      </button>
     </div>
-    {title && (
-      <div className="p-2 text-xs text-[var(--text-secondary)] truncate">{title}</div>
-    )}
-  </div>
-);
+  );
+};
 
 // Audio List Item
 const AudioItem = ({ title, artist, duration, onDownload }) => (
