@@ -91,15 +91,27 @@ const SearchBar = ({ placeholder, value, onChange }) => (
 // Grid Tile für Medien/Effekte - MIT DRAG SUPPORT
 const MediaTile = ({ id, thumbnail, title, duration, type, onDownload, onClick, draggable = false }) => {
   const handleDragStart = (e) => {
-    if (!draggable || !id) return;
+    if (!draggable || !id) {
+      e.preventDefault();
+      return;
+    }
+    
+    // Setze die mediaId für den Drop-Handler
     e.dataTransfer.setData('mediaId', id);
+    e.dataTransfer.setData('text/plain', id); // Fallback
     e.dataTransfer.effectAllowed = 'copy';
+    
     // Visual feedback
     e.currentTarget.style.opacity = '0.5';
+    e.currentTarget.style.transform = 'scale(0.95)';
+    
+    console.log('[MediaTile] Drag started:', { id, type, title });
   };
 
   const handleDragEnd = (e) => {
     e.currentTarget.style.opacity = '1';
+    e.currentTarget.style.transform = 'scale(1)';
+    console.log('[MediaTile] Drag ended:', { id });
   };
 
   return (
@@ -108,11 +120,13 @@ const MediaTile = ({ id, thumbnail, title, duration, type, onDownload, onClick, 
       draggable={draggable}
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
-      className={`group relative bg-[var(--bg-surface)] rounded-lg overflow-hidden border border-[var(--border-subtle)] hover:border-[var(--accent-turquoise)] cursor-pointer transition-all ${draggable ? 'cursor-grab active:cursor-grabbing' : ''}`}
+      className={`group relative bg-[var(--bg-surface)] rounded-lg overflow-hidden border border-[var(--border-subtle)] hover:border-[var(--accent-turquoise)] cursor-pointer transition-all duration-150 ${draggable ? 'cursor-grab active:cursor-grabbing hover:shadow-lg hover:shadow-[var(--accent-turquoise)]/20' : ''}`}
+      data-media-id={id}
+      data-media-type={type}
     >
       <div className="aspect-video bg-[var(--bg-panel)] flex items-center justify-center relative">
         {thumbnail ? (
-          <img src={thumbnail} alt={title} className="w-full h-full object-cover pointer-events-none" />
+          <img src={thumbnail} alt={title} className="w-full h-full object-cover pointer-events-none" draggable={false} />
         ) : (
           <Icon name={type === 'audio' ? 'audio' : type === 'image' ? 'image' : 'video'} size={24} className="text-[var(--text-tertiary)]" />
         )}
@@ -122,7 +136,7 @@ const MediaTile = ({ id, thumbnail, title, duration, type, onDownload, onClick, 
           </span>
         )}
         {draggable && (
-          <div className="absolute top-1 left-1 px-1 py-0.5 bg-blue-500/80 text-white text-[8px] rounded opacity-0 group-hover:opacity-100 transition-opacity">
+          <div className="absolute top-1 left-1 px-1.5 py-0.5 bg-[var(--accent-turquoise)] text-white text-[8px] font-bold rounded opacity-0 group-hover:opacity-100 transition-opacity">
             DRAG
           </div>
         )}
