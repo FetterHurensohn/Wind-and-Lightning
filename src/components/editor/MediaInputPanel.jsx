@@ -187,11 +187,6 @@ const MediaTile = ({ id, thumbnail, title, duration, type, onDownload, onClick, 
     </div>
   );
 };
-        <div className="p-1.5 text-[10px] text-[var(--text-secondary)] truncate">{title}</div>
-      )}
-    </div>
-  );
-};
 
 // Audio List Item
 const AudioItem = ({ title, artist, duration, onDownload }) => (
