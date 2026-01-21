@@ -791,7 +791,7 @@ export default function TimelinePanel() {
         <div
           className="absolute top-0 bottom-0 w-0.5 bg-red-500 pointer-events-none z-50"
           style={{
-            left: `${120 + playhead.currentTime * zoom.pxPerSec - scrollLeft}px`,
+            left: `${160 + playhead.currentTime * zoom.pxPerSec - scrollLeft}px`,
             transition: playhead.playing ? 'none' : 'left 0.05s'
           }}
         >
@@ -799,7 +799,7 @@ export default function TimelinePanel() {
         </div>
 
         {/* Tracks */}
-        <div style={{ width: `${120 + timelineWidth}px`, minWidth: '100%' }}>
+        <div style={{ width: `${160 + timelineWidth}px`, minWidth: '100%' }}>
           {state.tracks.length === 0 ? (
             <div className="h-24 flex items-center justify-center">
               <div className="flex gap-2">
