@@ -153,9 +153,10 @@ function TimeRuler({ pxPerSec, scrollLeft, totalWidth }) {
 // ============================================
 // CLIP COMPONENT (Kompakt) mit Waveform
 // ============================================
-function Clip({ clip, track, pxPerSec, isSelected, onSelect, onTrim, onMove }) {
-  const [action, setAction] = useState(null); // 'trimStart' | 'trimEnd' | 'move'
-  const startRef = useRef({ x: 0, clipStart: 0, clipDuration: 0 });
+function Clip({ clip, track, pxPerSec, isSelected, onSelect, onTrim, onMove, onMoveToNewTrack, trackMuted, trackHidden, waveformSize }) {
+  const [action, setAction] = useState(null); // 'move', 'trimStart', 'trimEnd'
+  const [dragY, setDragY] = useState(0);
+  const startRef = useRef({ x: 0, y: 0, clipStart: 0, clipDuration: 0 });
 
   const clipWidth = Math.max(30, clip.duration * pxPerSec);
   const clipLeft = clip.start * pxPerSec;
@@ -165,6 +166,8 @@ function Clip({ clip, track, pxPerSec, isSelected, onSelect, onTrim, onMove }) {
       case 'video': return 'from-blue-500/80 to-blue-600/80';
       case 'audio': return 'from-green-500/80 to-green-600/80';
       case 'image': return 'from-purple-500/80 to-purple-600/80';
+      case 'text': return 'from-yellow-500/80 to-yellow-600/80';
+      case 'sticker': return 'from-pink-500/80 to-pink-600/80';
       default: return 'from-cyan-500/80 to-cyan-600/80';
     }
   };
@@ -172,7 +175,8 @@ function Clip({ clip, track, pxPerSec, isSelected, onSelect, onTrim, onMove }) {
   const handleMouseDown = (e, type) => {
     e.stopPropagation();
     setAction(type);
-    startRef.current = { x: e.clientX, clipStart: clip.start, clipDuration: clip.duration };
+    startRef.current = { x: e.clientX, y: e.clientY, clipStart: clip.start, clipDuration: clip.duration };
+    setDragY(0);
     onSelect(clip.id);
   };
 
@@ -191,6 +195,7 @@ function Clip({ clip, track, pxPerSec, isSelected, onSelect, onTrim, onMove }) {
 
     const handleMouseMove = (e) => {
       const deltaX = e.clientX - startRef.current.x;
+      const deltaY = e.clientY - startRef.current.y;
       const deltaTime = deltaX / pxPerSec;
 
       if (action === 'trimStart') {
@@ -204,11 +209,20 @@ function Clip({ clip, track, pxPerSec, isSelected, onSelect, onTrim, onMove }) {
         onTrim(clip.id, clip.start, newDuration);
       } else if (action === 'move') {
         const newStart = Math.max(0, startRef.current.clipStart + deltaTime);
+        setDragY(deltaY);
         onMove(clip.id, track.id, newStart);
       }
     };
 
-    const handleMouseUp = () => setAction(null);
+    const handleMouseUp = (e) => {
+      // Check if clip was dragged vertically enough to create new track
+      if (action === 'move' && Math.abs(dragY) > 30) {
+        const direction = dragY < 0 ? 'above' : 'below';
+        onMoveToNewTrack?.(clip.id, track.id, direction, clip.start);
+      }
+      setAction(null);
+      setDragY(0);
+    };
 
     window.addEventListener('mousemove', handleMouseMove);
     window.addEventListener('mouseup', handleMouseUp);
@@ -216,16 +230,29 @@ function Clip({ clip, track, pxPerSec, isSelected, onSelect, onTrim, onMove }) {
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseup', handleMouseUp);
     };
-  }, [action, clip, track, pxPerSec, onTrim, onMove]);
+  }, [action, clip, track, pxPerSec, onTrim, onMove, onMoveToNewTrack, dragY]);
 
   const waveform = clip.type === 'audio' ? generateWaveform() : null;
 
+  // Visual feedback for vertical drag
+  const dragIndicator = action === 'move' && Math.abs(dragY) > 30 ? (
+    <div className={`absolute left-0 right-0 h-1 bg-[var(--accent-turquoise)] rounded ${dragY < 0 ? '-top-3' : '-bottom-3'}`} />
+  ) : null;
+
   return (
     <div
-      className={`absolute top-1 bottom-1 rounded cursor-pointer bg-gradient-to-r ${getColor()} ${isSelected ? 'ring-1 ring-white' : ''}`}
-      style={{ left: `${clipLeft}px`, width: `${clipWidth}px`, minWidth: '30px' }}
+      className={`absolute top-1 bottom-1 rounded cursor-pointer bg-gradient-to-r ${getColor()} ${isSelected ? 'ring-2 ring-white' : ''} ${trackHidden ? 'opacity-50' : ''}`}
+      style={{ 
+        left: `${clipLeft}px`, 
+        width: `${clipWidth}px`, 
+        minWidth: '30px',
+        transform: action === 'move' ? `translateY(${Math.min(20, Math.max(-20, dragY * 0.3))}px)` : 'none',
+        transition: action === 'move' ? 'none' : 'transform 0.1s'
+      }}
       onMouseDown={(e) => handleMouseDown(e, 'move')}
     >
+      {dragIndicator}
+      
       {/* Trim Left */}
       <div className="absolute left-0 top-0 bottom-0 w-1.5 cursor-ew-resize hover:bg-white/30 rounded-l z-10" onMouseDown={(e) => handleMouseDown(e, 'trimStart')} />
       
