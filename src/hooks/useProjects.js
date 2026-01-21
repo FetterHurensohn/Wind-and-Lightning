@@ -127,8 +127,7 @@ export function useProjects() {
     const updated = [newProject, ...projects];
     saveProjects(updated);
     
-    // Reload from file system to get actual data
-    setTimeout(() => reload(), 500);
+    console.log('[useProjects] Created new project:', newProject.id, newProject.name);
     
     return newProject.id;
   };
