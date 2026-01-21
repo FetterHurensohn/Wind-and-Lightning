@@ -46,13 +46,11 @@ export function useProjects() {
         }
         
         if (fsResult.success && fsResult.projects.length === 0) {
-          console.log('[useProjects] No UUID projects found, starting with empty list');
-          setProjects([]);
-          setLoading(false);
-          return;
+          console.log('[useProjects] No UUID projects found, checking localStorage');
+          // Fall through to localStorage check
+        } else {
+          console.warn('[useProjects] Failed to load UUID projects:', fsResult.error);
         }
-        
-        console.warn('[useProjects] Failed to load UUID projects:', fsResult.error);
       } catch (error) {
         console.error('[useProjects] Error loading UUID projects:', error);
       }
@@ -66,23 +64,30 @@ export function useProjects() {
         console.log(`[useProjects] Loaded ${fsResult.projects.length} projects from file system`);
         setProjects(fsResult.projects);
         localStorage.setItem(STORAGE_KEY, JSON.stringify(fsResult.projects));
-      } else {
-        // Fallback to localStorage
-        console.log('[useProjects] File system loading failed, using localStorage');
-        const stored = localStorage.getItem(STORAGE_KEY);
-        if (stored) {
-          try {
-            setProjects(JSON.parse(stored));
-          } catch (e) {
-            console.error('Failed to load projects from localStorage:', e);
-            setProjects([]);
-          }
+        setLoading(false);
+        return;
+      }
+    } catch (error) {
+      console.log('[useProjects] File system API not available:', error.message);
+    }
+    
+    // Always try localStorage as final fallback
+    console.log('[useProjects] Using localStorage');
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed)) {
+          setProjects(parsed);
+          console.log(`[useProjects] Loaded ${parsed.length} projects from localStorage`);
         } else {
           setProjects([]);
         }
+      } catch (e) {
+        console.error('Failed to load projects from localStorage:', e);
+        setProjects([]);
       }
-    } catch (error) {
-      console.error('[useProjects] Error in fallback loading:', error);
+    } else {
       setProjects([]);
     }
     
