@@ -91,8 +91,45 @@ export default function PreviewPanel({
     if (onSeek) onSeek(time);
   };
 
+  // Convert effects array to CSS filter string
+  const getEffectsFilter = (effects) => {
+    if (!effects || effects.length === 0) return '';
+    
+    const filterMap = {
+      'blur': 'blur(4px)',
+      'sharpen': 'contrast(1.2)',
+      'vignette': '', // Handled separately with pseudo-element
+      'glitch': 'hue-rotate(90deg) saturate(1.5)',
+      'vhs': 'sepia(0.3) contrast(1.1) brightness(0.9)',
+      'film-grain': 'contrast(1.1) brightness(0.95)',
+      'vintage': 'sepia(0.4) contrast(1.1) brightness(0.9)',
+      'glow': 'brightness(1.2) contrast(1.1)',
+      'neon': 'saturate(2) brightness(1.3) contrast(1.2)',
+      'duotone': 'grayscale(1) sepia(1) hue-rotate(180deg)',
+      'chromatic': 'saturate(1.8) hue-rotate(10deg)',
+      'shake': '' // Handled with animation
+    };
+    
+    return effects
+      .map(effect => filterMap[effect.id] || '')
+      .filter(f => f)
+      .join(' ');
+  };
+
+  // Get effect classes for animations
+  const getEffectClasses = (effects) => {
+    if (!effects || effects.length === 0) return '';
+    
+    const classes = [];
+    if (effects.some(e => e.id === 'shake')) classes.push('animate-shake');
+    if (effects.some(e => e.id === 'vignette')) classes.push('vignette-effect');
+    if (effects.some(e => e.id === 'glitch')) classes.push('glitch-effect');
+    
+    return classes.join(' ');
+  };
+
   const renderClipContent = (clip) => {
-    const { mediaItem, type, title, props = {}, id, clipTime } = clip;
+    const { mediaItem, type, title, props = {}, id, clipTime, effects = [], transition } = clip;
     
     // Transformations
     const opacity = (props.opacity ?? 100) / 100;
@@ -109,10 +146,18 @@ export default function PreviewPanel({
     const saturation = props.saturation ?? 100;
     const hue = props.hue ?? 0;
     
+    // Effects
+    const effectsFilter = getEffectsFilter(effects);
+    const effectClasses = getEffectClasses(effects);
+    
+    // Combine all filters
+    const baseFilter = `brightness(${brightness}%) contrast(${contrast}%) saturate(${saturation}%) hue-rotate(${hue}deg)`;
+    const combinedFilter = effectsFilter ? `${baseFilter} ${effectsFilter}` : baseFilter;
+    
     const transformStyle = {
       opacity,
       transform: `translate(${posX}px, ${posY}px) scale(${scale * flipH}, ${scale * flipV}) rotate(${rotation}deg)`,
-      filter: `brightness(${brightness}%) contrast(${contrast}%) saturate(${saturation}%) hue-rotate(${hue}deg)`,
+      filter: combinedFilter,
       mixBlendMode: props.blendMode || 'normal'
     };
 
@@ -120,7 +165,7 @@ export default function PreviewPanel({
     if (type === 'video' && mediaItem?.url) {
       if (videoErrors[id]) {
         return (
-          <div className="flex flex-col items-center justify-center text-[var(--text-tertiary)]" style={transformStyle}>
+          <div className={`flex flex-col items-center justify-center text-[var(--text-tertiary)] ${effectClasses}`} style={transformStyle}>
             <span className="text-4xl mb-2">🎥</span>
             <span className="text-xs">{title}</span>
           </div>
@@ -131,7 +176,7 @@ export default function PreviewPanel({
         <video
           ref={el => { if (el) videoRefs.current[id] = el; }}
           src={mediaItem.url}
-          className="max-w-full max-h-full object-contain"
+          className={`max-w-full max-h-full object-contain ${effectClasses}`}
           style={transformStyle}
           muted
           playsInline
@@ -146,7 +191,7 @@ export default function PreviewPanel({
         <img
           src={mediaItem.thumbnail}
           alt={title}
-          className="max-w-full max-h-full object-contain"
+          className={`max-w-full max-h-full object-contain ${effectClasses}`}
           style={transformStyle}
         />
       );
@@ -158,7 +203,7 @@ export default function PreviewPanel({
     
     return (
       <div 
-        className="w-full h-full flex flex-col items-center justify-center"
+        className={`w-full h-full flex flex-col items-center justify-center ${effectClasses}`}
         style={{ ...transformStyle, backgroundColor: `${bgColor}20` }}
       >
         <div className={`text-5xl mb-3 ${iconColor}`}>
@@ -168,6 +213,11 @@ export default function PreviewPanel({
         <div className="text-xs text-white/60 mt-1">
           {clipTime.toFixed(1)}s / {clip.duration}s
         </div>
+        {effects.length > 0 && (
+          <div className="text-[10px] text-[var(--accent-turquoise)] mt-2">
+            {effects.map(e => e.name).join(' • ')}
+          </div>
+        )}
       </div>
     );
   };
