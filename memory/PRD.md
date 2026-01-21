@@ -18,21 +18,23 @@ German (Deutsch)
 
 ### Advanced Track System (✅ Complete - 21.01.2026)
 **Four Track Types:**
-- **Video Track:** Blue background (bg-blue-500/20)
-- **Audio Track:** Green background (bg-green-500/20)
-- **Text Track:** Yellow background (bg-yellow-500/20)
-- **Sticker Track:** Pink background (bg-pink-500/20)
+- **Video Track:** Blue background, blue clips
+- **Audio Track:** Green background, green clips
+- **Text Track:** Yellow background, yellow clips (text clips go here!)
+- **Sticker Track:** Pink background, pink clips
 
-**Track Control Buttons (each track):**
-- 🔊 **Mute/Unmute** (audio/video only) - Red when active
-- 👁 **Show/Hide** - Orange when active, track opacity 40%
-- 🔒 **Lock/Unlock** - Yellow when active, shows lock overlay
-- 🗑 **Delete** - Confirmation dialog
+**Track Control Buttons:**
+- 🔊 Mute/Unmute (audio/video)
+- 👁 Show/Hide (toggle opacity)
+- 🔒 Lock/Unlock (prevent editing)
+- 🗑 Delete (with confirmation)
+- Volume/Opacity slider on hover
 
-**Track Features:**
-- **Volume/Opacity Slider:** Popup on hover for audio/video tracks
-- **Create New Tracks:** Click +Video/+Audio/+Text/+Sticker buttons
-- **Drag to Create:** Drag media above existing tracks to create new track
+**Clip Management (✅ Fixed - 21.01.2026):**
+- **Text to Text Track:** Text clips now go to Text track, not Video track
+- **Clip Swapping:** Clips swap positions when overlapping instead of overlapping
+- **Vertical Drag:** Drag clip vertically (>30px) to create new track above/below
+- **Visual Feedback:** Turquoise indicator shows during vertical drag
 
 ### Media to Timeline (✅ Complete)
 - **+ Button:** Large turquoise button on hover
@@ -40,23 +42,21 @@ German (Deutsch)
 - **Drag-and-Drop:** Add at specific position
 
 ### Text Overlay System (✅ Complete)
-- 5 text styles (Titel, Untertitel, Fließtext, Bildunterschrift, Label)
+- 5 text styles (Titel, Untertitel, Fließtext, etc.)
 - Full text editing in Inspector
 - Text effects (Shadow, Outline, Glow, Neon, Gradient)
 
 ### Visual Effect Rendering (✅ Complete)
-- CSS filter effects (blur, glow, neon, vintage, etc.)
+- CSS filter effects
 - Animated effects (shake, glitch)
-- Transition animations
 
 ### Timeline (✅ Complete)
-- 1-Hour duration, fine tick marks
-- Shift+Scroll horizontal, Ctrl+Scroll zoom
-- Clip trim handles
+- 1-Hour duration
+- Fine tick marks
+- Shift+Scroll / Ctrl+Scroll
 
 ### Videoeffekte & Übergänge (✅ Complete)
 - 12 video effects, 12 transitions
-- Apply to selected clip
 
 ### AI Features (✅ Complete)
 - KI-Bild, KI-Video, TTS, KI-Musik
@@ -67,7 +67,7 @@ German (Deutsch)
 ## P1/P2/P3 Features Remaining
 
 ### P1 - High Priority
-- [ ] Video export rendering (FFmpeg in Electron)
+- [ ] Video export rendering (FFmpeg)
 - [ ] Sticker library integration
 
 ### P2 - Medium Priority
@@ -83,41 +83,27 @@ German (Deutsch)
 
 ## Changelog
 
+### 21.01.2026 - Clip Management Fixes
+- Text clips now go to Text track instead of Video track
+- Clips swap positions when overlapping (no more overlap!)
+- Vertical drag (>30px) creates new track above/below
+- Turquoise indicator during vertical drag
+
 ### 21.01.2026 - Advanced Track System
-- Implemented 4 track types (Video, Audio, Text, Sticker)
-- Added track control buttons (Mute, Hide, Lock, Delete)
-- Volume/Opacity slider popup on hover
-- Track label area expanded to 160px
-- Color-coded track backgrounds
-
-### 21.01.2026 - Text Overlay & Visual Effects
-- Text creation panel with 5 styles
-- Full text editing in Inspector
-- CSS filter effect rendering
-
-### 21.01.2026 - Media to Timeline
-- Large + button on hover over media tiles
-- Three methods: + Button, Double-click, Drag-and-Drop
+- 4 track types (Video, Audio, Text, Sticker)
+- Track control buttons (Mute, Hide, Lock, Delete)
+- Volume/Opacity slider on hover
 
 ---
 
 ## Key Files Reference
-- `/app/src/components/editor/TimelinePanel.jsx` - Track system, controls
-- `/app/src/components/editor/EditorLayout.jsx` - State management
-- `/app/src/components/editor/MediaInputPanel.jsx` - Media/Text panels
-- `/app/src/components/PreviewPanel.jsx` - Preview with effects
-- `/app/src/components/editor/InspectorPanel.jsx` - Properties
+- `/app/src/components/editor/TimelinePanel.jsx` - Track system, clip swapping
+- `/app/src/components/editor/EditorLayout.jsx` - MOVE_CLIP with swap logic
+- `/app/src/components/editor/MediaInputPanel.jsx` - Text to Text track
 
 ---
 
 ## Test Status
-- **Last Test:** iteration_14.json (21.01.2026)
-- **Frontend Success Rate:** 100% (12/12 features)
-- **Verified:** Track types, control buttons, volume slider, hide/lock/delete
-
----
-
-## Known Limitations
-- Video export not implemented (requires FFmpeg)
-- Demo media items are placeholders
-- Effects rendered via CSS but not saved to video file
+- **Last Test:** iteration_15.json (21.01.2026)
+- **Frontend Success Rate:** 100% (9/9 features)
+- **Verified:** Text track routing, clip swapping, vertical drag
