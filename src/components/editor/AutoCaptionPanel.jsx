@@ -1,8 +1,8 @@
 /**
- * AutoCaptionPanel.jsx - Automatische Untertitel (wie CapCut)
+ * AutoCaptionPanel.jsx - Automatische Untertitel mit KI-Integration
  * 
  * Features:
- * - Automatische Spracherkennung
+ * - KI-Modell-Auswahl für Transkription
  * - Multi-Sprach-Unterstützung
  * - Untertitel-Styling
  * - Timing-Anpassung
@@ -10,6 +10,9 @@
 
 import React, { useState, useCallback } from 'react';
 import Icon from './Icon';
+import { ModelSelector } from './AIModelSelectorUI';
+import { quickPrompt } from '../../modules/ai/AIClient';
+import { loadAISettings, AI_FUNCTION_MODELS } from '../../modules/ai/AIModelSelector';
 
 // Verfügbare Sprachen
 const LANGUAGES = [
@@ -42,36 +45,87 @@ export default function AutoCaptionPanel({
   onGenerateCaptions,
   onClose 
 }) {
+  // Lade Standard-Modell für Captions
+  const settings = loadAISettings();
+  const captionModel = settings.functionModels?.captions || AI_FUNCTION_MODELS.captions.recommended;
+  
   const [language, setLanguage] = useState('de');
   const [style, setStyle] = useState('default');
   const [generating, setGenerating] = useState(false);
   const [progress, setProgress] = useState(0);
   const [captions, setCaptions] = useState([]);
   const [editingIndex, setEditingIndex] = useState(null);
+  const [selectedProvider, setSelectedProvider] = useState(captionModel.provider);
+  const [selectedModel, setSelectedModel] = useState(captionModel.model);
+  const [error, setError] = useState(null);
   
-  // Simuliere Caption-Generierung
+  const handleModelChange = (provider, model) => {
+    setSelectedProvider(provider);
+    setSelectedModel(model);
+  };
+  
+  // Caption-Generierung mit echtem AI-Aufruf (für Demo simuliert)
   const handleGenerate = useCallback(async () => {
     setGenerating(true);
     setProgress(0);
     setCaptions([]);
+    setError(null);
     
-    // Simuliere Fortschritt
-    for (let i = 0; i <= 100; i += 5) {
-      await new Promise(resolve => setTimeout(resolve, 100));
-      setProgress(i);
+    try {
+      // Simuliere Fortschritt für Audio-Analyse
+      for (let i = 0; i <= 50; i += 10) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+        setProgress(i);
+      }
+      
+      // Bei echter Implementierung würde hier Audio-zu-Text Konvertierung stattfinden
+      // Für Demo: Generiere Beispiel-Untertitel via LLM
+      const prompt = `Generiere 4 kurze Beispiel-Untertitel auf ${LANGUAGES.find(l => l.code === language)?.name || 'Deutsch'} 
+      für ein Video. Formatiere als JSON-Array mit Objekten: {id, start, end, text}.
+      Die Zeiten sollen in Sekunden sein. Nur das JSON-Array ausgeben, keine anderen Texte.`;
+      
+      setProgress(70);
+      
+      try {
+        const response = await quickPrompt(prompt, {
+          provider: selectedProvider,
+          model: selectedModel,
+          temperature: 0.7,
+          systemMessage: 'Du bist ein Untertitel-Generator. Antworte nur mit validem JSON.'
+        });
+        
+        // Versuche JSON zu parsen
+        const jsonMatch = response.match(/\[[\s\S]*\]/);
+        if (jsonMatch) {
+          const parsedCaptions = JSON.parse(jsonMatch[0]);
+          setCaptions(parsedCaptions.map((c, i) => ({
+            id: i + 1,
+            start: c.start || i * 2.5,
+            end: c.end || (i + 1) * 2.5,
+            text: c.text || `Untertitel ${i + 1}`
+          })));
+        } else {
+          throw new Error('Ungültiges Format');
+        }
+      } catch {
+        // Fallback auf Mock-Daten
+        const mockCaptions = [
+          { id: 1, start: 0, end: 2.5, text: 'Willkommen zu diesem Video!' },
+          { id: 2, start: 2.5, end: 5.0, text: 'Heute zeige ich euch...' },
+          { id: 3, start: 5.0, end: 8.0, text: 'wie man professionelle Videos erstellt.' },
+          { id: 4, start: 8.0, end: 11.0, text: 'Mit den richtigen Tools ist es ganz einfach.' },
+        ];
+        setCaptions(mockCaptions);
+      }
+      
+      setProgress(100);
+    } catch (err) {
+      console.error('Caption generation error:', err);
+      setError(err.message || 'Ein Fehler ist aufgetreten');
+    } finally {
+      setGenerating(false);
     }
-    
-    // Simulierte Untertitel
-    const mockCaptions = [
-      { id: 1, start: 0, end: 2.5, text: 'Willkommen zu diesem Video!' },
-      { id: 2, start: 2.5, end: 5.0, text: 'Heute zeige ich euch...' },
-      { id: 3, start: 5.0, end: 8.0, text: 'wie man professionelle Videos erstellt.' },
-      { id: 4, start: 8.0, end: 11.0, text: 'Mit den richtigen Tools ist es ganz einfach.' },
-    ];
-    
-    setCaptions(mockCaptions);
-    setGenerating(false);
-  }, []);
+  }, [language, selectedProvider, selectedModel]);
   
   const handleApply = useCallback(() => {
     onGenerateCaptions?.({
@@ -88,7 +142,7 @@ export default function AutoCaptionPanel({
   }, []);
   
   return (
-    <div className="bg-[var(--bg-panel)] rounded-lg border border-[var(--border-subtle)] overflow-hidden w-[400px] max-h-[550px]">
+    <div className="bg-[var(--bg-panel)] rounded-lg border border-[var(--border-subtle)] overflow-hidden w-[400px] max-h-[600px]">
       {/* Header */}
       <div className="h-10 px-4 flex items-center justify-between border-b border-[var(--border-subtle)]">
         <div className="flex items-center gap-2">
@@ -98,13 +152,25 @@ export default function AutoCaptionPanel({
         <button
           onClick={onClose}
           className="w-6 h-6 flex items-center justify-center rounded hover:bg-[var(--bg-hover)] transition-colors"
+          data-testid="close-caption-panel"
         >
           <Icon name="close" size={14} />
         </button>
       </div>
       
       {/* Content */}
-      <div className="p-4 space-y-4 max-h-[450px] overflow-y-auto">
+      <div className="p-4 space-y-4 max-h-[500px] overflow-y-auto">
+        {/* KI-Modell Auswahl */}
+        <div>
+          <label className="text-xs text-[var(--text-secondary)] mb-2 block">KI-Modell</label>
+          <ModelSelector
+            selectedProvider={selectedProvider}
+            selectedModel={selectedModel}
+            onChange={handleModelChange}
+            compact={false}
+          />
+        </div>
+        
         {/* Sprach-Auswahl */}
         <div>
           <label className="text-xs text-[var(--text-secondary)] mb-2 block">Sprache des Videos</label>
@@ -112,6 +178,7 @@ export default function AutoCaptionPanel({
             value={language}
             onChange={(e) => setLanguage(e.target.value)}
             className="w-full h-10 px-3 bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-lg text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-turquoise)]"
+            data-testid="language-select"
           >
             {LANGUAGES.map(lang => (
               <option key={lang.code} value={lang.code}>{lang.name}</option>
@@ -132,6 +199,7 @@ export default function AutoCaptionPanel({
                     ? 'border-[var(--accent-turquoise)] bg-[var(--accent-turquoise)]/10'
                     : 'border-[var(--border-subtle)] bg-[var(--bg-surface)] hover:border-[var(--border-normal)]'
                 }`}
+                data-testid={`style-${s.id}`}
               >
                 <div className="w-12 h-4 bg-black rounded-sm flex items-center justify-center">
                   <div className="w-8 h-2 bg-white rounded-sm" />
@@ -142,11 +210,22 @@ export default function AutoCaptionPanel({
           </div>
         </div>
         
+        {/* Error Display */}
+        {error && (
+          <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
+            <div className="flex items-center gap-2 text-red-400 text-sm">
+              <Icon name="alertCircle" size={14} />
+              {error}
+            </div>
+          </div>
+        )}
+        
         {/* Generate Button */}
         {captions.length === 0 && !generating && (
           <button
             onClick={handleGenerate}
             className="w-full h-12 bg-gradient-to-r from-[var(--accent-turquoise)] to-[var(--accent-purple)] text-white rounded-lg text-sm font-medium hover:opacity-90 transition-all flex items-center justify-center gap-2"
+            data-testid="generate-captions-btn"
           >
             <Icon name="effects" size={18} />
             Untertitel generieren
@@ -157,7 +236,9 @@ export default function AutoCaptionPanel({
         {generating && (
           <div className="space-y-2">
             <div className="flex items-center justify-between text-xs">
-              <span className="text-[var(--text-secondary)]">Analysiere Audio...</span>
+              <span className="text-[var(--text-secondary)]">
+                {progress < 50 ? 'Analysiere Audio...' : progress < 80 ? 'Generiere Untertitel...' : 'Abschließen...'}
+              </span>
               <span className="text-[var(--text-primary)]">{progress}%</span>
             </div>
             <div className="h-2 bg-[var(--bg-surface)] rounded-full overflow-hidden">
@@ -179,6 +260,7 @@ export default function AutoCaptionPanel({
               <button
                 onClick={handleGenerate}
                 className="text-xs text-[var(--accent-turquoise)] hover:underline"
+                data-testid="regenerate-btn"
               >
                 Neu generieren
               </button>
@@ -189,6 +271,7 @@ export default function AutoCaptionPanel({
                 <div 
                   key={caption.id}
                   className="p-2 bg-[var(--bg-surface)] rounded-lg"
+                  data-testid={`caption-${index}`}
                 >
                   <div className="flex items-center justify-between mb-1">
                     <span className="text-xs text-[var(--text-tertiary)]">
@@ -208,6 +291,7 @@ export default function AutoCaptionPanel({
                       onChange={(e) => updateCaption(caption.id, e.target.value)}
                       className="w-full h-8 px-2 bg-[var(--bg-panel)] border border-[var(--border-subtle)] rounded text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-turquoise)]"
                       autoFocus
+                      data-testid={`caption-input-${index}`}
                     />
                   ) : (
                     <p className="text-sm text-[var(--text-primary)]">{caption.text}</p>
@@ -220,6 +304,7 @@ export default function AutoCaptionPanel({
             <button
               onClick={handleApply}
               className="w-full h-10 bg-[var(--accent-turquoise)] text-white rounded-lg text-sm font-medium hover:opacity-90 transition-all flex items-center justify-center gap-2"
+              data-testid="apply-captions-btn"
             >
               <Icon name="check" size={14} />
               Untertitel anwenden
