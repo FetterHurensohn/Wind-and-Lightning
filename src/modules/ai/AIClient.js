@@ -331,10 +331,200 @@ export function createVideoEditorChat(sessionId) {
   });
 }
 
+/**
+ * Transkribiere Audio-Datei mit OpenAI Whisper
+ * @param {Blob|File} audioBlob - Audio-Datei
+ * @param {Object} options - Optionen
+ * @returns {Promise<Object>} - Transkription mit Timestamps
+ */
+export async function transcribeAudio(audioBlob, options = {}) {
+  const settings = loadAISettings();
+  const apiKey = settings.apiKey || DEFAULT_EMERGENT_KEY;
+  
+  const formData = new FormData();
+  formData.append('file', audioBlob, options.filename || 'audio.mp3');
+  formData.append('model', 'whisper-1');
+  formData.append('response_format', options.responseFormat || 'verbose_json');
+  
+  if (options.language) {
+    formData.append('language', options.language);
+  }
+  if (options.prompt) {
+    formData.append('prompt', options.prompt);
+  }
+  formData.append('timestamp_granularities[]', 'segment');
+  
+  // Verwende Emergent API für Whisper
+  const response = await fetch(`${EMERGENT_API_URL}/audio/transcriptions`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${apiKey}`
+    },
+    body: formData
+  });
+  
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({}));
+    throw new Error(error.message || `Transkription fehlgeschlagen: ${response.status}`);
+  }
+  
+  const data = await response.json();
+  
+  // Konvertiere zu einheitlichem Format
+  if (data.segments) {
+    return {
+      text: data.text,
+      language: data.language,
+      duration: data.duration,
+      segments: data.segments.map((seg, idx) => ({
+        id: idx + 1,
+        start: seg.start,
+        end: seg.end,
+        text: seg.text.trim()
+      }))
+    };
+  }
+  
+  return { text: data.text || data };
+}
+
+/**
+ * Generiere Bild mit DALL-E / GPT Image
+ * @param {string} prompt - Bild-Beschreibung
+ * @param {Object} options - Optionen (size, style, etc.)
+ * @returns {Promise<Object>} - Generiertes Bild
+ */
+export async function generateImage(prompt, options = {}) {
+  const settings = loadAISettings();
+  const apiKey = settings.apiKey || DEFAULT_EMERGENT_KEY;
+  
+  const requestBody = {
+    model: options.model || 'gpt-image-1',
+    prompt: prompt,
+    n: options.count || 1,
+    size: options.size || '1024x1024',
+    quality: options.quality || 'standard',
+    style: options.style || 'vivid'
+  };
+  
+  const response = await fetch(`${EMERGENT_API_URL}/images/generations`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${apiKey}`
+    },
+    body: JSON.stringify(requestBody)
+  });
+  
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({}));
+    throw new Error(error.message || `Bildgenerierung fehlgeschlagen: ${response.status}`);
+  }
+  
+  const data = await response.json();
+  return data.data?.[0] || data;
+}
+
+/**
+ * Text-to-Speech mit OpenAI TTS
+ * @param {string} text - Text zum Vorlesen
+ * @param {Object} options - Optionen (voice, speed, etc.)
+ * @returns {Promise<Blob>} - Audio-Blob
+ */
+export async function textToSpeech(text, options = {}) {
+  const settings = loadAISettings();
+  const apiKey = settings.apiKey || DEFAULT_EMERGENT_KEY;
+  
+  const requestBody = {
+    model: options.model || 'tts-1',
+    input: text,
+    voice: options.voice || 'alloy', // alloy, echo, fable, onyx, nova, shimmer
+    speed: options.speed || 1.0,
+    response_format: options.format || 'mp3'
+  };
+  
+  const response = await fetch(`${EMERGENT_API_URL}/audio/speech`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${apiKey}`
+    },
+    body: JSON.stringify(requestBody)
+  });
+  
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({}));
+    throw new Error(error.message || `Text-to-Speech fehlgeschlagen: ${response.status}`);
+  }
+  
+  return await response.blob();
+}
+
+/**
+ * Generiere Musik-Vorschlag (via LLM)
+ * Hinweis: Echte Audio-Generierung würde Suno/ElevenLabs benötigen
+ * @param {Object} params - Genre, Mood, Dauer
+ * @returns {Promise<Object>} - Musik-Beschreibung und Tipps
+ */
+export async function generateMusicSuggestion(params = {}) {
+  const prompt = `Erstelle einen detaillierten Musik-Vorschlag für ein Video:
+
+Genre: ${params.genre || 'electronic'}
+Stimmung: ${params.mood || 'upbeat'}
+Dauer: ${params.duration || 30} Sekunden
+${params.description ? `Beschreibung: ${params.description}` : ''}
+
+Gib folgende Informationen:
+1. Tempo (BPM)
+2. Tonart
+3. Instrumentierung
+4. Struktur (Intro, Verse, etc.)
+5. Produktions-Tipps
+6. Ähnliche royalty-free Tracks die man nutzen könnte`;
+
+  return quickPrompt(prompt, {
+    systemMessage: 'Du bist ein professioneller Musikproduzent und Sound-Designer für Videos.',
+    temperature: 0.8
+  });
+}
+
+/**
+ * Generiere Storyboard für Video
+ * @param {Object} params - Beschreibung, Stil, Dauer
+ * @returns {Promise<string>} - Storyboard-Text
+ */
+export async function generateStoryboard(params = {}) {
+  const prompt = `Erstelle ein detailliertes Storyboard für ein ${params.duration || 30}-Sekunden Video:
+
+Thema: ${params.description || 'Produkt-Präsentation'}
+Stil: ${params.style || 'cinematic'}
+Format: ${params.aspectRatio || '16:9'}
+
+Gib für jede Szene an:
+- Szenennummer und Dauer (in Sekunden)
+- Visuelle Beschreibung (was zu sehen ist)
+- Kamerabewegung (Zoom, Pan, Dolly, etc.)
+- Text/Overlay falls vorhanden
+- Übergang zur nächsten Szene
+- Audio/Musik-Hinweise
+
+Formatiere übersichtlich mit klaren Abschnitten.`;
+
+  return quickPrompt(prompt, {
+    systemMessage: 'Du bist ein professioneller Video-Regisseur und Storyboard-Artist.',
+    temperature: 0.7
+  });
+}
+
 export default {
   AIChat,
   generateSessionId,
   quickPrompt,
   createVideoEditorChat,
-  VIDEO_EDITOR_SYSTEM_PROMPT
+  VIDEO_EDITOR_SYSTEM_PROMPT,
+  transcribeAudio,
+  generateImage,
+  textToSpeech,
+  generateMusicSuggestion,
+  generateStoryboard
 };
