@@ -16,170 +16,103 @@ German (Deutsch)
 
 ## What's Been Implemented
 
+### Media to Timeline (✅ Complete - 21.01.2026)
+Three methods to add media to timeline:
+1. **+ Button (NEW):** Hover over media tile, click large turquoise + button
+2. **Double-Click:** Double-click on media tile
+3. **Drag-and-Drop:** Drag tile to timeline track
+
 ### Layout (✅ Complete)
 - 50/50 vertical split: Media Panel + Preview (top), Timeline (bottom)
 - Full-height right Inspector panel
 - Top toolbar with 11 categories
 - Dynamic left panel based on selected category
 
-### Media Management (✅ Complete - 21.01.2026)
-- **Double-Click:** Adds media to timeline at end of last clip
-- **Drag-and-Drop:** Adds media at specific position on track
-- Shows "DRAG" and "2× Klick" badges on hover
-- Demo media buttons for testing without file uploads
-
-### Timeline (✅ Complete - 21.01.2026)
-- **1-Hour Duration:** Timeline extends to 3600 seconds
-- **Fine Tick Marks:** Minor ticks between major markers
-- **Dynamic Intervals:** Tick spacing adjusts based on zoom
+### Timeline (✅ Complete)
+- 1-Hour Duration (3600 seconds)
+- Fine tick marks between major markers
+- Dynamic intervals based on zoom
 - Shift + Scroll = Horizontal scrolling
 - Ctrl + Scroll = Zoom in/out
-- Clip trim handles (drag edges to resize)
-- Track height: 48px, Track labels: 120px
+- Clip trim handles (drag edges)
 
 ### Video Preview (✅ Complete)
 - Shows active clips based on currentTime
-- Full transformation support:
-  - Opacity, Scale, Rotation, Position X/Y
-  - Horizontal/Vertical Flip
-  - Brightness, Contrast, Saturation, Hue
-  - Blend Modes (12 options)
+- Full transformation support (opacity, scale, rotation, position, flip, color correction, blend modes)
 
 ### Inspector Panel (✅ Complete)
-- **Transformation:** Opacity, Scale, Rotation, Position
-- **Speed:** Speed multiplier, Reverse toggle
-- **Flip:** Horizontal/Vertical buttons
-- **Blend Mode:** 12 modes dropdown
-- **Audio:** Volume, Fade In/Out
-- **Color Correction:** Brightness, Contrast, Saturation, Hue
-- **Effects:** Shows applied effects with X button to remove
-- **Transitions:** Shows applied transition with X button to remove
+- Transformation, Speed, Flip, Blend Mode, Audio, Color Correction
+- Effects section with X button to remove
+- Transitions section with X button to remove
 
-### Videoeffekte (✅ Complete - 21.01.2026)
-- 12 video effects with emoji icons:
-  - Basis: Weichzeichner, Schärfen, Vignette, Wackeln
-  - Retro: Glitch, VHS, Filmkörnung, Vintage
-  - Angesagt: Glow, Neon, Duotone, Chromatisch
-- Click to apply effect to selected clip
-- Effects stored in clip.effects array
-- **MOCKED:** Effects not visually rendered in preview
+### Videoeffekte (✅ Complete)
+- 12 effects: Weichzeichner, Schärfen, Vignette, Glitch, VHS, Filmkörnung, Vintage, Glow, Neon, Duotone, Chromatisch, Wackeln
+- Click to apply to selected clip
+- **MOCKED:** Not visually rendered in preview
 
-### Übergänge/Transitions (✅ Complete - 21.01.2026)
-- 12 transitions with icons:
-  - Überblendung, Auflösen
-  - Wischen (Links, Rechts, Hoch, Runter)
-  - Zoom (Rein, Raus)
-  - Schieben (Links, Rechts)
-  - Drehen, Umklappen
-- Click to apply transition to selected clip
-- Transitions stored in clip.transition object
-- **MOCKED:** Transitions not visually rendered
+### Übergänge (✅ Complete)
+- 12 transitions: Überblendung, Auflösen, Wischen (4 directions), Zoom (in/out), Schieben (2 directions), Drehen, Umklappen
+- Click to apply to selected clip
+- **MOCKED:** Not visually rendered
 
 ### Editing Tools (✅ Complete)
-- Split (B key) - splits clip at playhead
-- Delete (Delete/Backspace) - removes selected clip
-- Undo/Redo support
-- Clip selection with white ring border
+- Split (B key), Delete (Delete/Backspace)
+- Undo/Redo, Clip selection
 
 ### AI Features (✅ Complete)
-- KI-Bild (Image Generation) - Seedream 4.0
-- KI-Video (Storyboard Generation) - Seedance 1.0
-- Text-zu-Sprache (TTS) - OpenAI TTS
-- KI-Musik Generator
-- Auto-Untertitel (Whisper)
-- KI-Assistent (In-Editor Chat)
+- KI-Bild, KI-Video, TTS, KI-Musik, Auto-Untertitel, KI-Assistent
 
 ---
 
-## P0/P1/P2 Features Remaining
-
-### P0 - Critical (Completed)
-- [x] Drag-and-drop to timeline
-- [x] Double-click to add media
-- [x] 1-hour timeline duration
-- [x] Fine tick marks
-- [x] Inspector property editing
-- [x] Videoeffekte panel
-- [x] Übergänge panel
+## P1/P2/P3 Features Remaining
 
 ### P1 - High Priority
-- [ ] **Video export rendering (FFmpeg in Electron)**
+- [ ] Video export rendering (FFmpeg in Electron)
 - [ ] Visual rendering of effects in preview
 - [ ] Visual rendering of transitions between clips
-- [ ] Text overlay editing with live preview
 
 ### P2 - Medium Priority
 - [ ] Keyframe animation system
+- [ ] Text overlay editing with live preview
 - [ ] Sticker library integration
-- [ ] Real audio waveform generation
 
 ### P3 - Future/Backlog
+- [ ] Real audio waveform generation
 - [ ] Motion tracking
 - [ ] Green screen/chroma key
 - [ ] Cloud sync & collaboration
-- [ ] Direct social media upload
-
----
-
-## Test Status
-- **Last Test:** iteration_12.json (21.01.2026)
-- **Frontend Success Rate:** 100%
-- **Verified Features:**
-  - Double-click adds clips to timeline
-  - Effekte tab auto-shows Videoeffekte
-  - Effects apply to selected clips
-  - Inspector shows applied effects
-  - Übergänge tab auto-shows transitions
-  - Transitions apply to selected clips
-  - Inspector shows applied transitions
-  - X buttons remove effects/transitions
 
 ---
 
 ## Changelog
 
-### 21.01.2026 - Videoeffekte & Übergänge
-- Implemented Videoeffekte panel with 12 effects
-- Implemented Übergänge panel with 12 transitions
-- Added auto-section selection when tab changes
-- Added Effects and Transitions sections to Inspector
-- Added ADD_EFFECT_TO_CLIP, REMOVE_EFFECT_FROM_CLIP reducer actions
-- Added ADD_TRANSITION_TO_CLIP, REMOVE_TRANSITION_FROM_CLIP reducer actions
+### 21.01.2026 - Add to Timeline Button
+- Added large turquoise + button that appears on hover over media tiles
+- Button provides reliable click-to-add functionality
+- Three ways to add media: + Button, Double-click, Drag-and-Drop
 
-### 21.01.2026 - Drag-Drop & Timeline Fixes
-- Fixed drag-and-drop with HTML5 API
-- Added double-click to add media
+### 21.01.2026 - Videoeffekte & Übergänge
+- Implemented 12 video effects with emoji icons
+- Implemented 12 transitions with icons
+- Added Effects and Transitions sections to Inspector
+
+### 21.01.2026 - Timeline & Drag-Drop
 - Extended timeline to 3600 seconds (1 hour)
 - Added minor tick marks between major markers
-
-### 21.01.2026 - Video Preview & Audio Waveforms
-- Full transformation support in PreviewPanel
-- Audio waveform visualization
+- Improved drag-and-drop with HTML5 API
 
 ---
 
 ## Key Files Reference
-
-### Editor Components
-- `/app/src/components/editor/EditorLayout.jsx` - State management, reducer
-- `/app/src/components/editor/TimelinePanel.jsx` - Timeline, tracks, clips
-- `/app/src/components/editor/MediaInputPanel.jsx` - Media panel, effects, transitions
-- `/app/src/components/PreviewPanel.jsx` - Preview with transformations
-- `/app/src/components/editor/InspectorPanel.jsx` - Property editing
-- `/app/src/components/editor/TopToolbar.jsx` - Top navigation
-
-### Hooks
-- `/app/src/hooks/usePlayhead.js` - Playhead management
-- `/app/src/hooks/useTimelineZoom.js` - Zoom functionality
-- `/app/src/hooks/useUndoRedo.js` - Undo/Redo support
-
-### AI Integration
-- `/app/src/modules/ai/AIClient.js` - AI API calls
+- `/app/src/components/editor/EditorLayout.jsx` - State management
+- `/app/src/components/editor/TimelinePanel.jsx` - Timeline
+- `/app/src/components/editor/MediaInputPanel.jsx` - Media panel with + button
+- `/app/src/components/PreviewPanel.jsx` - Preview
+- `/app/src/components/editor/InspectorPanel.jsx` - Properties
 
 ---
 
 ## Known Limitations (MOCKED)
-- Effects stored in state but NOT visually rendered in preview
-- Transitions stored in state but NOT visually rendered between clips
+- Effects and transitions stored but NOT visually rendered
 - Demo media items are placeholders without real video files
-- Export functionality not implemented (requires FFmpeg)
+- Export functionality not implemented
