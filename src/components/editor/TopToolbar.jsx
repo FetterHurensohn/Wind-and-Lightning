@@ -1,22 +1,18 @@
 /**
- * TopToolbar.jsx - Obere Icon-Leiste (PIXELGENAU nach Screenshot)
+ * TopToolbar.jsx - CapCut-Style Obere Toolbar
  * 
- * Zweck: Toolbar mit Kategorien und Projekt-Buttons nach CapCut-Screenshot
- * Höhe: 44px (h-11) - GEÄNDERT von 48px
- * Icons: 20px outline-style mit stroke-width 1.5
- * Spacing: Sehr kompakt (gap-1)
- * 
- * Buttons: Medien, Audio, Text, Sticker, Effekte, Übergänge, Untertitel, Filter, Anpassung, Vorlagen, KI-Avatar
- * Rechts: Projektname (editierbar, 11px, medium), "Teilen", "Pro", "Exportieren" (turquoise)
+ * Struktur nach CapCut Screenshots:
+ * - Logo + Menü links
+ * - Kategorien-Icons in der Mitte
+ * - Projekt-Name und Actions rechts
  */
 
 import React, { useState } from 'react';
 import { useEditor } from './EditorLayout';
 import Icon from './Icon';
-import SmallButton from './SmallButton';
-import { projectAPI } from '../../electron';
 
-const categories = [
+// Kategorie-Konfiguration mit Icons
+const CATEGORIES = [
   { id: 'media', name: 'Medien', icon: 'media' },
   { id: 'audio', name: 'Audio', icon: 'audio' },
   { id: 'text', name: 'Text', icon: 'text' },
@@ -31,44 +27,22 @@ const categories = [
 ];
 
 export default function TopToolbar({ onBackToDashboard, onExport }) {
-  const { state, dispatch, saveProject, handleSaveAndExit: contextSaveAndExit, activeMainTab, setActiveMainTab, setShowExportDialog } = useEditor();
+  const { state, dispatch, saveProject, handleSaveAndExit, activeMainTab, setActiveMainTab, setShowExportDialog } = useEditor();
   const [editingName, setEditingName] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
 
   const handleSave = async () => {
     setSaving(true);
     try {
-      const success = await saveProject(true);
-      if (success) {
-        console.log('✅ Project saved successfully!');
-      }
+      await saveProject(true);
     } catch (error) {
-      console.error('❌ Save error:', error);
-      alert('Fehler beim Speichern: ' + error.message);
-    } finally {
-      setSaving(false);
+      console.error('Save error:', error);
     }
+    setSaving(false);
   };
 
-  const handleSaveAndExit = async () => {
-    setSaving(true);
-    try {
-      if (contextSaveAndExit) {
-        await contextSaveAndExit();
-      } else {
-        await handleSave();
-        if (onBackToDashboard) {
-          onBackToDashboard();
-        }
-      }
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleExport = () => {
-    console.log('Export clicked');
-    // Öffne Export Dialog
+  const handleExportClick = () => {
     if (onExport) {
       onExport();
     } else if (setShowExportDialog) {
@@ -77,31 +51,76 @@ export default function TopToolbar({ onBackToDashboard, onExport }) {
   };
 
   return (
-    <header className="h-11 bg-[var(--bg-panel)] border-b border-[var(--border-subtle)] flex items-center px-3 gap-3">
-      {/* Left: Category Icons - Sehr kompakt */}
-      <div className="flex items-center gap-1">
-        {categories.map(cat => (
+    <header className="h-12 bg-[var(--bg-panel)] border-b border-[var(--border-subtle)] flex items-center px-3">
+      {/* Left: Logo + Menu */}
+      <div className="flex items-center gap-2 mr-4">
+        {/* Logo */}
+        <div className="flex items-center gap-2">
+          <div className="w-6 h-6 bg-[var(--accent-turquoise)] rounded flex items-center justify-center">
+            <span className="text-white text-xs font-bold">✂</span>
+          </div>
+          <span className="text-sm font-semibold text-[var(--text-primary)]">CapCut</span>
+        </div>
+        
+        {/* Menu Dropdown */}
+        <div className="relative">
+          <button
+            onClick={() => setShowMenu(!showMenu)}
+            className="h-7 px-2 flex items-center gap-1 text-sm text-[var(--accent-turquoise)] hover:bg-[var(--bg-hover)] rounded"
+          >
+            Menü
+            <Icon name="chevronDown" size={12} />
+          </button>
+          
+          {showMenu && (
+            <div className="absolute top-full left-0 mt-1 w-48 bg-[var(--bg-panel)] border border-[var(--border-subtle)] rounded-lg shadow-xl z-50">
+              <button 
+                onClick={() => { handleSave(); setShowMenu(false); }}
+                className="w-full h-9 px-3 text-left text-sm text-[var(--text-primary)] hover:bg-[var(--bg-hover)] flex items-center gap-2"
+              >
+                <Icon name="save" size={16} /> Speichern
+              </button>
+              <button 
+                onClick={() => { handleExportClick(); setShowMenu(false); }}
+                className="w-full h-9 px-3 text-left text-sm text-[var(--text-primary)] hover:bg-[var(--bg-hover)] flex items-center gap-2"
+              >
+                <Icon name="export" size={16} /> Exportieren
+              </button>
+              <div className="border-t border-[var(--border-subtle)] my-1" />
+              <button 
+                onClick={() => { onBackToDashboard?.(); setShowMenu(false); }}
+                className="w-full h-9 px-3 text-left text-sm text-[var(--text-primary)] hover:bg-[var(--bg-hover)] flex items-center gap-2"
+              >
+                <Icon name="home" size={16} /> Zum Dashboard
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Center: Category Icons */}
+      <div className="flex-1 flex items-center justify-center gap-1">
+        {CATEGORIES.map(cat => (
           <button
             key={cat.id}
             onClick={() => setActiveMainTab(cat.id)}
             className={`
-              w-8 h-8 flex items-center justify-center rounded
-              transition-colors
+              flex flex-col items-center justify-center px-2 py-1 rounded transition-colors min-w-[52px]
               ${activeMainTab === cat.id
-                ? 'bg-[var(--bg-hover)] text-[var(--capcut-accent-turquoise)]'
-                : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'}
-              focus:outline-none
+                ? 'text-[var(--accent-turquoise)]'
+                : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}
             `}
             title={cat.name}
-            aria-label={cat.name}
           >
             <Icon name={cat.icon} size={20} strokeWidth={1.5} />
+            <span className="text-[10px] mt-0.5">{cat.name}</span>
           </button>
         ))}
       </div>
 
-      {/* Center: Project Name - 11px, Medium */}
-      <div className="flex-1 flex justify-center">
+      {/* Right: Project Name + Actions */}
+      <div className="flex items-center gap-2">
+        {/* Project Name */}
         {editingName ? (
           <input
             type="text"
@@ -109,53 +128,22 @@ export default function TopToolbar({ onBackToDashboard, onExport }) {
             onChange={(e) => dispatch({ type: 'SET_PROJECT_NAME', payload: e.target.value })}
             onBlur={() => setEditingName(false)}
             onKeyDown={(e) => e.key === 'Enter' && setEditingName(false)}
-            className="px-2 py-0.5 bg-[var(--bg-surface)] border border-[var(--accent-blue)] rounded text-sm text-center focus:outline-none text-[var(--text-primary)]"
-            style={{ fontSize: '11px' }}
+            className="w-24 h-7 px-2 bg-[var(--bg-surface)] border border-[var(--accent-turquoise)] rounded text-sm text-center"
             autoFocus
           />
         ) : (
           <button
             onClick={() => setEditingName(true)}
-            className="px-2 py-0.5 rounded hover:bg-[var(--bg-hover)] transition-colors font-medium text-[var(--text-primary)]"
-            style={{ fontSize: '11px' }}
+            className="h-7 px-2 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] rounded"
           >
-            {state.projectName}
+            {state.projectName} (1)
           </button>
         )}
-      </div>
 
-      {/* Right: Action Buttons - Kompakt */}
-      <div className="flex items-center gap-1.5">
-        <SmallButton
-          label={saving ? "Speichert..." : "Speichern"}
-          variant="default"
-          size="sm"
-          onClick={handleSave}
-          disabled={saving}
-        />
-        <SmallButton
-          label="Speichern und Beenden"
-          variant="default"
-          size="sm"
-          onClick={handleSaveAndExit}
-          disabled={saving}
-        />
-        <SmallButton
-          label="Teilen"
-          variant="default"
-          size="sm"
-        />
-        <SmallButton
-          label="Pro"
-          variant="primary"
-          size="sm"
-        />
-        <SmallButton
-          label="Exportieren"
-          variant="turquoise"
-          size="sm"
-          onClick={handleExport}
-        />
+        {/* Player Button */}
+        <button className="h-7 px-3 bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)]">
+          Player
+        </button>
       </div>
     </header>
   );
