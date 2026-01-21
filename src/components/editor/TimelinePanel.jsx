@@ -262,14 +262,16 @@ function Clip({ clip, track, pxPerSec, isSelected, onSelect, onTrim, onMove }) {
 
 // ============================================
 // TRACK COMPONENT (Kompakt - 48px Höhe)
+// Mit Kontroll-Buttons: Löschen, Sperren, Ausblenden, Stumm, Gauge
 // ============================================
-function Track({ track, pxPerSec, selectedClipId, onClipSelect, onClipTrim, onClipMove, onDrop }) {
+function Track({ track, pxPerSec, selectedClipId, onClipSelect, onClipTrim, onClipMove, onDrop, onTrackUpdate, onTrackDelete, isFirst }) {
   const [dragOver, setDragOver] = useState(false);
+  const [showControls, setShowControls] = useState(false);
+  const [waveformSize, setWaveformSize] = useState(track.waveformSize || 'medium'); // small, medium, large
 
   const handleDragOver = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    // Setze dropEffect für visuelles Feedback
     e.dataTransfer.dropEffect = 'copy';
     setDragOver(true);
   };
@@ -283,7 +285,6 @@ function Track({ track, pxPerSec, selectedClipId, onClipSelect, onClipTrim, onCl
   const handleDragLeave = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    // Nur wenn wir wirklich den Track verlassen
     if (!e.currentTarget.contains(e.relatedTarget)) {
       setDragOver(false);
     }
@@ -308,27 +309,163 @@ function Track({ track, pxPerSec, selectedClipId, onClipSelect, onClipTrim, onCl
     onDrop(e, track.id, dropTime);
   };
 
+  // Track Icon basierend auf Typ
+  const getTrackIcon = () => {
+    switch (track.type) {
+      case 'audio': return 'audio';
+      case 'text': return 'text';
+      case 'sticker': return 'sticker';
+      default: return 'video';
+    }
+  };
+
+  // Track-Farbe basierend auf Typ
+  const getTrackColor = () => {
+    switch (track.type) {
+      case 'audio': return 'bg-green-500/20';
+      case 'text': return 'bg-yellow-500/20';
+      case 'sticker': return 'bg-pink-500/20';
+      default: return 'bg-blue-500/20';
+    }
+  };
+
+  // Toggle-Funktionen
+  const toggleLock = () => onTrackUpdate?.(track.id, { locked: !track.locked });
+  const toggleHide = () => onTrackUpdate?.(track.id, { hidden: !track.hidden });
+  const toggleMute = () => onTrackUpdate?.(track.id, { muted: !track.muted });
+  const setGauge = (value) => onTrackUpdate?.(track.id, { gauge: value });
+
   return (
-    <div className="flex border-b border-[var(--border-subtle)]" style={{ height: '48px' }}>
-      {/* Track Label */}
-      <div className="w-[120px] flex-shrink-0 bg-[var(--bg-panel)] border-r border-[var(--border-subtle)] flex items-center gap-1.5 px-2">
-        <Icon name={track.type === 'audio' ? 'audio' : 'video'} size={12} className="text-[var(--text-tertiary)]" />
-        <span className="text-[10px] text-[var(--text-secondary)] truncate flex-1">{track.name}</span>
-        <button className="w-4 h-4 flex items-center justify-center rounded hover:bg-[var(--bg-hover)] text-[var(--text-tertiary)]">
-          <Icon name="audio" size={10} />
-        </button>
+    <div 
+      className={`flex border-b border-[var(--border-subtle)] ${track.hidden ? 'opacity-40' : ''}`} 
+      style={{ height: '48px' }}
+      onMouseEnter={() => setShowControls(true)}
+      onMouseLeave={() => setShowControls(false)}
+    >
+      {/* Track Controls Label */}
+      <div className={`w-[160px] flex-shrink-0 ${getTrackColor()} border-r border-[var(--border-subtle)] flex items-center gap-1 px-1.5`}>
+        {/* Track Icon & Name */}
+        <div className="flex items-center gap-1.5 min-w-0 flex-1">
+          <Icon name={getTrackIcon()} size={12} className="text-[var(--text-tertiary)] flex-shrink-0" />
+          <span className="text-[10px] text-[var(--text-secondary)] truncate">{track.name}</span>
+        </div>
+        
+        {/* Control Buttons - Always visible now */}
+        <div className="flex items-center gap-0.5">
+          {/* Mute (nur für Audio/Video) */}
+          {(track.type === 'audio' || track.type === 'video') && (
+            <button 
+              onClick={toggleMute}
+              className={`w-5 h-5 flex items-center justify-center rounded text-[10px] transition-colors ${
+                track.muted 
+                  ? 'bg-red-500/30 text-red-400' 
+                  : 'hover:bg-[var(--bg-hover)] text-[var(--text-tertiary)]'
+              }`}
+              title={track.muted ? 'Ton aktivieren' : 'Stumm schalten'}
+            >
+              <Icon name={track.muted ? 'mute' : 'audio'} size={10} />
+            </button>
+          )}
+          
+          {/* Hide/Show */}
+          <button 
+            onClick={toggleHide}
+            className={`w-5 h-5 flex items-center justify-center rounded text-[10px] transition-colors ${
+              track.hidden 
+                ? 'bg-orange-500/30 text-orange-400' 
+                : 'hover:bg-[var(--bg-hover)] text-[var(--text-tertiary)]'
+            }`}
+            title={track.hidden ? 'Einblenden' : 'Ausblenden'}
+          >
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              {track.hidden ? (
+                <>
+                  <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+                  <line x1="1" y1="1" x2="23" y2="23" />
+                </>
+              ) : (
+                <>
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                  <circle cx="12" cy="12" r="3" />
+                </>
+              )}
+            </svg>
+          </button>
+          
+          {/* Lock */}
+          <button 
+            onClick={toggleLock}
+            className={`w-5 h-5 flex items-center justify-center rounded text-[10px] transition-colors ${
+              track.locked 
+                ? 'bg-yellow-500/30 text-yellow-400' 
+                : 'hover:bg-[var(--bg-hover)] text-[var(--text-tertiary)]'
+            }`}
+            title={track.locked ? 'Entsperren' : 'Sperren'}
+          >
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              {track.locked ? (
+                <>
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                </>
+              ) : (
+                <>
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                  <path d="M7 11V7a5 5 0 0 1 9.9-1" />
+                </>
+              )}
+            </svg>
+          </button>
+          
+          {/* Delete Track */}
+          <button 
+            onClick={() => onTrackDelete?.(track.id)}
+            className="w-5 h-5 flex items-center justify-center rounded text-[10px] hover:bg-red-500/30 hover:text-red-400 text-[var(--text-tertiary)] transition-colors"
+            title="Track löschen"
+          >
+            <Icon name="trash" size={10} />
+          </button>
+        </div>
       </div>
+
+      {/* Track Gauge (Volume/Opacity Mini-Slider) - nur bei Hover sichtbar */}
+      {showControls && (track.type === 'audio' || track.type === 'video') && (
+        <div className="absolute left-[165px] top-1/2 -translate-y-1/2 z-20 bg-[var(--bg-panel)] rounded px-2 py-1 shadow-lg border border-[var(--border-subtle)]">
+          <div className="flex items-center gap-2">
+            <span className="text-[8px] text-[var(--text-tertiary)]">{track.type === 'audio' ? 'Vol' : 'Op'}</span>
+            <input
+              type="range"
+              min="0"
+              max="100"
+              value={track.gauge ?? 100}
+              onChange={(e) => setGauge(parseInt(e.target.value))}
+              className="w-16 h-1 accent-[var(--accent-turquoise)]"
+            />
+            <span className="text-[8px] text-[var(--text-tertiary)] w-6">{track.gauge ?? 100}%</span>
+          </div>
+        </div>
+      )}
 
       {/* Track Content - Drop Zone */}
       <div
-        className={`flex-1 relative transition-colors ${dragOver ? 'bg-[var(--accent-turquoise)]/20 ring-2 ring-inset ring-[var(--accent-turquoise)]' : ''}`}
-        onDragOver={handleDragOver}
-        onDragEnter={handleDragEnter}
-        onDragLeave={handleDragLeave}
-        onDrop={handleDrop}
+        className={`flex-1 relative transition-colors ${dragOver ? 'bg-[var(--accent-turquoise)]/20 ring-2 ring-inset ring-[var(--accent-turquoise)]' : ''} ${track.locked ? 'pointer-events-none' : ''}`}
+        onDragOver={!track.locked ? handleDragOver : undefined}
+        onDragEnter={!track.locked ? handleDragEnter : undefined}
+        onDragLeave={!track.locked ? handleDragLeave : undefined}
+        onDrop={!track.locked ? handleDrop : undefined}
         data-track-id={track.id}
         data-track-type={track.type}
       >
+        {/* Locked Overlay */}
+        {track.locked && (
+          <div className="absolute inset-0 bg-[var(--bg-main)]/50 flex items-center justify-center z-10">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-tertiary)" strokeWidth="2">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+              <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+            </svg>
+          </div>
+        )}
+        
         {track.clips?.map(clip => (
           <Clip
             key={clip.id}
@@ -339,9 +476,67 @@ function Track({ track, pxPerSec, selectedClipId, onClipSelect, onClipTrim, onCl
             onSelect={onClipSelect}
             onTrim={onClipTrim}
             onMove={onClipMove}
+            trackMuted={track.muted}
+            trackHidden={track.hidden}
+            waveformSize={waveformSize}
           />
         ))}
       </div>
+    </div>
+  );
+}
+
+// ============================================
+// NEW TRACK DROP ZONE (Für neue Tracks über bestehenden)
+// ============================================
+function NewTrackDropZone({ type, onCreateTrack }) {
+  const [dragOver, setDragOver] = useState(false);
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    e.dataTransfer.dropEffect = 'copy';
+    setDragOver(true);
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    if (!e.currentTarget.contains(e.relatedTarget)) {
+      setDragOver(false);
+    }
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragOver(false);
+    
+    const mediaId = e.dataTransfer.getData('mediaId');
+    if (mediaId) {
+      onCreateTrack(type, mediaId, e);
+    }
+  };
+
+  const getLabel = () => {
+    switch (type) {
+      case 'audio': return '+ Neuer Audio Track';
+      case 'text': return '+ Neuer Text Track';
+      case 'sticker': return '+ Neuer Sticker Track';
+      default: return '+ Neuer Video Track';
+    }
+  };
+
+  return (
+    <div
+      className={`h-6 border-b border-dashed border-[var(--border-subtle)] flex items-center justify-center transition-colors cursor-pointer ${
+        dragOver ? 'bg-[var(--accent-turquoise)]/20 border-[var(--accent-turquoise)]' : 'hover:bg-[var(--bg-hover)]/50'
+      }`}
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
+      onClick={() => onCreateTrack(type)}
+    >
+      <span className="text-[9px] text-[var(--text-tertiary)]">{getLabel()}</span>
     </div>
   );
 }
