@@ -808,6 +808,31 @@ export default function MediaInputPanel() {
             </button>
           </div>
 
+          {/* Demo Media Buttons - für Tests */}
+          <div className="pt-2 border-t border-[var(--border-subtle)]">
+            <div className="text-[9px] text-[var(--text-tertiary)] mb-2">Demo-Medien hinzufügen:</div>
+            <div className="flex gap-1">
+              <button 
+                onClick={() => addDemoMedia('video')}
+                className="flex-1 h-7 bg-blue-500/20 text-blue-400 text-[9px] rounded hover:bg-blue-500/30 flex items-center justify-center gap-1"
+              >
+                <Icon name="video" size={10} /> Video
+              </button>
+              <button 
+                onClick={() => addDemoMedia('image')}
+                className="flex-1 h-7 bg-purple-500/20 text-purple-400 text-[9px] rounded hover:bg-purple-500/30 flex items-center justify-center gap-1"
+              >
+                <Icon name="image" size={10} /> Bild
+              </button>
+              <button 
+                onClick={() => addDemoMedia('audio')}
+                className="flex-1 h-7 bg-green-500/20 text-green-400 text-[9px] rounded hover:bg-green-500/30 flex items-center justify-center gap-1"
+              >
+                <Icon name="audio" size={10} /> Audio
+              </button>
+            </div>
+          </div>
+
           {/* Imported Media Grid - DRAGGABLE */}
           {state.media.length > 0 && (
             <div className="mt-4">
@@ -837,10 +862,10 @@ export default function MediaInputPanel() {
           
           {/* Empty State */}
           {state.media.length === 0 && (
-            <div className="text-center py-6 text-[var(--text-tertiary)]">
-              <Icon name="video" size={40} className="mx-auto mb-2 opacity-30" />
+            <div className="text-center py-4 text-[var(--text-tertiary)]">
+              <Icon name="video" size={32} className="mx-auto mb-2 opacity-30" />
               <div className="text-xs">Noch keine Medien</div>
-              <div className="text-[10px]">Importiere Dateien um zu starten</div>
+              <div className="text-[10px]">Importiere Dateien oder nutze Demo-Medien</div>
             </div>
           )}
         </div>
