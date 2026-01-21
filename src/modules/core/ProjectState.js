@@ -40,7 +40,7 @@ export const DEFAULT_PROJECT_SETTINGS = {
 export function createInitialState(settings = {}) {
   return {
     // Project Meta
-    id: uuidv4(),
+    id: generateUUID(),
     name: settings.name || DEFAULT_PROJECT_SETTINGS.name,
     createdAt: Date.now(),
     modifiedAt: Date.now(),
@@ -135,7 +135,7 @@ export function createInitialState(settings = {}) {
 // Clip Factory
 export function createClip(type, props = {}) {
   const base = {
-    id: uuidv4(),
+    id: generateUUID(),
     type,
     name: props.name || 'Untitled Clip',
     start: props.start || 0,
@@ -194,7 +194,7 @@ export function createClip(type, props = {}) {
 // Asset Factory
 export function createAsset(type, props = {}) {
   return {
-    id: uuidv4(),
+    id: generateUUID(),
     type, // 'video', 'audio', 'image', 'text', 'sticker', 'template'
     name: props.name || 'Untitled',
     path: props.path || null,
@@ -235,7 +235,7 @@ export function createAsset(type, props = {}) {
 // Marker Factory
 export function createMarker(props = {}) {
   return {
-    id: uuidv4(),
+    id: generateUUID(),
     time: props.time || 0,
     name: props.name || 'Marker',
     color: props.color || '#ff6b6b',
@@ -249,7 +249,7 @@ export function createMarker(props = {}) {
 // Effect Factory
 export function createEffect(type, props = {}) {
   return {
-    id: uuidv4(),
+    id: generateUUID(),
     type, // 'filter', 'color', 'transform', 'audio', 'ai'
     name: props.name || type,
     enabled: true,
@@ -275,7 +275,7 @@ export function createEffect(type, props = {}) {
 // Transition Factory
 export function createTransition(type, props = {}) {
   return {
-    id: uuidv4(),
+    id: generateUUID(),
     type, // 'dissolve', 'wipe', 'slide', 'zoom', 'glitch', etc.
     name: props.name || type,
     duration: props.duration || 0.5,
