@@ -168,7 +168,7 @@ export const SOCIAL_PRESETS = {
 // === EXPORT JOB ===
 export function createExportJob(project, settings) {
   return {
-    id: uuidv4(),
+    id: generateUUID(),
     projectId: project.id,
     projectName: project.name,
     status: 'queued', // 'queued', 'preparing', 'rendering', 'encoding', 'uploading', 'completed', 'failed', 'cancelled'
