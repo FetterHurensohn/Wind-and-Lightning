@@ -86,7 +86,9 @@ export default function Dashboard({ onOpenProject }) {
 
     // Handler: Projekt erstellen (aus Modal)
     const handleCreateProject = async (projectData) => {
+        console.log('[Dashboard] handleCreateProject called with:', projectData);
         const newId = await create(projectData);
+        console.log('[Dashboard] Project created, newId:', newId);
         modal.close();
 
         // Toast mit Pfad-Info wenn Struktur erstellt wurde
@@ -102,6 +104,7 @@ export default function Dashboard({ onOpenProject }) {
 
         // Direkt zum Editor wechseln mit dem neuen Projekt
         // Verwende projectData.path direkt (vom Modal), nicht getById (da noch nicht geladen)
+        console.log('[Dashboard] Opening editor with path:', projectData.path || projectData.projectPath || newId);
         if (projectData.path || projectData.projectPath) {
             onOpenProject(projectData.path || projectData.projectPath);
         } else {
