@@ -34,42 +34,56 @@ German (Deutsch)
 +------------------------------------+------------------------------+
 ```
 
-**50/50 Split:**
-- Upper half: Media Panel (360px) + Preview
-- Lower half: Timeline with tracks
-- Right panel: Full height (spans both sections)
-
-### Drag and Drop (✅ Complete)
-- MediaTile component has `draggable={true}`
-- Shows "DRAG" badge on hover
-- Timeline tracks have drop handlers
-- Visual highlight when dragging over track (turquoise glow)
+### Drag and Drop (✅ Complete - 21.01.2026)
+- MediaTile component with `draggable={true}` and `[data-media-id]`
+- Shows "DRAG" badge (turquoise) on hover
+- HTML5 drag API with `dataTransfer.setData('mediaId', id)`
+- Track drop zones with `[data-track-type]` attribute
+- Visual highlight (turquoise ring) when dragging over track
 - Drop creates clip at mouse position
 
-### Timeline Features (✅ Complete)
+### Timeline Features (✅ Complete - 21.01.2026)
+- **1-Hour Duration**: Timeline extends to 3600 seconds (1 hour)
+- **Fine Tick Marks**: Minor ticks between major markers
+- **Dynamic Intervals**: Tick spacing adjusts based on zoom level
 - Shift + Scroll = Horizontal scrolling
-- Ctrl + Scroll = Zoom in/out (NaN bug fixed)
+- Ctrl + Scroll = Zoom in/out
 - Track height: 48px
 - Track labels: 120px left column
 - +Video / +Audio buttons
-- Keyboard shortcuts shown in hint bar
+- Keyboard shortcuts: Space (play/pause), B (split), Delete (remove)
 
-### Video Preview (✅ Complete - 21.01.2026)
+### Video Preview (✅ Complete)
 - PreviewPanel shows active clips based on currentTime
-- Supports video, image, and text clips
-- Displays clip title and progress (e.g., "1.0s / 10s")
+- **Full Transformation Support**:
+  - Opacity, Scale, Rotation
+  - Position X/Y
+  - Horizontal/Vertical Flip
+  - Brightness, Contrast, Saturation, Hue
+  - Blend Modes (12 options)
+- Displays clip title and progress
 - Timecode updates in footer during playback
 
-### Audio Waveforms (✅ Complete - 21.01.2026)
+### Audio Waveforms (✅ Complete)
 - Audio clips display waveform visualization
 - Pseudo-random heights based on clip ID
 - Green bars for audio tracks
+
+### Inspector Panel (✅ Complete - 21.01.2026)
+- **Transformation Section**: Opacity, Scale, Rotation, Position X/Y
+- **Speed Section**: Speed multiplier, Reverse toggle
+- **Flip Section**: Horizontal/Vertical flip buttons
+- **Blend Mode**: 12 blend modes dropdown
+- **Audio Section**: Volume, Fade In/Out
+- **Color Correction**: Brightness, Contrast, Saturation, Hue
+- **Actions**: Keyframes button, Delete clip button
 
 ### Editing Tools (✅ Complete)
 - Split (B key) - splits clip at playhead position
 - Delete (Delete/Backspace) - removes selected clip
 - Undo/Redo support
 - Clip selection with white ring border
+- Clip trim handles (resize from edges)
 
 ### AI Features (✅ Complete)
 - KI-Bild (Image Generation) - Seedream 4.0
@@ -81,13 +95,14 @@ German (Deutsch)
 
 ---
 
-## P1/P2/P3 Features Remaining
+## P0/P1/P2 Features Remaining
 
 ### P0 - Critical (Next Sprint)
-- [x] Real video/audio playback in preview
-- [x] Audio waveform visualization
-- [ ] Clip trim handles (resize from edges)
-- [ ] Inspector panel property editing (opacity, scale, rotation)
+- [x] Drag-and-drop to timeline
+- [x] 1-hour timeline duration
+- [x] Fine tick marks
+- [x] Inspector property editing
+- [ ] Clip trim handles (drag edges to resize)
 
 ### P1 - High Priority
 - [ ] Video export rendering (FFmpeg in Electron)
@@ -109,52 +124,39 @@ German (Deutsch)
 ---
 
 ## Test Status
-- **Last Test:** iteration_9.json (21.01.2026)
+- **Last Test:** iteration_10.json (21.01.2026)
 - **Frontend Success Rate:** 100%
 - **Verified Features:**
-  - Project creation and editor navigation
-  - Video Track addition
-  - Demo media addition
-  - Drag-drop to timeline
-  - Clip display with titles
-  - Audio waveform visualization (252 bars)
-  - Playback with playhead movement
-  - Preview panel clip content display
-  - Timecode updates
-  - Timeline zoom (Ctrl+Scroll) - NaN bug fixed
-  - Horizontal scroll (Shift+Scroll)
-  - Clip selection (white ring)
-  - Split (B key)
-  - Delete functionality
+  - Drag Demo Video to Video 1 track
+  - Drag Demo Image to Video 1 track
+  - Timeline shows 1 hour (60:00)
+  - Minor tick marks between major markers
+  - Inspector panel property sliders
+  - Opacity, Scale, Rotation changes
+  - Horizontal/Vertical flip toggles
+  - Preview panel with all transformations
 
 ---
 
 ## Changelog
 
+### 21.01.2026 - Drag-Drop & Timeline Fixes
+- Fixed drag-and-drop with proper HTML5 API (dataTransfer, dropEffect)
+- Extended timeline to 3600 seconds (1 hour) minimum
+- Added minor tick marks between major time markers
+- Dynamic tick intervals based on zoom level
+- Added full transformation support in PreviewPanel
+
 ### 21.01.2026 - Video Preview & Audio Waveforms
-- Verified PreviewPanel shows clip content when playhead is over clip
-- Verified audio clips show waveform visualization (252 bars)
+- Verified PreviewPanel shows clip content
+- Verified audio clips show waveform visualization
 - Verified NaN zoom bug is fixed
-- All 14 features tested and passed
 
-### 21.01.2026 - Layout & Drag-Drop
-- Changed to 50/50 vertical split (Media+Preview / Timeline)
-- Right panel now spans full height
-- Reduced Media Panel width to 360px
-- Reduced Sidebar to 130px
-- Added draggable MediaTile with DRAG badge
-- Added Track drop handlers with visual feedback
-
-### 21.01.2026 - Compact Timeline
-- Fixed timeline to 50% height
-- Shift+Scroll for horizontal scrolling
-- Ctrl+Scroll for zoom
-- Track height 48px, compact UI
-
-### 21.01.2026 - CapCut UI
-- TopToolbar with 11 categories
-- MediaInputPanel with two-column layout
-- Integrated AI features
+### 21.01.2026 - Layout & Drag-Drop Foundation
+- 50/50 vertical split layout
+- Right panel spans full height
+- Draggable MediaTile with DRAG badge
+- Track drop handlers with visual feedback
 
 ---
 
@@ -162,9 +164,10 @@ German (Deutsch)
 
 ### Editor Components
 - `/app/src/components/editor/EditorLayout.jsx` - Main state management
-- `/app/src/components/editor/TimelinePanel.jsx` - Timeline with tracks, clips, waveforms
-- `/app/src/components/editor/MediaInputPanel.jsx` - Media panel with draggable items
-- `/app/src/components/PreviewPanel.jsx` - Video preview with playback sync
+- `/app/src/components/editor/TimelinePanel.jsx` - Timeline, tracks, clips, waveforms
+- `/app/src/components/editor/MediaInputPanel.jsx` - Media panel, draggable items
+- `/app/src/components/PreviewPanel.jsx` - Preview with all transformations
+- `/app/src/components/editor/InspectorPanel.jsx` - Property editing
 - `/app/src/components/editor/TopToolbar.jsx` - Top navigation bar
 
 ### Hooks
