@@ -268,17 +268,44 @@ function Track({ track, pxPerSec, selectedClipId, onClipSelect, onClipTrim, onCl
 
   const handleDragOver = (e) => {
     e.preventDefault();
+    e.stopPropagation();
+    // Setze dropEffect für visuelles Feedback
+    e.dataTransfer.dropEffect = 'copy';
     setDragOver(true);
   };
 
-  const handleDragLeave = () => setDragOver(false);
+  const handleDragEnter = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragOver(true);
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    // Nur wenn wir wirklich den Track verlassen
+    if (!e.currentTarget.contains(e.relatedTarget)) {
+      setDragOver(false);
+    }
+  };
 
   const handleDrop = (e) => {
     e.preventDefault();
+    e.stopPropagation();
     setDragOver(false);
+    
+    const mediaId = e.dataTransfer.getData('mediaId');
+    if (!mediaId) {
+      console.log('[Track] No mediaId in drop event');
+      return;
+    }
+    
     const rect = e.currentTarget.getBoundingClientRect();
     const x = e.clientX - rect.left;
-    onDrop(e, track.id, Math.max(0, x / pxPerSec));
+    const dropTime = Math.max(0, x / pxPerSec);
+    
+    console.log('[Track] Drop:', { mediaId, trackId: track.id, dropTime, x });
+    onDrop(e, track.id, dropTime);
   };
 
   return (
@@ -292,12 +319,15 @@ function Track({ track, pxPerSec, selectedClipId, onClipSelect, onClipTrim, onCl
         </button>
       </div>
 
-      {/* Track Content */}
+      {/* Track Content - Drop Zone */}
       <div
-        className={`flex-1 relative ${dragOver ? 'bg-[var(--accent-turquoise)]/10' : ''}`}
+        className={`flex-1 relative transition-colors ${dragOver ? 'bg-[var(--accent-turquoise)]/20 ring-2 ring-inset ring-[var(--accent-turquoise)]' : ''}`}
         onDragOver={handleDragOver}
+        onDragEnter={handleDragEnter}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
+        data-track-id={track.id}
+        data-track-type={track.type}
       >
         {track.clips?.map(clip => (
           <Clip
