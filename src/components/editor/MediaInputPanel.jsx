@@ -937,7 +937,7 @@ export default function MediaInputPanel() {
                   Importiert ({state.media.length})
                 </span>
                 <span className="text-[9px] text-[var(--text-tertiary)]">
-                  In Timeline ziehen
+                  Doppelklick oder ziehen
                 </span>
               </div>
               <div className="grid grid-cols-2 gap-1.5">
@@ -950,6 +950,7 @@ export default function MediaInputPanel() {
                     type={item.type}
                     duration={item.duration ? `${Math.floor(item.duration / 60)}:${String(Math.round(item.duration) % 60).padStart(2, '0')}` : null}
                     draggable={true}
+                    onDoubleClick={handleAddMediaToTimeline}
                   />
                 ))}
               </div>
