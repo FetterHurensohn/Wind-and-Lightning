@@ -87,12 +87,34 @@ export default function SettingsPanel({ onClose }) {
   const [activeSection, setActiveSection] = useState('general');
   const [settings, setSettings] = useState(() => settingsManager.settings);
   const [shortcuts, setShortcuts] = useState(() => settingsManager.shortcuts);
+  const [aiSettings, setAISettings] = useState(() => loadAISettings());
   const [editingShortcut, setEditingShortcut] = useState(null);
+  const [aiSettingsSaved, setAISettingsSaved] = useState(false);
   
   const updateSetting = useCallback((path, value) => {
     settingsManager.set(path, value);
     setSettings({ ...settingsManager.settings });
   }, []);
+  
+  const updateAISetting = useCallback((key, value) => {
+    const newSettings = { ...aiSettings, [key]: value };
+    setAISettings(newSettings);
+    saveAISettings(newSettings);
+    setAISettingsSaved(true);
+    setTimeout(() => setAISettingsSaved(false), 2000);
+  }, [aiSettings]);
+  
+  const updateFunctionModel = useCallback((functionType, provider, model) => {
+    const newSettings = { 
+      ...aiSettings, 
+      functionModels: {
+        ...aiSettings.functionModels,
+        [functionType]: { provider, model }
+      }
+    };
+    setAISettings(newSettings);
+    saveAISettings(newSettings);
+  }, [aiSettings]);
   
   const renderSection = () => {
     switch (activeSection) {
