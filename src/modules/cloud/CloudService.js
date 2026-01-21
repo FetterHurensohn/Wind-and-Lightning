@@ -43,7 +43,7 @@ export const PERMISSION_LEVELS = [
 // === PROJECT VERSION ===
 export function createProjectVersion(project, comment = '') {
   return {
-    id: uuidv4(),
+    id: generateUUID(),
     projectId: project.id,
     versionNumber: (project.versions?.length || 0) + 1,
     name: `Version ${(project.versions?.length || 0) + 1}`,
@@ -58,7 +58,7 @@ export function createProjectVersion(project, comment = '') {
 // === COLLABORATION SESSION ===
 export function createCollaborationSession(projectId, userId) {
   return {
-    id: uuidv4(),
+    id: generateUUID(),
     projectId,
     userId,
     status: 'active', // 'active', 'idle', 'disconnected'
@@ -83,7 +83,7 @@ function generateUserColor(seed) {
 // === TEAM ===
 export function createTeam(name, ownerId) {
   return {
-    id: uuidv4(),
+    id: generateUUID(),
     name,
     ownerId,
     members: [
@@ -168,7 +168,7 @@ export class CloudSyncManager {
   
   queueOfflineChange(change) {
     this.offlineChanges.push({
-      id: uuidv4(),
+      id: generateUUID(),
       ...change,
       timestamp: Date.now()
     });
@@ -346,7 +346,7 @@ export class CollaborationManager {
 // === SHARE LINK ===
 export function createShareLink(projectId, options = {}) {
   return {
-    id: uuidv4(),
+    id: generateUUID(),
     projectId,
     token: generateShareToken(),
     permission: options.permission || 'viewer',
@@ -372,7 +372,7 @@ function generateShareToken() {
 // === COMMENT ===
 export function createComment(projectId, userId, content, options = {}) {
   return {
-    id: uuidv4(),
+    id: generateUUID(),
     projectId,
     userId,
     content,
