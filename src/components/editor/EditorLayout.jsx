@@ -429,6 +429,87 @@ function reducer(state, action) {
       };
     }
 
+    // ADD_EFFECT_TO_CLIP - Fügt einen Effekt zu einem Clip hinzu
+    case 'ADD_EFFECT_TO_CLIP': {
+      const { clipId, effect } = action.payload;
+      return {
+        ...state,
+        tracks: state.tracks.map(track => ({
+          ...track,
+          clips: track.clips?.map(clip => {
+            if (clip.id !== clipId) return clip;
+            const existingEffects = clip.effects || [];
+            // Prüfe ob Effekt bereits existiert
+            const effectExists = existingEffects.some(e => e.id === effect.id);
+            if (effectExists) {
+              // Ersetze existierenden Effekt
+              return {
+                ...clip,
+                effects: existingEffects.map(e => e.id === effect.id ? effect : e)
+              };
+            }
+            // Füge neuen Effekt hinzu
+            return {
+              ...clip,
+              effects: [...existingEffects, effect]
+            };
+          }) || []
+        }))
+      };
+    }
+
+    // REMOVE_EFFECT_FROM_CLIP - Entfernt einen Effekt von einem Clip
+    case 'REMOVE_EFFECT_FROM_CLIP': {
+      const { clipId, effectId } = action.payload;
+      return {
+        ...state,
+        tracks: state.tracks.map(track => ({
+          ...track,
+          clips: track.clips?.map(clip => {
+            if (clip.id !== clipId) return clip;
+            return {
+              ...clip,
+              effects: (clip.effects || []).filter(e => e.id !== effectId)
+            };
+          }) || []
+        }))
+      };
+    }
+
+    // ADD_TRANSITION_TO_CLIP - Fügt einen Übergang zu einem Clip hinzu
+    case 'ADD_TRANSITION_TO_CLIP': {
+      const { clipId, transition } = action.payload;
+      return {
+        ...state,
+        tracks: state.tracks.map(track => ({
+          ...track,
+          clips: track.clips?.map(clip => {
+            if (clip.id !== clipId) return clip;
+            return {
+              ...clip,
+              transition: transition // Übergang am Ende des Clips
+            };
+          }) || []
+        }))
+      };
+    }
+
+    // REMOVE_TRANSITION_FROM_CLIP - Entfernt einen Übergang von einem Clip
+    case 'REMOVE_TRANSITION_FROM_CLIP': {
+      const { clipId } = action.payload;
+      return {
+        ...state,
+        tracks: state.tracks.map(track => ({
+          ...track,
+          clips: track.clips?.map(clip => {
+            if (clip.id !== clipId) return clip;
+            const { transition, ...rest } = clip;
+            return rest;
+          }) || []
+        }))
+      };
+    }
+
     // UPDATE_CLIP_SPEED - Aktualisiert Geschwindigkeitseinstellungen
     case 'UPDATE_CLIP_SPEED': {
       const { clipId, speedData } = action.payload;
