@@ -88,8 +88,8 @@ const SearchBar = ({ placeholder, value, onChange }) => (
   </div>
 );
 
-// Grid Tile für Medien/Effekte - MIT DRAG SUPPORT und DOUBLE-CLICK
-const MediaTile = ({ id, thumbnail, title, duration, type, onDownload, onClick, draggable = false, onDoubleClick }) => {
+// Grid Tile für Medien/Effekte - MIT DRAG SUPPORT, DOUBLE-CLICK und ADD BUTTON
+const MediaTile = ({ id, thumbnail, title, duration, type, onDownload, onClick, draggable = false, onDoubleClick, onAddToTimeline }) => {
   const handleDragStart = (e) => {
     if (!draggable || !id) {
       e.preventDefault();
@@ -133,6 +133,15 @@ const MediaTile = ({ id, thumbnail, title, duration, type, onDownload, onClick, 
     }
   };
 
+  const handleAddClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (onAddToTimeline && id) {
+      console.log('[MediaTile] Add button clicked:', { id, type, title });
+      onAddToTimeline(id);
+    }
+  };
+
   return (
     <div 
       onClick={onClick}
@@ -143,7 +152,7 @@ const MediaTile = ({ id, thumbnail, title, duration, type, onDownload, onClick, 
       className={`group relative bg-[var(--bg-surface)] rounded-lg overflow-hidden border border-[var(--border-subtle)] hover:border-[var(--accent-turquoise)] cursor-pointer transition-all duration-150 ${draggable ? 'cursor-grab active:cursor-grabbing hover:shadow-lg hover:shadow-[var(--accent-turquoise)]/20' : ''}`}
       data-media-id={id}
       data-media-type={type}
-      title="Doppelklick zum Hinzufügen oder in die Timeline ziehen"
+      title="Klicke + oder Doppelklick zum Hinzufügen"
     >
       <div className="aspect-video bg-[var(--bg-panel)] flex items-center justify-center relative">
         {thumbnail ? (
@@ -156,18 +165,28 @@ const MediaTile = ({ id, thumbnail, title, duration, type, onDownload, onClick, 
             {duration}
           </span>
         )}
-        {draggable && (
-          <div className="absolute top-1 left-1 px-1.5 py-0.5 bg-[var(--accent-turquoise)] text-white text-[8px] font-bold rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-            DRAG
-          </div>
-        )}
-        {draggable && (
-          <div className="absolute bottom-1 left-1 px-1.5 py-0.5 bg-black/70 text-white text-[8px] rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-            2× Klick
-          </div>
+        {/* Add to Timeline Button - erscheint beim Hover */}
+        {draggable && onAddToTimeline && (
+          <button
+            onClick={handleAddClick}
+            className="absolute inset-0 flex items-center justify-center bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity"
+            data-testid={`add-to-timeline-${id}`}
+          >
+            <div className="w-10 h-10 rounded-full bg-[var(--accent-turquoise)] flex items-center justify-center hover:scale-110 transition-transform">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+            </div>
+          </button>
         )}
       </div>
       {title && (
+        <div className="p-1.5 text-[10px] text-[var(--text-secondary)] truncate">{title}</div>
+      )}
+    </div>
+  );
+};
         <div className="p-1.5 text-[10px] text-[var(--text-secondary)] truncate">{title}</div>
       )}
     </div>
