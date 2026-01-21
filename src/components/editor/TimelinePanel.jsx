@@ -910,6 +910,7 @@ export default function TimelinePanel() {
                   onClipSelect={handleClipSelect}
                   onClipTrim={handleClipTrim}
                   onClipMove={handleClipMove}
+                  onMoveToNewTrack={handleMoveToNewTrack}
                   onDrop={handleDrop}
                   onTrackUpdate={handleTrackUpdate}
                   onTrackDelete={handleTrackDelete}
