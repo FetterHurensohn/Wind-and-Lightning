@@ -941,74 +941,70 @@ export default function EditorLayout({ projectPath, onBackToDashboard }) {
             />
 
             {/* Main Content Area */}
-            <div className="flex-1 flex overflow-hidden">
-
-              {/* Left + Center Column - Media Panel + Preview + Timeline */}
-              <div className="flex-1 flex flex-col">
-                {/* Upper Row: Media Panel (left) + Preview (right) */}
-                <div className="h-[55%] flex overflow-hidden">
-                  {/* Media Panel - CapCut Style mit eigenem Layout */}
-                  <div className="w-[500px] bg-[var(--bg-panel)] border-r border-[var(--border-subtle)] overflow-hidden">
-                    <MediaInputPanel />
-                  </div>
-
-                  {/* Preview - rechte Seite */}
-                  <div className="flex-1 flex items-center justify-center bg-[var(--bg-main)] p-4">
-                    <PreviewPanel
-                      currentTime={playhead.currentTime}
-                      playing={playhead.playing}
-                      tracks={state.tracks}
-                      media={state.media}
-                      onSeek={playhead.seek}
-                      fps={state.fps}
-                    />
-                  </div>
+            <div className="flex-1 flex flex-col overflow-hidden">
+              {/* Upper Row: Media Panel + Preview + Right Panel */}
+              <div className="flex-1 flex overflow-hidden min-h-0">
+                {/* Media Panel - CapCut Style */}
+                <div className="w-[420px] bg-[var(--bg-panel)] border-r border-[var(--border-subtle)] overflow-hidden flex-shrink-0">
+                  <MediaInputPanel />
                 </div>
 
-                {/* Lower Row: Timeline */}
-                <div className="h-[45%] bg-[var(--bg-main)] overflow-hidden">
-                  <TimelinePanel />
+                {/* Preview - Center */}
+                <div className="flex-1 flex items-center justify-center bg-[var(--bg-main)] p-2 min-w-0">
+                  <PreviewPanel
+                    currentTime={playhead.currentTime}
+                    playing={playhead.playing}
+                    tracks={state.tracks}
+                    media={state.media}
+                    onSeek={playhead.seek}
+                    fps={state.fps}
+                  />
+                </div>
+
+                {/* Right Panel - Inspector / AI Chat */}
+                <div className="w-[260px] border-l border-[var(--border-subtle)] flex flex-col flex-shrink-0">
+                  {/* Tab-Switcher */}
+                  <div className="h-9 flex border-b border-[var(--border-subtle)]">
+                    <button
+                      onClick={() => setShowInspector(true)}
+                      className={`flex-1 text-xs font-medium transition-colors ${
+                        showInspector 
+                          ? 'text-[var(--accent-turquoise)] border-b-2 border-[var(--accent-turquoise)]' 
+                          : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                      }`}
+                    >
+                      Eigenschaften
+                    </button>
+                    <button
+                      onClick={() => setShowInspector(false)}
+                      className={`flex-1 text-xs font-medium transition-colors ${
+                        !showInspector 
+                          ? 'text-[var(--accent-turquoise)] border-b-2 border-[var(--accent-turquoise)]' 
+                          : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                      }`}
+                    >
+                      KI-Assistent
+                    </button>
+                  </div>
+                  
+                  {/* Content */}
+                  <div className="flex-1 overflow-hidden">
+                    {showInspector ? (
+                      <InspectorPanel
+                        onOpenKeyframes={handleOpenKeyframes}
+                        onOpenSpeed={handleOpenSpeed}
+                        onOpenText={handleOpenText}
+                      />
+                    ) : (
+                      <AIChat />
+                    )}
+                  </div>
                 </div>
               </div>
 
-              {/* Right Column - Inspector Panel oder AI Chat - volle Höhe */}
-              <div className="w-[280px] border-l border-[var(--border-subtle)] flex flex-col">
-                {/* Tab-Switcher */}
-                <div className="h-10 flex border-b border-[var(--border-subtle)]">
-                  <button
-                    onClick={() => setShowInspector(true)}
-                    className={`flex-1 text-xs font-medium transition-colors ${
-                      showInspector 
-                        ? 'text-[var(--accent-turquoise)] border-b-2 border-[var(--accent-turquoise)]' 
-                        : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
-                    }`}
-                  >
-                    Eigenschaften
-                  </button>
-                  <button
-                    onClick={() => setShowInspector(false)}
-                    className={`flex-1 text-xs font-medium transition-colors ${
-                      !showInspector 
-                        ? 'text-[var(--accent-turquoise)] border-b-2 border-[var(--accent-turquoise)]' 
-                        : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
-                    }`}
-                  >
-                    KI-Assistent
-                  </button>
-                </div>
-                
-                {/* Content */}
-                <div className="flex-1 overflow-hidden">
-                  {showInspector ? (
-                    <InspectorPanel
-                      onOpenKeyframes={handleOpenKeyframes}
-                      onOpenSpeed={handleOpenSpeed}
-                      onOpenText={handleOpenText}
-                    />
-                  ) : (
-                    <AIChat />
-                  )}
-                </div>
+              {/* Lower Row: Timeline - Volle Breite, geht unter rechtes Panel */}
+              <div className="h-[200px] bg-[var(--bg-main)] border-t border-[var(--border-subtle)] flex-shrink-0">
+                <TimelinePanel />
               </div>
             </div>
           </div>
