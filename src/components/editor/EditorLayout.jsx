@@ -163,6 +163,7 @@ function reducer(state, action) {
 
     case 'MOVE_CLIP': {
       const { clipId, trackId, newStart } = action.payload;
+      
       return {
         ...state,
         tracks: state.tracks.map(track => {
@@ -170,6 +171,53 @@ function reducer(state, action) {
           if (trackId && track.id !== trackId) {
             return track;
           }
+          
+          // Finde den bewegten Clip
+          const movingClip = track.clips.find(c => c.id === clipId);
+          if (!movingClip) return track;
+          
+          const movingClipEnd = newStart + movingClip.duration;
+          
+          // Finde Clips, die mit der neuen Position kollidieren
+          const collidingClips = track.clips.filter(c => {
+            if (c.id === clipId) return false;
+            const clipEnd = c.start + c.duration;
+            // Prüfe auf Überlappung
+            return (newStart < clipEnd && movingClipEnd > c.start);
+          });
+          
+          // Wenn Kollision, tausche Positionen
+          if (collidingClips.length > 0) {
+            // Finde den Clip, mit dem wir am meisten überlappen
+            const targetClip = collidingClips.reduce((max, c) => {
+              const overlap = Math.min(movingClipEnd, c.start + c.duration) - Math.max(newStart, c.start);
+              const maxOverlap = max ? Math.min(movingClipEnd, max.start + max.duration) - Math.max(newStart, max.start) : 0;
+              return overlap > maxOverlap ? c : max;
+            }, null);
+            
+            if (targetClip) {
+              // Tausche Positionen
+              const targetOldStart = targetClip.start;
+              const movingOldStart = movingClip.start;
+              
+              return {
+                ...track,
+                clips: track.clips.map(clip => {
+                  if (clip.id === clipId) {
+                    // Der bewegte Clip geht zur Position des Ziel-Clips
+                    return { ...clip, start: targetOldStart };
+                  }
+                  if (clip.id === targetClip.id) {
+                    // Der Ziel-Clip geht zur alten Position des bewegten Clips
+                    return { ...clip, start: movingOldStart };
+                  }
+                  return clip;
+                })
+              };
+            }
+          }
+          
+          // Keine Kollision - normale Bewegung
           return {
             ...track,
             clips: track.clips.map(clip =>
