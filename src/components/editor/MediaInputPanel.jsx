@@ -22,19 +22,19 @@ const NavItem = ({ label, isActive, onClick, hasChildren, isExpanded, icon, badg
   <button
     onClick={onClick}
     className={`
-      w-full h-8 px-3 flex items-center gap-2 text-left rounded-md transition-colors text-sm
+      w-full h-7 px-2 flex items-center gap-1.5 text-left rounded transition-colors text-[11px]
       ${isActive 
         ? 'bg-[var(--accent-turquoise)]/20 text-[var(--accent-turquoise)] font-medium' 
         : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'}
     `}
   >
     {hasChildren && (
-      <Icon name={isExpanded ? 'chevronDown' : 'chevronRight'} size={12} className="flex-shrink-0" />
+      <Icon name={isExpanded ? 'chevronDown' : 'chevronRight'} size={10} className="flex-shrink-0" />
     )}
-    {icon && <Icon name={icon} size={16} className="flex-shrink-0" />}
+    {icon && <Icon name={icon} size={14} className="flex-shrink-0" />}
     <span className="flex-1 truncate">{label}</span>
     {badge && (
-      <span className="px-1.5 py-0.5 bg-[var(--accent-purple)] text-white text-xs rounded">{badge}</span>
+      <span className="px-1 py-0.5 bg-[var(--accent-purple)] text-white text-[8px] rounded">{badge}</span>
     )}
   </button>
 );
@@ -44,7 +44,7 @@ const SubNavItem = ({ label, isActive, onClick }) => (
   <button
     onClick={onClick}
     className={`
-      w-full h-7 pl-6 pr-3 text-left text-sm rounded transition-colors truncate
+      w-full h-6 pl-5 pr-2 text-left text-[10px] rounded transition-colors truncate
       ${isActive 
         ? 'text-[var(--accent-turquoise)] font-medium' 
         : 'text-[var(--text-tertiary)] hover:text-[var(--text-primary)]'}
@@ -58,18 +58,18 @@ const SubNavItem = ({ label, isActive, onClick }) => (
 const NavGroup = ({ label, children, defaultOpen = false, badge }) => {
   const [isOpen, setIsOpen] = useState(defaultOpen);
   return (
-    <div className="mb-1">
+    <div className="mb-0.5">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full h-8 px-3 flex items-center gap-2 text-left text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] rounded-md transition-colors"
+        className="w-full h-7 px-2 flex items-center gap-1.5 text-left text-[11px] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] rounded transition-colors"
       >
-        <Icon name={isOpen ? 'chevronDown' : 'chevronRight'} size={12} />
-        <span className="flex-1">{label}</span>
+        <Icon name={isOpen ? 'chevronDown' : 'chevronRight'} size={10} />
+        <span className="flex-1 truncate">{label}</span>
         {badge && (
-          <span className="px-1.5 py-0.5 bg-[var(--accent-purple)] text-white text-xs rounded">{badge}</span>
+          <span className="px-1 py-0.5 bg-[var(--accent-purple)] text-white text-[8px] rounded">{badge}</span>
         )}
       </button>
-      {isOpen && <div className="mt-1 space-y-0.5">{children}</div>}
+      {isOpen && <div className="mt-0.5 space-y-0">{children}</div>}
     </div>
   );
 };
