@@ -7,7 +7,9 @@ export default defineConfig({
   base: './', // Relative paths for Electron
   server: {
     port: 3000,
-    strictPort: false
+    strictPort: false,
+    host: '0.0.0.0',
+    allowedHosts: ['localhost', '.preview.emergentagent.com'],
   },
   build: {
     outDir: 'dist',
