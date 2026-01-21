@@ -319,14 +319,126 @@ export default function InspectorPanel({
         
         {/* Text Specific */}
         {selectedClip.type === 'text' && (
-          <Section title="Text" icon="text">
-            <button
-              onClick={() => onOpenText?.(selectedClip)}
-              className="w-full h-8 bg-[var(--accent-turquoise)] text-white rounded text-xs font-medium hover:opacity-90 transition-colors"
-            >
-              Text bearbeiten
-            </button>
-          </Section>
+          <>
+            <Section title="Text" icon="text" defaultOpen={true}>
+              <div className="space-y-3">
+                {/* Text Content */}
+                <div>
+                  <div className="text-[10px] text-[var(--text-tertiary)] mb-1">Textinhalt</div>
+                  <textarea
+                    value={props.text || ''}
+                    onChange={(e) => updateClipProperty('text', e.target.value)}
+                    className="w-full h-20 px-2 py-1.5 bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded text-xs text-[var(--text-primary)] resize-none focus:outline-none focus:border-[var(--accent-turquoise)]"
+                    placeholder="Text eingeben..."
+                  />
+                </div>
+                
+                {/* Font Size */}
+                <PropertySlider
+                  label="Schriftgröße"
+                  value={props.fontSize ?? 48}
+                  min={12}
+                  max={200}
+                  unit="px"
+                  onChange={(v) => updateClipProperty('fontSize', v)}
+                />
+                
+                {/* Font Weight */}
+                <div>
+                  <div className="text-[10px] text-[var(--text-tertiary)] mb-1">Schriftstärke</div>
+                  <select
+                    value={props.fontWeight || 'bold'}
+                    onChange={(e) => updateClipProperty('fontWeight', e.target.value)}
+                    className="w-full h-8 px-2 bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded text-xs text-[var(--text-primary)] focus:outline-none"
+                  >
+                    <option value="normal">Normal</option>
+                    <option value="medium">Mittel</option>
+                    <option value="semibold">Halbfett</option>
+                    <option value="bold">Fett</option>
+                    <option value="extrabold">Extra Fett</option>
+                  </select>
+                </div>
+                
+                {/* Text Color */}
+                <div>
+                  <div className="text-[10px] text-[var(--text-tertiary)] mb-1">Textfarbe</div>
+                  <div className="flex gap-2">
+                    <input
+                      type="color"
+                      value={props.color || '#ffffff'}
+                      onChange={(e) => updateClipProperty('color', e.target.value)}
+                      className="w-8 h-8 rounded cursor-pointer bg-transparent"
+                    />
+                    <input
+                      type="text"
+                      value={props.color || '#ffffff'}
+                      onChange={(e) => updateClipProperty('color', e.target.value)}
+                      className="flex-1 h-8 px-2 bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded text-xs text-[var(--text-primary)] focus:outline-none"
+                    />
+                  </div>
+                </div>
+                
+                {/* Background Color */}
+                <div>
+                  <div className="text-[10px] text-[var(--text-tertiary)] mb-1">Hintergrundfarbe</div>
+                  <div className="flex gap-2">
+                    <input
+                      type="color"
+                      value={props.backgroundColor === 'transparent' ? '#000000' : (props.backgroundColor || '#000000')}
+                      onChange={(e) => updateClipProperty('backgroundColor', e.target.value)}
+                      className="w-8 h-8 rounded cursor-pointer bg-transparent"
+                    />
+                    <button
+                      onClick={() => updateClipProperty('backgroundColor', 'transparent')}
+                      className={`flex-1 h-8 rounded text-xs transition-colors ${
+                        props.backgroundColor === 'transparent' || !props.backgroundColor
+                          ? 'bg-[var(--accent-turquoise)] text-white'
+                          : 'bg-[var(--bg-surface)] text-[var(--text-secondary)]'
+                      }`}
+                    >
+                      Transparent
+                    </button>
+                  </div>
+                </div>
+                
+                {/* Text Align */}
+                <div>
+                  <div className="text-[10px] text-[var(--text-tertiary)] mb-1">Ausrichtung</div>
+                  <div className="flex gap-1">
+                    {['left', 'center', 'right'].map(align => (
+                      <button
+                        key={align}
+                        onClick={() => updateClipProperty('textAlign', align)}
+                        className={`flex-1 h-8 rounded text-xs transition-colors ${
+                          (props.textAlign || 'center') === align
+                            ? 'bg-[var(--accent-turquoise)] text-white'
+                            : 'bg-[var(--bg-surface)] text-[var(--text-secondary)]'
+                        }`}
+                      >
+                        {align === 'left' ? 'Links' : align === 'center' ? 'Mitte' : 'Rechts'}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </Section>
+            
+            {/* Text Effect */}
+            <Section title="Texteffekt" icon="effects" defaultOpen={false}>
+              <select
+                value={props.textEffect || 'none'}
+                onChange={(e) => updateClipProperty('textEffect', e.target.value)}
+                className="w-full h-8 px-2 bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded text-xs text-[var(--text-primary)] focus:outline-none"
+              >
+                <option value="none">Kein Effekt</option>
+                <option value="shadow">Schatten</option>
+                <option value="outline">Umriss</option>
+                <option value="glow">Leuchten</option>
+                <option value="neon">Neon</option>
+                <option value="gradient">Farbverlauf</option>
+              </select>
+            </Section>
+          </>
         )}
         
         {/* Color Correction */}
