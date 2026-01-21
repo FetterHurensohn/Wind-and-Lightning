@@ -753,6 +753,51 @@ export default function TimelinePanel() {
     }
   }, [dispatch]);
 
+  // Handle moving clip to new track
+  const handleMoveToNewTrack = useCallback((clipId, currentTrackId, direction, clipStart) => {
+    // Find the clip to move
+    const currentTrack = state.tracks.find(t => t.id === currentTrackId);
+    const clip = currentTrack?.clips?.find(c => c.id === clipId);
+    
+    if (!clip) return;
+
+    // Determine track type based on clip type
+    let trackType = clip.type;
+    if (clip.type === 'image') trackType = 'video'; // Images go on video tracks
+
+    // Create new track
+    const typeNames = { video: 'Video', audio: 'Audio', text: 'Text', sticker: 'Sticker' };
+    const count = state.tracks.filter(t => t.type === trackType).length + 1;
+    const newTrackId = `${trackType}_${Date.now()}`;
+    
+    // Find position to insert new track
+    const currentTrackIndex = state.tracks.findIndex(t => t.id === currentTrackId);
+    const insertPosition = direction === 'above' ? currentTrackIndex : currentTrackIndex + 1;
+    
+    // Create new track
+    dispatch({
+      type: 'ADD_TRACK',
+      payload: {
+        track: {
+          id: newTrackId,
+          name: `${typeNames[trackType]} ${count}`,
+          type: trackType,
+          clips: [],
+          locked: false,
+          hidden: false,
+          muted: false,
+          gauge: 100
+        },
+        position: insertPosition
+      }
+    });
+
+    // Move clip to new track
+    setTimeout(() => {
+      dispatch({ type: 'MOVE_CLIP', payload: { clipId, trackId: newTrackId, newStart: clipStart } });
+    }, 10);
+  }, [state.tracks, dispatch]);
+
   // Create New Track with Media (for drag above existing tracks)
   const handleCreateTrackWithMedia = useCallback((type, mediaId, e) => {
     const typeNames = { video: 'Video', audio: 'Audio', text: 'Text', sticker: 'Sticker' };
