@@ -149,6 +149,8 @@ export function ImageGeneratorPanel({ onClose, onInsert }) {
   const [style, setStyle] = useState('realistic');
   const [size, setSize] = useState('1024x1024');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [generatedImage, setGeneratedImage] = useState(null);
   const [provider, setProvider] = useState(settings.defaultProvider);
   const [model, setModel] = useState(settings.defaultModel);
 
@@ -162,6 +164,39 @@ export function ImageGeneratorPanel({ onClose, onInsert }) {
     { id: '3d-render', name: '3D Render' },
     { id: 'sketch', name: 'Skizze' }
   ];
+
+  const handleGenerate = async () => {
+    if (!prompt.trim()) return;
+    
+    setLoading(true);
+    setError(null);
+    setGeneratedImage(null);
+    
+    try {
+      const fullPrompt = style !== 'realistic' 
+        ? `${prompt}, ${style} style, high quality`
+        : prompt;
+        
+      const result = await generateImage(fullPrompt, {
+        size: size,
+        style: 'vivid'
+      });
+      
+      setGeneratedImage(result.url || result.b64_json);
+    } catch (err) {
+      console.error('Image Generation Error:', err);
+      setError(err.message || 'Bildgenerierung fehlgeschlagen');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleInsert = () => {
+    if (generatedImage) {
+      onInsert?.({ url: generatedImage, prompt });
+      onClose?.();
+    }
+  };
 
   return (
     <div className="bg-[var(--bg-panel)] rounded-xl border border-[var(--border-subtle)] w-[500px]" data-testid="image-generator-panel">
@@ -181,7 +216,14 @@ export function ImageGeneratorPanel({ onClose, onInsert }) {
 
         <div>
           <label className="text-xs text-[var(--text-secondary)] mb-2 block">Bild-Beschreibung</label>
-          <textarea value={prompt} onChange={(e) => setPrompt(e.target.value)} placeholder="Beschreibe das gewünschte Bild..." rows={3} className="w-full px-3 py-2 bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-lg text-sm text-[var(--text-primary)] placeholder-[var(--text-tertiary)] focus:outline-none focus:border-[var(--accent-turquoise)] resize-none" />
+          <textarea 
+            value={prompt} 
+            onChange={(e) => setPrompt(e.target.value)} 
+            placeholder="Beschreibe das gewünschte Bild... z.B. 'Ein Sonnenuntergang über dem Meer mit Palmen'" 
+            rows={3} 
+            className="w-full px-3 py-2 bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-lg text-sm text-[var(--text-primary)] placeholder-[var(--text-tertiary)] focus:outline-none focus:border-[var(--accent-turquoise)] resize-none" 
+            data-testid="image-prompt-input"
+          />
         </div>
 
         <div className="grid grid-cols-2 gap-3">
@@ -201,9 +243,41 @@ export function ImageGeneratorPanel({ onClose, onInsert }) {
           </div>
         </div>
 
-        <button disabled={!prompt.trim() || loading} className="w-full h-10 bg-[var(--accent-purple)] text-white rounded-lg text-sm font-medium hover:opacity-90 disabled:opacity-50 flex items-center justify-center gap-2">
-          {loading ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <Icon name="effects" size={14} />}
-          Bild generieren
+        {/* Error Display */}
+        {error && (
+          <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
+            <div className="flex items-center gap-2 text-red-400 text-sm">
+              <Icon name="alertCircle" size={14} />
+              {error}
+            </div>
+          </div>
+        )}
+
+        {/* Generated Image Preview */}
+        {generatedImage && (
+          <div className="space-y-2">
+            <label className="text-xs text-[var(--text-secondary)]">Generiertes Bild</label>
+            <div className="aspect-square bg-[var(--bg-surface)] rounded-lg overflow-hidden">
+              <img src={generatedImage} alt="Generated" className="w-full h-full object-cover" />
+            </div>
+            <button
+              onClick={handleInsert}
+              className="w-full h-10 bg-[var(--accent-turquoise)] text-white rounded-lg text-sm font-medium hover:opacity-90 flex items-center justify-center gap-2"
+              data-testid="insert-image-btn"
+            >
+              <Icon name="check" size={14} />
+              In Projekt einfügen
+            </button>
+          </div>
+        )}
+
+        <button 
+          onClick={handleGenerate}
+          disabled={!prompt.trim() || loading} 
+          className="w-full h-10 bg-[var(--accent-purple)] text-white rounded-lg text-sm font-medium hover:opacity-90 disabled:opacity-50 flex items-center justify-center gap-2"
+          data-testid="generate-image-btn"
+        >
+          {loading ? <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Generiere...</> : <><Icon name="effects" size={14} /> Bild generieren</>}
         </button>
       </div>
     </div>
