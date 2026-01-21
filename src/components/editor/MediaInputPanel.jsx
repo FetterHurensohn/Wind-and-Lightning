@@ -88,8 +88,8 @@ const SearchBar = ({ placeholder, value, onChange }) => (
   </div>
 );
 
-// Grid Tile für Medien/Effekte - MIT DRAG SUPPORT
-const MediaTile = ({ id, thumbnail, title, duration, type, onDownload, onClick, draggable = false }) => {
+// Grid Tile für Medien/Effekte - MIT DRAG SUPPORT und DOUBLE-CLICK
+const MediaTile = ({ id, thumbnail, title, duration, type, onDownload, onClick, draggable = false, onDoubleClick }) => {
   const handleDragStart = (e) => {
     if (!draggable || !id) {
       e.preventDefault();
@@ -99,7 +99,17 @@ const MediaTile = ({ id, thumbnail, title, duration, type, onDownload, onClick, 
     // Setze die mediaId für den Drop-Handler
     e.dataTransfer.setData('mediaId', id);
     e.dataTransfer.setData('text/plain', id); // Fallback
-    e.dataTransfer.effectAllowed = 'copy';
+    e.dataTransfer.setData('application/json', JSON.stringify({ id, type, title }));
+    e.dataTransfer.effectAllowed = 'copyMove';
+    
+    // Create drag image
+    const dragImage = e.currentTarget.cloneNode(true);
+    dragImage.style.opacity = '0.8';
+    dragImage.style.position = 'absolute';
+    dragImage.style.top = '-1000px';
+    document.body.appendChild(dragImage);
+    e.dataTransfer.setDragImage(dragImage, 50, 30);
+    setTimeout(() => document.body.removeChild(dragImage), 0);
     
     // Visual feedback
     e.currentTarget.style.opacity = '0.5';
@@ -114,15 +124,26 @@ const MediaTile = ({ id, thumbnail, title, duration, type, onDownload, onClick, 
     console.log('[MediaTile] Drag ended:', { id });
   };
 
+  const handleDoubleClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (onDoubleClick && id) {
+      console.log('[MediaTile] Double-click:', { id, type, title });
+      onDoubleClick(id);
+    }
+  };
+
   return (
     <div 
       onClick={onClick}
+      onDoubleClick={handleDoubleClick}
       draggable={draggable}
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
       className={`group relative bg-[var(--bg-surface)] rounded-lg overflow-hidden border border-[var(--border-subtle)] hover:border-[var(--accent-turquoise)] cursor-pointer transition-all duration-150 ${draggable ? 'cursor-grab active:cursor-grabbing hover:shadow-lg hover:shadow-[var(--accent-turquoise)]/20' : ''}`}
       data-media-id={id}
       data-media-type={type}
+      title="Doppelklick zum Hinzufügen oder in die Timeline ziehen"
     >
       <div className="aspect-video bg-[var(--bg-panel)] flex items-center justify-center relative">
         {thumbnail ? (
@@ -136,8 +157,13 @@ const MediaTile = ({ id, thumbnail, title, duration, type, onDownload, onClick, 
           </span>
         )}
         {draggable && (
-          <div className="absolute top-1 left-1 px-1.5 py-0.5 bg-[var(--accent-turquoise)] text-white text-[8px] font-bold rounded opacity-0 group-hover:opacity-100 transition-opacity">
+          <div className="absolute top-1 left-1 px-1.5 py-0.5 bg-[var(--accent-turquoise)] text-white text-[8px] font-bold rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
             DRAG
+          </div>
+        )}
+        {draggable && (
+          <div className="absolute bottom-1 left-1 px-1.5 py-0.5 bg-black/70 text-white text-[8px] rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+            2× Klick
           </div>
         )}
       </div>
