@@ -685,20 +685,90 @@ export default function TimelinePanel() {
   }, [state.media, state.tracks, state.snapping, dispatch]);
 
   const handleAddTrack = (type) => {
+    const typeNames = {
+      video: 'Video',
+      audio: 'Audio',
+      text: 'Text',
+      sticker: 'Sticker'
+    };
     const count = state.tracks.filter(t => t.type === type).length + 1;
     dispatch({
       type: 'ADD_TRACK',
       payload: {
         track: {
           id: `${type}_${Date.now()}`,
-          name: `${type === 'video' ? 'Video' : 'Audio'} ${count}`,
+          name: `${typeNames[type]} ${count}`,
           type,
-          clips: []
+          clips: [],
+          locked: false,
+          hidden: false,
+          muted: false,
+          gauge: 100,
+          waveformSize: 'medium'
         },
-        position: type === 'video' ? 0 : state.tracks.length
+        position: type === 'video' || type === 'text' || type === 'sticker' ? 0 : state.tracks.length
       }
     });
   };
+
+  // Track Update Handler
+  const handleTrackUpdate = useCallback((trackId, updates) => {
+    dispatch({ type: 'UPDATE_TRACK', payload: { trackId, updates } });
+  }, [dispatch]);
+
+  // Track Delete Handler
+  const handleTrackDelete = useCallback((trackId) => {
+    if (window.confirm('Track wirklich löschen? Alle Clips auf diesem Track werden entfernt.')) {
+      dispatch({ type: 'DELETE_TRACK', payload: { trackId } });
+    }
+  }, [dispatch]);
+
+  // Create New Track with Media (for drag above existing tracks)
+  const handleCreateTrackWithMedia = useCallback((type, mediaId, e) => {
+    const typeNames = { video: 'Video', audio: 'Audio', text: 'Text', sticker: 'Sticker' };
+    const count = state.tracks.filter(t => t.type === type).length + 1;
+    const newTrackId = `${type}_${Date.now()}`;
+    
+    // Create new track first
+    dispatch({
+      type: 'ADD_TRACK',
+      payload: {
+        track: {
+          id: newTrackId,
+          name: `${typeNames[type]} ${count}`,
+          type,
+          clips: [],
+          locked: false,
+          hidden: false,
+          muted: false,
+          gauge: 100
+        },
+        position: 0 // Insert at top
+      }
+    });
+
+    // If mediaId provided, add clip to new track
+    if (mediaId) {
+      const mediaItem = state.media.find(m => m.id === mediaId);
+      if (mediaItem) {
+        const newClip = {
+          id: `clip_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+          mediaId: mediaItem.id,
+          title: mediaItem.name,
+          start: 0,
+          duration: mediaItem.duration || (mediaItem.type === 'image' ? 3 : 5),
+          type: mediaItem.type,
+          thumbnail: mediaItem.thumbnail,
+          props: { opacity: 100, scale: 100, volume: mediaItem.type === 'audio' ? 100 : 0 }
+        };
+        
+        // Delay to ensure track is created first
+        setTimeout(() => {
+          dispatch({ type: 'ADD_CLIP_TO_TRACK', payload: { trackId: newTrackId, clip: newClip } });
+        }, 10);
+      }
+    }
+  }, [state.media, state.tracks, dispatch]);
 
   const timelineWidth = getTimelineWidth();
 
