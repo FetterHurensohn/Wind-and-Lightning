@@ -246,3 +246,103 @@ a {
 .animate-progressBar {
   animation: progressBar 2s linear forwards;
 }
+
+
+/* ============================================
+   VIDEO EFFECTS ANIMATIONS
+   ============================================ */
+
+/* Shake Effect */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-2px); }
+  20%, 40%, 60%, 80% { transform: translateX(2px); }
+}
+
+.animate-shake {
+  animation: shake 0.5s ease-in-out infinite;
+}
+
+/* Vignette Effect - Dark corners overlay */
+.vignette-effect {
+  position: relative;
+}
+
+.vignette-effect::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.6) 100%);
+  pointer-events: none;
+}
+
+/* Glitch Effect Animation */
+@keyframes glitch {
+  0% { transform: translate(0); filter: hue-rotate(0deg); }
+  10% { transform: translate(-2px, 2px); filter: hue-rotate(90deg); }
+  20% { transform: translate(2px, -2px); filter: hue-rotate(180deg); }
+  30% { transform: translate(-2px, -2px); filter: hue-rotate(270deg); }
+  40% { transform: translate(2px, 2px); filter: hue-rotate(360deg); }
+  50% { transform: translate(0); filter: hue-rotate(0deg); }
+  100% { transform: translate(0); filter: hue-rotate(0deg); }
+}
+
+.glitch-effect {
+  animation: glitch 2s ease-in-out infinite;
+}
+
+/* Film Grain Overlay */
+@keyframes grain {
+  0%, 100% { transform: translate(0, 0); }
+  10% { transform: translate(-1%, -1%); }
+  20% { transform: translate(1%, 1%); }
+  30% { transform: translate(-1%, 1%); }
+  40% { transform: translate(1%, -1%); }
+  50% { transform: translate(-1%, 0); }
+  60% { transform: translate(1%, 0); }
+  70% { transform: translate(0, -1%); }
+  80% { transform: translate(0, 1%); }
+  90% { transform: translate(-1%, -1%); }
+}
+
+/* Glow Effect */
+.glow-effect {
+  filter: drop-shadow(0 0 10px rgba(255,255,255,0.5));
+}
+
+/* Neon Effect */
+.neon-effect {
+  filter: drop-shadow(0 0 5px currentColor) drop-shadow(0 0 15px currentColor);
+}
+
+/* Transition Animations */
+@keyframes fadeTransition {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideLeftTransition {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+@keyframes slideRightTransition {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
+}
+
+@keyframes zoomInTransition {
+  from { transform: scale(0.5); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+@keyframes zoomOutTransition {
+  from { transform: scale(1.5); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.transition-fade { animation: fadeTransition 0.5s ease-out; }
+.transition-slide-left { animation: slideLeftTransition 0.5s ease-out; }
+.transition-slide-right { animation: slideRightTransition 0.5s ease-out; }
+.transition-zoom-in { animation: zoomInTransition 0.5s ease-out; }
+.transition-zoom-out { animation: zoomOutTransition 0.5s ease-out; }
