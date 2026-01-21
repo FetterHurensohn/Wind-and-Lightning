@@ -9,6 +9,7 @@ import { DEFAULT_SETTINGS, DEFAULT_SHORTCUTS, THEMES, LANGUAGES, settingsManager
 
 const SECTIONS = [
   { id: 'general', name: 'Allgemein', icon: 'settings' },
+  { id: 'ai', name: 'KI-Modelle', icon: 'ai' },
   { id: 'appearance', name: 'Darstellung', icon: 'palette' },
   { id: 'timeline', name: 'Timeline', icon: 'timeline' },
   { id: 'preview', name: 'Vorschau', icon: 'video' },
