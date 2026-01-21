@@ -503,6 +503,7 @@ function Track({ track, pxPerSec, selectedClipId, onClipSelect, onClipTrim, onCl
             onSelect={onClipSelect}
             onTrim={onClipTrim}
             onMove={onClipMove}
+            onMoveToNewTrack={onMoveToNewTrack}
             trackMuted={track.muted}
             trackHidden={track.hidden}
             waveformSize={waveformSize}
