@@ -815,20 +815,23 @@ export default function MediaInputPanel() {
               <button 
                 onClick={() => addDemoMedia('video')}
                 className="flex-1 h-7 bg-blue-500/20 text-blue-400 text-[9px] rounded hover:bg-blue-500/30 flex items-center justify-center gap-1"
+                data-testid="add-demo-video"
               >
-                <Icon name="video" size={10} /> Video
+                <Icon name="video" size={10} /> +Video
               </button>
               <button 
                 onClick={() => addDemoMedia('image')}
                 className="flex-1 h-7 bg-purple-500/20 text-purple-400 text-[9px] rounded hover:bg-purple-500/30 flex items-center justify-center gap-1"
+                data-testid="add-demo-image"
               >
-                <Icon name="image" size={10} /> Bild
+                <Icon name="image" size={10} /> +Bild
               </button>
               <button 
                 onClick={() => addDemoMedia('audio')}
                 className="flex-1 h-7 bg-green-500/20 text-green-400 text-[9px] rounded hover:bg-green-500/30 flex items-center justify-center gap-1"
+                data-testid="add-demo-audio"
               >
-                <Icon name="audio" size={10} /> Audio
+                <Icon name="audio" size={10} /> +Audio
               </button>
             </div>
           </div>
