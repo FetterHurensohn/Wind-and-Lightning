@@ -428,6 +428,26 @@ export default function MediaInputPanel() {
 
   const navConfig = NAVIGATION_CONFIG[activeMainTab] || NAVIGATION_CONFIG.media;
 
+  // Auto-set activeSection when main tab changes
+  useEffect(() => {
+    const defaultSections = {
+      media: 'importieren',
+      audio: 'audio-importieren',
+      text: 'text-angesagt',
+      stickers: 'stickers-angesagt',
+      effects: 'videoeffekte-angesagt',
+      transitions: 'uebergaenge-angesagt',
+      filters: 'filter-angesagt',
+      adjustment: 'anpassung-alle',
+      templates: 'vorlagen-fuer-dich',
+      ai: 'ki-avatar-erstellen'
+    };
+    
+    if (defaultSections[activeMainTab]) {
+      setActiveSection(defaultSections[activeMainTab]);
+    }
+  }, [activeMainTab]);
+
   // Double-click handler to add media to timeline
   const handleAddMediaToTimeline = useCallback((mediaId) => {
     const mediaItem = state.media.find(m => m.id === mediaId);
