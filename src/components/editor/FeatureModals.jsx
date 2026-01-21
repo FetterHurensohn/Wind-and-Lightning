@@ -6,7 +6,7 @@
 import React, { useState, useCallback } from 'react';
 import Icon from './Icon';
 import { ModelSelector } from './AIModelSelectorUI';
-import { quickPrompt } from '../../modules/ai/AIClient';
+import { quickPrompt, generateImage, textToSpeech, generateMusicSuggestion, generateStoryboard } from '../../modules/ai/AIClient';
 import { loadAISettings, AI_PROVIDERS } from '../../modules/ai/AIModelSelector';
 import { EffectsManager, TransitionManager, ExportManager } from '../../modules/core/VideoEditorCore';
 
