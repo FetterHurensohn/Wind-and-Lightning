@@ -813,7 +813,20 @@ export default function TimelinePanel() {
             </div>
           ) : (
             <>
-              {state.tracks.map(track => (
+              {/* New Track Drop Zones (above tracks) */}
+              <div className="flex border-b border-dashed border-[var(--border-subtle)]" style={{ height: '24px' }}>
+                <div className="w-[160px] flex-shrink-0 bg-[var(--bg-panel)]/50 border-r border-[var(--border-subtle)] flex items-center justify-center">
+                  <span className="text-[8px] text-[var(--text-tertiary)]">↑ Hierher ziehen für neuen Track</span>
+                </div>
+                <div className="flex-1 flex">
+                  <NewTrackDropZone type="video" onCreateTrack={handleCreateTrackWithMedia} />
+                  <NewTrackDropZone type="text" onCreateTrack={handleCreateTrackWithMedia} />
+                  <NewTrackDropZone type="sticker" onCreateTrack={handleCreateTrackWithMedia} />
+                  <NewTrackDropZone type="audio" onCreateTrack={handleCreateTrackWithMedia} />
+                </div>
+              </div>
+              
+              {state.tracks.map((track, index) => (
                 <Track
                   key={track.id}
                   track={track}
@@ -823,14 +836,19 @@ export default function TimelinePanel() {
                   onClipTrim={handleClipTrim}
                   onClipMove={handleClipMove}
                   onDrop={handleDrop}
+                  onTrackUpdate={handleTrackUpdate}
+                  onTrackDelete={handleTrackDelete}
+                  isFirst={index === 0}
                 />
               ))}
               
               {/* Add Track Row */}
               <div className="flex h-8 border-b border-[var(--border-subtle)]">
-                <div className="w-[120px] flex-shrink-0 bg-[var(--bg-panel)] border-r border-[var(--border-subtle)] flex items-center justify-center gap-1 px-1">
-                  <button onClick={() => handleAddTrack('video')} className="px-1.5 py-0.5 text-[10px] text-blue-400 hover:bg-blue-500/10 rounded">+Video</button>
-                  <button onClick={() => handleAddTrack('audio')} className="px-1.5 py-0.5 text-[10px] text-green-400 hover:bg-green-500/10 rounded">+Audio</button>
+                <div className="w-[160px] flex-shrink-0 bg-[var(--bg-panel)] border-r border-[var(--border-subtle)] flex items-center justify-center gap-1 px-1">
+                  <button onClick={() => handleAddTrack('video')} className="px-1.5 py-0.5 text-[9px] text-blue-400 hover:bg-blue-500/10 rounded">+Video</button>
+                  <button onClick={() => handleAddTrack('audio')} className="px-1.5 py-0.5 text-[9px] text-green-400 hover:bg-green-500/10 rounded">+Audio</button>
+                  <button onClick={() => handleAddTrack('text')} className="px-1.5 py-0.5 text-[9px] text-yellow-400 hover:bg-yellow-500/10 rounded">+Text</button>
+                  <button onClick={() => handleAddTrack('sticker')} className="px-1.5 py-0.5 text-[9px] text-pink-400 hover:bg-pink-500/10 rounded">+Sticker</button>
                 </div>
                 <div className="flex-1" />
               </div>
