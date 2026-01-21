@@ -205,6 +205,39 @@ export default function AutoCaptionPanel({
       
       {/* Content */}
       <div className="p-4 space-y-4 max-h-[500px] overflow-y-auto">
+        {/* Audio-Upload für Transkription */}
+        <div>
+          <label className="text-xs text-[var(--text-secondary)] mb-2 block">Audio-Quelle</label>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="audio/*,video/*"
+            onChange={handleFileSelect}
+            className="hidden"
+          />
+          <div className="flex gap-2">
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              className="flex-1 h-10 px-3 bg-[var(--bg-surface)] border border-[var(--border-subtle)] border-dashed rounded-lg text-sm text-[var(--text-secondary)] hover:border-[var(--accent-turquoise)] hover:text-[var(--text-primary)] flex items-center justify-center gap-2"
+              data-testid="upload-audio-btn"
+            >
+              <Icon name="upload" size={14} />
+              {audioFile ? audioFile.name : 'Audio/Video hochladen'}
+            </button>
+            {audioFile && (
+              <button
+                onClick={() => setAudioFile(null)}
+                className="w-10 h-10 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 hover:bg-red-500/20 flex items-center justify-center"
+              >
+                <Icon name="close" size={14} />
+              </button>
+            )}
+          </div>
+          <div className="text-xs text-[var(--text-tertiary)] mt-1">
+            Unterstützt: MP3, WAV, M4A, MP4, WebM
+          </div>
+        </div>
+        
         {/* KI-Modell Auswahl */}
         <div>
           <label className="text-xs text-[var(--text-secondary)] mb-2 block">KI-Modell</label>
