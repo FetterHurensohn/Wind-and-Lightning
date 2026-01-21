@@ -1,112 +1,157 @@
-# CapCut Video Editor - Product Requirements Document
+# CapCut-Style Video Editor - Product Requirements Document
 
 ## Original Problem Statement
-Erstelle einen professionellen Video-Editor ähnlich CapCut mit umfassender KI-Integration. Der Benutzer soll verschiedene KI-Provider (OpenAI, Anthropic Claude, Google Gemini) für verschiedene Funktionen auswählen können.
+Build a full-fledged, cross-platform video editing product (Desktop, Web, Mobile) inspired by CapCut with extensive AI features.
 
-## User Persona
-- Video-Creator und Content-Ersteller
-- Deutschsprachige Benutzer
-- Benötigen professionelle Video-Editing-Tools mit KI-Unterstützung
-
-## Core Requirements
-
-### KI-Integration (IMPLEMENTIERT ✅)
-1. **Multi-Provider KI-Auswahl**
-   - OpenAI (8 Modelle): GPT-5.2, GPT-5.1, GPT-5, GPT-5 Mini, GPT-4o, GPT-4.1, O3, O4 Mini
-   - Anthropic (5 Modelle): Claude 4 Sonnet, Claude Sonnet 4.5, Claude Opus 4.5, Claude Haiku 4.5, Claude 3.5 Haiku
-   - Google Gemini (6 Modelle): Gemini 2.5 Pro, Gemini 3 Flash, Gemini 3 Pro, Gemini 2.5 Flash, Gemini 2.5 Flash Lite, Gemini 2.0 Flash
-
-2. **Funktion-spezifische Modell-Auswahl**
-   - Chat & Assistent
-   - Auto-Untertitel
-   - Drehbuch-Schreiben
-   - Titel-Generierung
-   - Übersetzung
-
-3. **KI-Funktionen Panel**
-   - Drehbuch-Generator (Thema, Länge, Stil)
-   - Titel-Generator (YouTube, TikTok, Instagram, Andere)
-   - Übersetzer (8 Sprachen)
-   - Ideen-Generator (6 Kategorien)
-
-### Editor-Funktionen (VORHANDEN)
-- Multi-Track Timeline
-- Video-Vorschau
-- Medien-Import
-- Effekte und Filter
-- Text-Editor
-- Export-Dialog
-
-### Einstellungen (IMPLEMENTIERT ✅)
-- Allgemein (Sprache, Auto-Save, etc.)
-- KI-Modelle (Provider- und Modell-Auswahl)
-- Darstellung, Timeline, Vorschau, etc.
+## User's Preferred Language
+German (Deutsch)
 
 ## Tech Stack
-- **Frontend**: React 18 + Vite + Tailwind CSS
-- **Desktop**: Electron
-- **KI-API**: Emergent LLM Key (Universal Key)
+- **Frontend:** React 18 + Vite + Electron
+- **Styling:** Tailwind CSS
+- **State Management:** React Context + useReducer
+- **AI Integration:** Emergent LLM Key (OpenAI, Anthropic, Google Gemini)
+- **Storage:** localStorage (browser) / File System (Electron)
 
-## File Architecture
+---
+
+## What's Been Implemented
+
+### Core Features (✅ Complete)
+
+#### Dashboard
+- Feature tiles for all AI tools
+- Project management (create, open, delete, duplicate)
+- Search and filter projects
+- Grid/List view toggle
+
+#### Editor Layout
+- Professional timeline with tracks
+- Preview area with playback controls
+- Left sidebar: Importieren, Medien, KI-Medien, Bibliothek
+- Right sidebar: Eigenschaften + KI-Assistent tabs
+- Top toolbar with editing tools
+
+### AI Features (✅ Complete)
+
+#### 1. KI-Assistent (In-Editor Chat)
+- Real-time AI chat assistant
+- Model selection (GPT-5.2, Claude, Gemini)
+- Quick suggestions for common tasks
+- Context-aware help for video editing
+
+#### 2. Text-to-Video
+- Storyboard generation from text prompts
+- Style selection (Filmisch, Dokumentation, Social, etc.)
+- Duration and aspect ratio settings
+- AI-powered scene breakdown
+
+#### 3. Auto-Untertitel (Auto-Captions)
+- OpenAI Whisper integration for transcription
+- Audio/video file upload
+- Multi-language support (12 languages)
+- Subtitle styling options (Standard, YouTube, Netflix, etc.)
+- Timing adjustments
+
+#### 4. Sprachausgabe (Text-to-Speech)
+- OpenAI TTS integration
+- 6 voice options (Alloy, Echo, Fable, Onyx, Nova, Shimmer)
+- Speed control (0.5x - 2x)
+- Preview and insert to timeline
+
+#### 5. Musik-Generator
+- AI-powered music suggestions
+- Genre selection (Electronic, Pop, Rock, etc.)
+- Mood selection (Upbeat, Calm, Dramatic, etc.)
+- Duration slider
+- Royalty-free music recommendations
+
+#### 6. Bild-Generator
+- AI image generation via DALL-E/GPT Image
+- Style presets (Realistic, Artistic, Anime, etc.)
+- Size options (1024x1024, Portrait, Landscape)
+- Direct insert to project
+
+### Export System (✅ Complete)
+- Resolution options: 480p to 8K
+- FPS options: 24, 25, 30, 50, 60
+- Formats: MP4, MOV, WebM, GIF
+- Codec selection: H.264, H.265, ProRes
+- Quality slider
+- Estimated file size display
+
+---
+
+## Architecture
+
 ```
-/app/src/
-├── modules/
-│   └── ai/
-│       ├── AIModelSelector.js    # Modell-Konfiguration
-│       ├── AIClient.js           # LLM API-Integration
-│       └── index.js
-├── components/
-│   ├── editor/
-│   │   ├── AIChat.jsx            # Chat mit Modell-Auswahl
-│   │   ├── AIModelSelectorUI.jsx # Dropdown UI
-│   │   ├── AIFeaturesPanel.jsx   # Drehbuch/Titel/etc.
-│   │   ├── AutoCaptionPanel.jsx  # Untertitel-Generator
-│   │   └── ...
-│   ├── dashboard/
-│   │   ├── FeatureTiles.jsx      # Feature-Kacheln mit Modal
-│   │   └── LeftSidebar.jsx       # Sidebar mit Einstellungen
-│   └── SettingsPanel.jsx         # Vollständige Einstellungen
+/app/
+├── memory/                # Documentation System
+├── src/
+│   ├── components/        # React UI Components
+│   │   ├── dashboard/     # Dashboard components
+│   │   └── editor/        # Editor components
+│   ├── hooks/             # Custom React hooks
+│   ├── modules/           # Business Logic
+│   │   ├── ai/           # AI integration (AIClient.js, AIService.js)
+│   │   ├── audio/        # Audio processing
+│   │   ├── core/         # Video editor core logic
+│   │   ├── effects/      # Effects and filters
+│   │   └── export/       # Export engine
+│   ├── styles/           # CSS/Tailwind styles
+│   └── utils/            # Helper functions
+└── electron/             # Electron main process
 ```
 
-## Implementation Status
+---
 
-### ✅ Completed (December 2025)
-- [x] KI-Modell-Selector Modul mit Provider-Konfiguration
-- [x] KI-Client für API-Aufrufe
-- [x] AIChat-Komponente mit Modell-Auswahl
-- [x] AIFeaturesPanel mit 4 Tabs (Drehbuch, Titel, Übersetzen, Ideen)
-- [x] AutoCaptionPanel mit Modell-Auswahl
-- [x] SettingsPanel mit KI-Modelle Tab
-- [x] FeatureTiles mit Modal-Integration
-- [x] LeftSidebar mit Einstellungen-Button
+## P0/P1/P2 Features Remaining
 
-### 🔄 In Progress
-- [ ] Echte Audio-zu-Text Transkription (aktuell simuliert)
-- [ ] Export-Engine vollständig integrieren
-- [ ] Cloud-Sync implementieren
+### P1 - High Priority
+- [ ] Timeline clip manipulation (trim, split, move)
+- [ ] Media import drag-and-drop
+- [ ] Audio waveform visualization
+- [ ] Keyframe animation system
+- [ ] Real video rendering/export (currently config-only)
 
-### 📋 Upcoming (P1)
-- [ ] Multi-Track Audio-Mixer
-- [ ] Multicam-Editor
-- [ ] Kollaborative Bearbeitung
-- [ ] Marketplace für Premium-Assets
+### P2 - Medium Priority
+- [ ] Effects & Filters library implementation
+- [ ] Transitions with presets
+- [ ] Motion tracking
+- [ ] Green screen/chroma key
+- [ ] Multi-cam editing
+- [ ] Speed ramping
 
-### 📋 Future (P2)
-- [ ] Text-to-Video Generierung
-- [ ] AI Background Removal
-- [ ] Motion Tracking
-- [ ] Monetarisierung (Pro-Abo)
+### P3 - Future/Backlog
+- [ ] Cloud sync & collaboration
+- [ ] Direct social media upload (TikTok, YouTube, Instagram)
+- [ ] Templates & presets marketplace
+- [ ] Mobile app version
+- [ ] Real-time collaboration
+- [ ] AI scene detection
+- [ ] Auto-color grading
 
-## API Integration
-- **Emergent LLM Key**: `sk-emergent-67b5f95099879B4541`
-- **API Endpoint**: `https://api.emergentai.io/v1/chat/completions`
-- **Unterstützte Provider**: OpenAI, Anthropic, Google Gemini
+---
 
-## Test Reports
-- `/app/test_reports/iteration_1.json`
-- `/app/test_reports/iteration_2.json` (95% Success Rate)
+## Test Status
+- **Last Test:** iteration_3.json
+- **Frontend Success Rate:** 100%
+- **All AI panels loading correctly**
+- **Project creation and navigation working**
 
-## Notes
-- Die Anwendung ist eine Desktop-Electron-App
-- Kein Backend-Server erforderlich
-- API-Aufrufe erfolgen direkt vom Frontend
+---
+
+## Known Limitations (Browser Mode)
+- Electron APIs not available (file system access)
+- Projects stored in localStorage
+- Export generates config JSON (not actual video)
+- Some features require Electron for full functionality
+
+---
+
+## Next Development Steps
+1. Implement timeline clip manipulation
+2. Add media import functionality
+3. Connect effects library to UI
+4. Implement basic video preview
+5. Add actual export rendering (via FFmpeg in Electron)
