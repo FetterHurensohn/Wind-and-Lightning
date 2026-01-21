@@ -447,8 +447,8 @@ export default function MediaInputPanel() {
     const defaultSections = {
       media: 'importieren',
       audio: 'audio-importieren',
-      text: 'text-angesagt',
-      stickers: 'stickers-angesagt',
+      text: 'text-hinzufuegen',
+      stickers: 'sticker-angesagt',
       effects: 'videoeffekte-angesagt',
       transitions: 'uebergaenge-angesagt',
       filters: 'filter-angesagt',
