@@ -1,26 +1,14 @@
 /**
- * PreviewPanel-Komponente (MINIMALISTISCH wie Screenshot)
+ * PreviewPanel.jsx - Video Preview mit echter Wiedergabe
  * 
- * Sehr reduziert:
- * - Header: klein, "Player" label (10px)
- * - Preview Area: Dunkel, zentriert, zeigt Video/Bild-Clips
- * - Timecode: Unten links, sehr klein (10px, mono)
- * - KEIN REC-Badge, KEINE Overlays, KEIN TransportControls hier
- * 
- * Layer-System:
- * - Main Track (Audio Track) im Hintergrund
- * - Video Tracks nach Reihenfolge übereinander (höhere Nummer = Vordergrund)
- * 
- * Props:
- * @param {number} currentTime - Aktuelle Zeit in Sekunden
- * @param {boolean} playing - Ist Wiedergabe aktiv
- * @param {Array} tracks - Alle Tracks mit Clips
- * @param {Array} media - Media-Bibliothek
- * @param {Function} onSeek - Callback zum Seek (time)
- * @param {number} fps - Frames per Second
+ * Features:
+ * - Zeigt aktive Clips basierend auf currentTime
+ * - Unterstützt Video, Bild und Text-Clips
+ * - Video-Wiedergabe mit autoPlay und Synchronisation
+ * - Layer-System (höhere Tracks = Vordergrund)
  */
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useRef, useEffect, useState } from 'react';
 import { secondsToTimecode } from '../utils/timecode';
 
 export default function PreviewPanel({
@@ -31,6 +19,9 @@ export default function PreviewPanel({
   onSeek,
   fps = 30
 }) {
+  const videoRefs = useRef({});
+  const [videoErrors, setVideoErrors] = useState({});
+
   // Finde alle Clips, die zur aktuellen Zeit aktiv sind
   const activeClips = useMemo(() => {
     const clips = [];
@@ -39,47 +30,49 @@ export default function PreviewPanel({
       // Überspringe Audio Tracks (nur Video/Bild anzeigen)
       if (track.type === 'audio') return;
       
-      // Finde Clips, die zur currentTime aktiv sind
       track.clips?.forEach(clip => {
         const clipStart = clip.start;
         const clipEnd = clip.start + clip.duration;
         
         if (currentTime >= clipStart && currentTime < clipEnd) {
-          // Finde Media-Item für Thumbnail/Source
           const mediaItem = media.find(m => m.id === clip.mediaId);
           
           clips.push({
             ...clip,
-            trackIndex: trackIndex,
+            trackIndex,
             trackId: track.id,
-            mediaItem: mediaItem,
-            zIndex: trackIndex // Höherer Index = Vordergrund
+            mediaItem,
+            zIndex: trackIndex,
+            // Relative Zeit im Clip (für Video-Seek)
+            clipTime: currentTime - clipStart
           });
         }
       });
     });
     
-    // Sortiere nach trackIndex (niedriger = Hintergrund, höher = Vordergrund)
     return clips.sort((a, b) => a.trackIndex - b.trackIndex);
   }, [currentTime, tracks, media]);
 
-  const handlePreviewClick = (e) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const progress = x / rect.width;
-    
-    // Calculate max duration from all tracks
-    const maxDuration = tracks.reduce((max, track) => {
-      const trackDuration = track.clips?.reduce((sum, clip) => 
-        Math.max(sum, clip.start + clip.duration), 0) || 0;
-      return Math.max(max, trackDuration);
-    }, 180);
-    
-    const time = progress * maxDuration;
-    if (onSeek) {
-      onSeek(time);
-    }
-  };
+  // Synchronisiere Video-Wiedergabe
+  useEffect(() => {
+    activeClips.forEach(clip => {
+      const video = videoRefs.current[clip.id];
+      if (!video) return;
+      
+      // Sync currentTime
+      const expectedTime = clip.clipTime;
+      if (Math.abs(video.currentTime - expectedTime) > 0.3) {
+        video.currentTime = expectedTime;
+      }
+      
+      // Play/Pause
+      if (playing && video.paused) {
+        video.play().catch(() => {});
+      } else if (!playing && !video.paused) {
+        video.pause();
+      }
+    });
+  }, [activeClips, playing, currentTime]);
 
   // Calculate total duration
   const duration = useMemo(() => {
@@ -90,57 +83,122 @@ export default function PreviewPanel({
     }, 180);
   }, [tracks]);
 
-  return (
-    <div className="flex-1 bg-[var(--bg-main)] rounded border border-[var(--border-subtle)] relative overflow-hidden">
-      {/* Header - Sehr klein */}
-      <div className="h-8 border-b border-[var(--border-subtle)] px-3 flex items-center">
-        <span className="text-xs text-[var(--text-tertiary)]">Player</span>
-      </div>
+  const handlePreviewClick = (e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const progress = x / rect.width;
+    const time = progress * duration;
+    if (onSeek) onSeek(time);
+  };
+
+  const renderClipContent = (clip) => {
+    const { mediaItem, type, title, props = {}, id, clipTime } = clip;
+    const opacity = (props.opacity ?? 100) / 100;
+    const scale = (props.scale ?? 100) / 100;
+    const rotation = props.rotation ?? 0;
+    
+    const style = {
+      opacity,
+      transform: `scale(${scale}) rotate(${rotation}deg)`
+    };
+
+    // Video Clip
+    if (type === 'video' && mediaItem?.url) {
+      if (videoErrors[id]) {
+        return (
+          <div className="flex flex-col items-center justify-center text-[var(--text-tertiary)]" style={style}>
+            <span className="text-4xl mb-2">🎥</span>
+            <span className="text-xs">{title}</span>
+          </div>
+        );
+      }
       
-      {/* Preview Area - Absolut positioniert */}
+      return (
+        <video
+          ref={el => { if (el) videoRefs.current[id] = el; }}
+          src={mediaItem.url}
+          className="max-w-full max-h-full object-contain"
+          style={style}
+          muted
+          playsInline
+          onError={() => setVideoErrors(prev => ({ ...prev, [id]: true }))}
+        />
+      );
+    }
+
+    // Image Clip
+    if ((type === 'image' || type === 'video') && mediaItem?.thumbnail) {
+      return (
+        <img
+          src={mediaItem.thumbnail}
+          alt={title}
+          className="max-w-full max-h-full object-contain"
+          style={style}
+        />
+      );
+    }
+
+    // Demo/Placeholder Clip
+    const iconColor = type === 'video' ? 'text-blue-400' : type === 'image' ? 'text-purple-400' : 'text-gray-400';
+    const bgColor = mediaItem?.color || (type === 'video' ? '#3b82f6' : type === 'image' ? '#8b5cf6' : '#666');
+    
+    return (
       <div 
-        className="absolute inset-x-0 top-8 bottom-10 bg-black flex items-center justify-center cursor-pointer overflow-hidden"
-        onClick={handlePreviewClick}
+        className="w-full h-full flex flex-col items-center justify-center"
+        style={{ ...style, backgroundColor: `${bgColor}20` }}
       >
-        {/* Render aktive Clips als Layer */}
-        {activeClips.length > 0 ? (
-          activeClips.map((clip, index) => (
-            <div
-              key={`${clip.trackId}-${clip.id}`}
-              className="absolute inset-0 flex items-center justify-center"
-              style={{
-                zIndex: clip.zIndex
-              }}
-            >
-              {/* Render Thumbnail oder Placeholder */}
-              {clip.mediaItem?.thumbnail ? (
-                <img
-                  src={clip.mediaItem.thumbnail}
-                  alt={clip.title}
-                  className="max-w-full max-h-full object-contain"
-                  style={{
-                    opacity: clip.props?.opacity ? clip.props.opacity / 100 : 1,
-                    transform: `scale(${clip.props?.scale ? clip.props.scale / 100 : 1}) rotate(${clip.props?.rotation || 0}deg)`
-                  }}
-                />
-              ) : (
-                <div className="text-[var(--text-tertiary)] text-sm">
-                  {clip.type === 'video' ? '🎥' : '🖼️'} {clip.title}
-                </div>
-              )}
-            </div>
-          ))
-        ) : (
-          /* Placeholder wenn keine Clips aktiv */
-          <div className="text-[var(--text-tertiary)] text-sm">🎬</div>
+        <div className={`text-5xl mb-3 ${iconColor}`}>
+          {type === 'video' ? '🎬' : type === 'image' ? '🖼️' : '📄'}
+        </div>
+        <div className="text-sm text-white font-medium">{title}</div>
+        <div className="text-xs text-white/60 mt-1">
+          {clipTime.toFixed(1)}s / {clip.duration}s
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div className="flex-1 bg-[var(--bg-main)] rounded border border-[var(--border-subtle)] relative overflow-hidden max-w-full">
+      {/* Header */}
+      <div className="h-7 border-b border-[var(--border-subtle)] px-3 flex items-center justify-between">
+        <span className="text-[10px] text-[var(--text-tertiary)]">Preview</span>
+        {playing && (
+          <span className="text-[9px] text-red-400 animate-pulse">● PLAYING</span>
         )}
       </div>
       
-      {/* Timecode - Unten links, sehr klein */}
-      <div className="absolute bottom-3 left-3">
-        <div className="text-xs font-mono text-[var(--text-secondary)]" style={{ fontSize: '10px' }}>
-          {secondsToTimecode(currentTime, fps)} / {secondsToTimecode(duration, fps)}
-        </div>
+      {/* Preview Area */}
+      <div 
+        className="absolute inset-x-0 top-7 bottom-7 bg-black flex items-center justify-center cursor-pointer overflow-hidden"
+        onClick={handlePreviewClick}
+      >
+        {activeClips.length > 0 ? (
+          activeClips.map(clip => (
+            <div
+              key={`${clip.trackId}-${clip.id}`}
+              className="absolute inset-0 flex items-center justify-center"
+              style={{ zIndex: clip.zIndex }}
+            >
+              {renderClipContent(clip)}
+            </div>
+          ))
+        ) : (
+          <div className="text-[var(--text-tertiary)] flex flex-col items-center">
+            <span className="text-4xl mb-2">🎬</span>
+            <span className="text-xs">Kein Clip an dieser Position</span>
+          </div>
+        )}
+      </div>
+      
+      {/* Timecode Footer */}
+      <div className="absolute bottom-0 left-0 right-0 h-7 bg-[var(--bg-panel)]/80 border-t border-[var(--border-subtle)] px-3 flex items-center justify-between">
+        <span className="text-[10px] font-mono text-[var(--text-secondary)]">
+          {secondsToTimecode(currentTime, fps)}
+        </span>
+        <span className="text-[10px] font-mono text-[var(--text-tertiary)]">
+          / {secondsToTimecode(duration, fps)}
+        </span>
       </div>
     </div>
   );
