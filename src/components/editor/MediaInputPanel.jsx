@@ -1017,6 +1017,132 @@ export default function MediaInputPanel() {
       );
     }
 
+    // Videoeffekte Content
+    if (activeSection.startsWith('videoeffekte') || activeSection === 'effekte-gespeichert' || activeSection === 'ki-effekte') {
+      const videoEffects = [
+        { id: 'blur', name: 'Weichzeichner', icon: '🌫️', category: 'basis' },
+        { id: 'sharpen', name: 'Schärfen', icon: '🔍', category: 'basis' },
+        { id: 'vignette', name: 'Vignette', icon: '⬛', category: 'basis' },
+        { id: 'glitch', name: 'Glitch', icon: '📺', category: 'retro' },
+        { id: 'vhs', name: 'VHS', icon: '📼', category: 'retro' },
+        { id: 'film-grain', name: 'Filmkörnung', icon: '🎞️', category: 'retro' },
+        { id: 'vintage', name: 'Vintage', icon: '🎬', category: 'retro' },
+        { id: 'glow', name: 'Glow', icon: '✨', category: 'angesagt' },
+        { id: 'neon', name: 'Neon', icon: '💡', category: 'angesagt' },
+        { id: 'duotone', name: 'Duotone', icon: '🎨', category: 'angesagt' },
+        { id: 'chromatic', name: 'Chromatisch', icon: '🌈', category: 'angesagt' },
+        { id: 'shake', name: 'Wackeln', icon: '📳', category: 'basis' }
+      ];
+
+      const filterCategory = activeSection.replace('videoeffekte-', '');
+      const filteredEffects = filterCategory === 'videoeffekte' || activeSection === 'effekte-gespeichert' || activeSection === 'ki-effekte'
+        ? videoEffects 
+        : videoEffects.filter(e => e.category === filterCategory);
+
+      const handleApplyEffect = (effect) => {
+        if (!state.selectedClipId) {
+          alert('Bitte wähle zuerst einen Clip in der Timeline aus.');
+          return;
+        }
+        
+        // Apply effect to selected clip
+        dispatch({
+          type: 'ADD_EFFECT_TO_CLIP',
+          payload: { clipId: state.selectedClipId, effect: { id: effect.id, name: effect.name, settings: {} } }
+        });
+        
+        console.log('[MediaInputPanel] Applied effect:', effect.name, 'to clip:', state.selectedClipId);
+      };
+
+      return (
+        <div className="space-y-4">
+          <div className="text-sm font-medium text-[var(--text-primary)]">Videoeffekte</div>
+          <SearchBar placeholder="Effekt suchen" value={searchQuery} onChange={setSearchQuery} />
+          
+          {!state.selectedClipId && (
+            <div className="p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-lg text-xs text-yellow-300">
+              Wähle einen Clip in der Timeline aus, um Effekte anzuwenden.
+            </div>
+          )}
+          
+          <div className="grid grid-cols-3 gap-2">
+            {filteredEffects
+              .filter(e => !searchQuery || e.name.toLowerCase().includes(searchQuery.toLowerCase()))
+              .map(effect => (
+                <button
+                  key={effect.id}
+                  onClick={() => handleApplyEffect(effect)}
+                  className="p-3 bg-[var(--bg-surface)] rounded-lg border border-[var(--border-subtle)] hover:border-[var(--accent-turquoise)] transition-all flex flex-col items-center gap-2"
+                >
+                  <span className="text-2xl">{effect.icon}</span>
+                  <span className="text-[10px] text-[var(--text-secondary)]">{effect.name}</span>
+                </button>
+              ))}
+          </div>
+        </div>
+      );
+    }
+
+    // Übergänge Content
+    if (activeSection.startsWith('uebergaenge') || activeSection === 'transitions') {
+      const transitions = [
+        { id: 'fade', name: 'Überblendung', icon: '🌗', duration: 0.5 },
+        { id: 'dissolve', name: 'Auflösen', icon: '💨', duration: 0.5 },
+        { id: 'wipe-left', name: 'Wischen Links', icon: '👈', duration: 0.5 },
+        { id: 'wipe-right', name: 'Wischen Rechts', icon: '👉', duration: 0.5 },
+        { id: 'wipe-up', name: 'Wischen Hoch', icon: '👆', duration: 0.5 },
+        { id: 'wipe-down', name: 'Wischen Runter', icon: '👇', duration: 0.5 },
+        { id: 'zoom-in', name: 'Zoom Rein', icon: '🔍', duration: 0.5 },
+        { id: 'zoom-out', name: 'Zoom Raus', icon: '🔎', duration: 0.5 },
+        { id: 'slide-left', name: 'Schieben Links', icon: '⬅️', duration: 0.5 },
+        { id: 'slide-right', name: 'Schieben Rechts', icon: '➡️', duration: 0.5 },
+        { id: 'rotate', name: 'Drehen', icon: '🔄', duration: 0.5 },
+        { id: 'flip', name: 'Umklappen', icon: '🔀', duration: 0.5 }
+      ];
+
+      const handleApplyTransition = (transition) => {
+        if (!state.selectedClipId) {
+          alert('Bitte wähle zuerst einen Clip in der Timeline aus.');
+          return;
+        }
+        
+        dispatch({
+          type: 'ADD_TRANSITION_TO_CLIP',
+          payload: { clipId: state.selectedClipId, transition: { id: transition.id, name: transition.name, duration: transition.duration } }
+        });
+        
+        console.log('[MediaInputPanel] Applied transition:', transition.name, 'to clip:', state.selectedClipId);
+      };
+
+      return (
+        <div className="space-y-4">
+          <div className="text-sm font-medium text-[var(--text-primary)]">Übergänge</div>
+          <SearchBar placeholder="Übergang suchen" value={searchQuery} onChange={setSearchQuery} />
+          
+          {!state.selectedClipId && (
+            <div className="p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-lg text-xs text-yellow-300">
+              Wähle einen Clip in der Timeline aus, um Übergänge hinzuzufügen.
+            </div>
+          )}
+          
+          <div className="grid grid-cols-3 gap-2">
+            {transitions
+              .filter(t => !searchQuery || t.name.toLowerCase().includes(searchQuery.toLowerCase()))
+              .map(transition => (
+                <button
+                  key={transition.id}
+                  onClick={() => handleApplyTransition(transition)}
+                  className="p-3 bg-[var(--bg-surface)] rounded-lg border border-[var(--border-subtle)] hover:border-[var(--accent-turquoise)] transition-all flex flex-col items-center gap-2"
+                >
+                  <span className="text-2xl">{transition.icon}</span>
+                  <span className="text-[10px] text-[var(--text-secondary)]">{transition.name}</span>
+                </button>
+              ))}
+          </div>
+        </div>
+      );
+    }
+
     // Default: Empty State
     return (
       <div className="flex flex-col items-center justify-center h-full p-8 text-center">
