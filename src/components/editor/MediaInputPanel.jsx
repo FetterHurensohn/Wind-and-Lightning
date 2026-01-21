@@ -776,19 +776,27 @@ export default function MediaInputPanel() {
             Text-zu-Video
           </button>
 
-          {/* Imported Media Grid */}
+          {/* Imported Media Grid - DRAGGABLE */}
           {state.media.length > 0 && (
-            <div className="mt-6">
-              <div className="text-sm font-medium text-[var(--text-primary)] mb-3">
-                Importiert ({state.media.length})
+            <div className="mt-4">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-medium text-[var(--text-primary)]">
+                  Importiert ({state.media.length})
+                </span>
+                <span className="text-[9px] text-[var(--text-tertiary)]">
+                  In Timeline ziehen
+                </span>
               </div>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-2 gap-1.5">
                 {state.media.map(item => (
                   <MediaTile
                     key={item.id}
+                    id={item.id}
                     thumbnail={item.thumbnail || item.url}
                     title={item.name}
-                    duration={item.duration ? `${Math.floor(item.duration / 60)}:${String(item.duration % 60).padStart(2, '0')}` : null}
+                    type={item.type}
+                    duration={item.duration ? `${Math.floor(item.duration / 60)}:${String(Math.round(item.duration) % 60).padStart(2, '0')}` : null}
+                    draggable={true}
                   />
                 ))}
               </div>
