@@ -21,6 +21,7 @@ export function TextToVideoPanel({ onClose, onGenerate }) {
   const [aspectRatio, setAspectRatio] = useState('16:9');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
+  const [error, setError] = useState(null);
   const [provider, setProvider] = useState(settings.defaultProvider);
   const [model, setModel] = useState(settings.defaultModel);
 
@@ -35,25 +36,28 @@ export function TextToVideoPanel({ onClose, onGenerate }) {
   ];
 
   const handleGenerate = async () => {
+    if (!prompt.trim()) return;
+    
     setLoading(true);
+    setError(null);
+    setResult(null);
+    
     try {
-      const response = await quickPrompt(
-        `Erstelle ein detailliertes Storyboard für ein ${duration}-Sekunden Video im Stil "${style}" zum Thema: "${prompt}". 
-        Format: ${aspectRatio}
-        
-        Gib für jede Szene an:
-        - Szenennummer und Dauer
-        - Visuelle Beschreibung
-        - Kamerabewegung
-        - Text/Overlay (falls vorhanden)
-        - Übergang zur nächsten Szene`,
-        { provider, model }
-      );
+      const response = await generateStoryboard({
+        description: prompt,
+        style: style,
+        duration: duration,
+        aspectRatio: aspectRatio
+      });
+      
       setResult(response);
+      onGenerate?.({ storyboard: response, style, duration, aspectRatio });
     } catch (err) {
       console.error('Text-to-Video Error:', err);
+      setError(err.message || 'Ein Fehler ist aufgetreten');
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   return (
@@ -79,9 +83,10 @@ export function TextToVideoPanel({ onClose, onGenerate }) {
           <textarea
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
-            placeholder="Beschreibe dein Video detailliert..."
+            placeholder="Beschreibe dein Video detailliert... z.B. 'Ein Produkt-Launch-Video für eine neue Smartphone-App mit dynamischen Übergängen'"
             rows={4}
             className="w-full px-3 py-2 bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-lg text-sm text-[var(--text-primary)] placeholder-[var(--text-tertiary)] focus:outline-none focus:border-[var(--accent-turquoise)] resize-none"
+            data-testid="video-prompt-input"
           />
         </div>
 
@@ -107,17 +112,27 @@ export function TextToVideoPanel({ onClose, onGenerate }) {
           </div>
         </div>
 
-        <button onClick={handleGenerate} disabled={!prompt.trim() || loading} className="w-full h-12 bg-gradient-to-r from-[var(--accent-turquoise)] to-[var(--accent-purple)] text-white rounded-lg font-medium hover:opacity-90 disabled:opacity-50 flex items-center justify-center gap-2">
-          {loading ? <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Generiere...</> : <><Icon name="effects" size={16} /> Video generieren</>}
+        {/* Error Display */}
+        {error && (
+          <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
+            <div className="flex items-center gap-2 text-red-400 text-sm">
+              <Icon name="alertCircle" size={14} />
+              {error}
+            </div>
+          </div>
+        )}
+
+        <button onClick={handleGenerate} disabled={!prompt.trim() || loading} className="w-full h-12 bg-gradient-to-r from-[var(--accent-turquoise)] to-[var(--accent-purple)] text-white rounded-lg font-medium hover:opacity-90 disabled:opacity-50 flex items-center justify-center gap-2" data-testid="generate-video-btn">
+          {loading ? <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Generiere Storyboard...</> : <><Icon name="effects" size={16} /> Storyboard generieren</>}
         </button>
 
         {result && (
           <div className="p-4 bg-[var(--bg-surface)] rounded-lg">
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs text-[var(--text-secondary)]">Storyboard</span>
-              <button onClick={() => navigator.clipboard.writeText(result)} className="text-xs text-[var(--accent-turquoise)]">Kopieren</button>
+              <button onClick={() => navigator.clipboard.writeText(result)} className="text-xs text-[var(--accent-turquoise)] hover:underline">Kopieren</button>
             </div>
-            <pre className="text-sm text-[var(--text-primary)] whitespace-pre-wrap font-sans max-h-[200px] overflow-y-auto">{result}</pre>
+            <pre className="text-sm text-[var(--text-primary)] whitespace-pre-wrap font-sans max-h-[200px] overflow-y-auto" data-testid="storyboard-result">{result}</pre>
           </div>
         )}
       </div>
