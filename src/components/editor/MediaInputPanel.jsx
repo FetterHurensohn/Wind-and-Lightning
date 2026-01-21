@@ -428,6 +428,59 @@ export default function MediaInputPanel() {
 
   const navConfig = NAVIGATION_CONFIG[activeMainTab] || NAVIGATION_CONFIG.media;
 
+  // Double-click handler to add media to timeline
+  const handleAddMediaToTimeline = useCallback((mediaId) => {
+    const mediaItem = state.media.find(m => m.id === mediaId);
+    if (!mediaItem) {
+      console.warn('[MediaInputPanel] Media item not found:', mediaId);
+      return;
+    }
+
+    // Find appropriate track or create one
+    let targetTrack = null;
+    if (mediaItem.type === 'audio') {
+      targetTrack = state.tracks.find(t => t.type === 'audio');
+    } else {
+      targetTrack = state.tracks.find(t => t.type === 'video');
+    }
+
+    // If no track exists, create one
+    if (!targetTrack) {
+      const newTrackId = `track_${Date.now()}`;
+      const newTrack = {
+        id: newTrackId,
+        name: mediaItem.type === 'audio' ? 'Audio 1' : 'Video 1',
+        type: mediaItem.type === 'audio' ? 'audio' : 'video',
+        clips: []
+      };
+      dispatch({ type: 'ADD_TRACK', payload: { track: newTrack } });
+      targetTrack = newTrack;
+    }
+
+    // Calculate start position (after last clip or at playhead)
+    let startTime = state.currentTime || 0;
+    if (targetTrack.clips && targetTrack.clips.length > 0) {
+      const lastClip = targetTrack.clips.reduce((max, clip) => 
+        (clip.start + clip.duration) > (max.start + max.duration) ? clip : max
+      );
+      startTime = Math.max(startTime, lastClip.start + lastClip.duration);
+    }
+
+    const newClip = {
+      id: `clip_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      mediaId: mediaItem.id,
+      title: mediaItem.name,
+      start: startTime,
+      duration: mediaItem.duration || (mediaItem.type === 'image' ? 3 : 5),
+      type: mediaItem.type,
+      thumbnail: mediaItem.thumbnail,
+      props: { opacity: 100, scale: 100, volume: mediaItem.type === 'audio' ? 100 : 0 }
+    };
+
+    console.log('[MediaInputPanel] Adding clip via double-click:', newClip);
+    dispatch({ type: 'ADD_CLIP_TO_TRACK', payload: { trackId: targetTrack.id, clip: newClip } });
+  }, [state.media, state.tracks, state.currentTime, dispatch]);
+
   const toggleGroup = (groupId) => {
     setExpandedGroups(prev => 
       prev.includes(groupId) 
