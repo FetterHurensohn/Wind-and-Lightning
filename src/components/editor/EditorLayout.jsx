@@ -945,14 +945,14 @@ export default function EditorLayout({ projectPath, onBackToDashboard }) {
 
               {/* Left + Center Column - Media Panel + Preview + Timeline */}
               <div className="flex-1 flex flex-col">
-                {/* Upper Row: Media Panel (left) + Preview (right) - GENAU 50% */}
-                <div className="flex-1 flex overflow-hidden">
-                  {/* Media Panel - linke Hälfte */}
-                  <div className="flex-1 bg-[var(--bg-panel)] border-r border-[var(--border-subtle)] p-4 overflow-y-auto">
+                {/* Upper Row: Media Panel (left) + Preview (right) */}
+                <div className="h-[55%] flex overflow-hidden">
+                  {/* Media Panel - CapCut Style mit eigenem Layout */}
+                  <div className="w-[500px] bg-[var(--bg-panel)] border-r border-[var(--border-subtle)] overflow-hidden">
                     <MediaInputPanel />
                   </div>
 
-                  {/* Preview - rechte Hälfte */}
+                  {/* Preview - rechte Seite */}
                   <div className="flex-1 flex items-center justify-center bg-[var(--bg-main)] p-4">
                     <PreviewPanel
                       currentTime={playhead.currentTime}
@@ -965,8 +965,8 @@ export default function EditorLayout({ projectPath, onBackToDashboard }) {
                   </div>
                 </div>
 
-                {/* Lower Row: Timeline - GENAU 50% (gleich wie Upper Row mit flex-1) */}
-                <div className="flex-1 bg-[var(--bg-main)] overflow-hidden">
+                {/* Lower Row: Timeline */}
+                <div className="h-[45%] bg-[var(--bg-main)] overflow-hidden">
                   <TimelinePanel />
                 </div>
               </div>
