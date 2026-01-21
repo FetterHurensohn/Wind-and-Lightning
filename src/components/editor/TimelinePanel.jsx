@@ -326,15 +326,16 @@ export default function TimelinePanel() {
   const [scrollLeft, setScrollLeft] = useState(0);
 
   // Berechne Timeline-Breite basierend auf längsten Clip
+  // Minimum 1 Stunde (3600 Sekunden) für professionelle Videobearbeitung
   const getTimelineWidth = () => {
-    let maxEnd = 30; // Minimum 30 Sekunden
+    let maxEnd = 3600; // Minimum 1 Stunde
     state.tracks.forEach(track => {
       track.clips?.forEach(clip => {
         const end = clip.start + clip.duration;
         if (end > maxEnd) maxEnd = end;
       });
     });
-    return (maxEnd + 10) * zoom.pxPerSec; // +10s extra Platz
+    return (maxEnd + 60) * zoom.pxPerSec; // +60s extra Platz
   };
 
   // Scroll-Handler
