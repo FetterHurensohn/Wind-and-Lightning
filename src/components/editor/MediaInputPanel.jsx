@@ -482,7 +482,7 @@ export default function MediaInputPanel() {
   // ============================================
 
   const renderNavigation = () => (
-    <div className="w-[180px] flex-shrink-0 border-r border-[var(--border-subtle)] p-2 overflow-y-auto">
+    <div className="w-[130px] flex-shrink-0 border-r border-[var(--border-subtle)] p-1.5 overflow-y-auto">
       {navConfig.sections.map(section => {
         if (section.expandable) {
           return (
