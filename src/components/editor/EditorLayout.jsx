@@ -137,6 +137,30 @@ function reducer(state, action) {
       };
     }
 
+    case 'UPDATE_TRACK': {
+      const { trackId, updates } = action.payload;
+      return {
+        ...state,
+        tracks: state.tracks.map(track =>
+          track.id === trackId
+            ? { ...track, ...updates }
+            : track
+        )
+      };
+    }
+
+    case 'DELETE_TRACK': {
+      const { trackId } = action.payload;
+      return {
+        ...state,
+        tracks: state.tracks.filter(track => track.id !== trackId),
+        // Deselektiere Clips auf diesem Track
+        selectedClipId: state.tracks.find(t => t.id === trackId)?.clips?.some(c => c.id === state.selectedClipId)
+          ? null
+          : state.selectedClipId
+      };
+    }
+
     case 'MOVE_CLIP': {
       const { clipId, trackId, newStart } = action.payload;
       return {
