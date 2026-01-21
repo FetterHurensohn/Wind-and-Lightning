@@ -182,6 +182,8 @@ function Clip({ clip, track, pxPerSec, isSelected, onSelect, onTrim, onMove }) {
     };
   }, [action, clip, track, pxPerSec, onTrim, onMove]);
 
+  const waveform = clip.type === 'audio' ? generateWaveform() : null;
+
   return (
     <div
       className={`absolute top-1 bottom-1 rounded cursor-pointer bg-gradient-to-r ${getColor()} ${isSelected ? 'ring-1 ring-white' : ''}`}
@@ -189,15 +191,35 @@ function Clip({ clip, track, pxPerSec, isSelected, onSelect, onTrim, onMove }) {
       onMouseDown={(e) => handleMouseDown(e, 'move')}
     >
       {/* Trim Left */}
-      <div className="absolute left-0 top-0 bottom-0 w-1.5 cursor-ew-resize hover:bg-white/30 rounded-l" onMouseDown={(e) => handleMouseDown(e, 'trimStart')} />
+      <div className="absolute left-0 top-0 bottom-0 w-1.5 cursor-ew-resize hover:bg-white/30 rounded-l z-10" onMouseDown={(e) => handleMouseDown(e, 'trimStart')} />
       
-      {/* Content */}
-      <div className="px-1.5 py-0.5 h-full flex items-center overflow-hidden pointer-events-none">
-        <span className="text-[10px] text-white truncate">{clip.title}</span>
+      {/* Audio Waveform */}
+      {waveform && (
+        <div className="absolute inset-x-1.5 top-2 bottom-2 flex items-end gap-px pointer-events-none overflow-hidden">
+          {waveform.map((height, i) => (
+            <div
+              key={i}
+              className="flex-1 min-w-[1px] bg-white/40 rounded-t"
+              style={{ height: `${height * 100}%` }}
+            />
+          ))}
+        </div>
+      )}
+      
+      {/* Content - Title */}
+      <div className="absolute inset-x-1.5 top-0 h-5 flex items-center overflow-hidden pointer-events-none">
+        <span className="text-[10px] text-white truncate drop-shadow">{clip.title}</span>
       </div>
       
+      {/* Thumbnail for video/image */}
+      {(clip.type === 'video' || clip.type === 'image') && clip.thumbnail && (
+        <div className="absolute left-1.5 top-5 bottom-1 w-8 overflow-hidden rounded pointer-events-none">
+          <img src={clip.thumbnail} alt="" className="w-full h-full object-cover" />
+        </div>
+      )}
+      
       {/* Trim Right */}
-      <div className="absolute right-0 top-0 bottom-0 w-1.5 cursor-ew-resize hover:bg-white/30 rounded-r" onMouseDown={(e) => handleMouseDown(e, 'trimEnd')} />
+      <div className="absolute right-0 top-0 bottom-0 w-1.5 cursor-ew-resize hover:bg-white/30 rounded-r z-10" onMouseDown={(e) => handleMouseDown(e, 'trimEnd')} />
     </div>
   );
 }
