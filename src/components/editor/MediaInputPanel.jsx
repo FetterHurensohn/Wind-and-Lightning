@@ -860,6 +860,143 @@ export default function MediaInputPanel() {
       );
     }
 
+    // Text hinzufügen Content
+    if (activeSection === 'text-hinzufuegen' || activeSection.startsWith('text-') || activeSection.startsWith('texteffekte') || activeSection.startsWith('textvorlage')) {
+      const textStyles = [
+        { id: 'title', name: 'Titel', fontSize: 72, fontWeight: 'bold', preview: 'Aa' },
+        { id: 'subtitle', name: 'Untertitel', fontSize: 48, fontWeight: 'medium', preview: 'Aa' },
+        { id: 'body', name: 'Fließtext', fontSize: 32, fontWeight: 'normal', preview: 'Aa' },
+        { id: 'caption', name: 'Bildunterschrift', fontSize: 24, fontWeight: 'normal', preview: 'Aa' },
+        { id: 'label', name: 'Label', fontSize: 18, fontWeight: 'medium', preview: 'Aa' },
+      ];
+
+      const textEffects = [
+        { id: 'none', name: 'Kein Effekt', preview: 'Normal' },
+        { id: 'shadow', name: 'Schatten', preview: 'Schatten' },
+        { id: 'outline', name: 'Umriss', preview: 'Umriss' },
+        { id: 'glow', name: 'Leuchten', preview: 'Glow' },
+        { id: 'neon', name: 'Neon', preview: 'Neon' },
+        { id: 'gradient', name: 'Farbverlauf', preview: 'Gradient' },
+      ];
+
+      const handleAddText = (style) => {
+        // Find or create video track
+        let videoTrack = state.tracks.find(t => t.type === 'video');
+        if (!videoTrack) {
+          const newTrackId = `track_${Date.now()}`;
+          videoTrack = { id: newTrackId, name: 'Video 1', type: 'video', clips: [] };
+          dispatch({ type: 'ADD_TRACK', payload: { track: videoTrack } });
+        }
+
+        // Calculate start position
+        let startTime = state.currentTime || 0;
+        if (videoTrack.clips && videoTrack.clips.length > 0) {
+          const lastClip = videoTrack.clips.reduce((max, clip) => 
+            (clip.start + clip.duration) > (max.start + max.duration) ? clip : max
+          );
+          startTime = Math.max(startTime, lastClip.start + lastClip.duration);
+        }
+
+        const textClip = {
+          id: `text_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+          type: 'text',
+          title: 'Neuer Text',
+          start: startTime,
+          duration: 5,
+          props: {
+            text: 'Neuer Text',
+            fontSize: style.fontSize,
+            fontWeight: style.fontWeight,
+            fontFamily: 'Inter, sans-serif',
+            color: '#ffffff',
+            backgroundColor: 'transparent',
+            textAlign: 'center',
+            posX: 0,
+            posY: 0,
+            opacity: 100,
+            scale: 100,
+            rotation: 0,
+            textEffect: 'none',
+            animation: 'none'
+          }
+        };
+
+        dispatch({ type: 'ADD_CLIP_TO_TRACK', payload: { trackId: videoTrack.id, clip: textClip } });
+        dispatch({ type: 'SELECT_CLIP', payload: { clipId: textClip.id } });
+        
+        console.log('[MediaInputPanel] Added text clip:', textClip);
+      };
+
+      return (
+        <div className="space-y-4">
+          <div className="text-sm font-medium text-[var(--text-primary)]">Text hinzufügen</div>
+          
+          {/* Text Styles */}
+          <div className="space-y-2">
+            <div className="text-xs text-[var(--text-tertiary)]">Textstil wählen</div>
+            <div className="grid grid-cols-2 gap-2">
+              {textStyles.map(style => (
+                <button
+                  key={style.id}
+                  onClick={() => handleAddText(style)}
+                  className="p-3 bg-[var(--bg-surface)] rounded-lg border border-[var(--border-subtle)] hover:border-[var(--accent-turquoise)] transition-all text-left"
+                >
+                  <div className="text-2xl font-bold text-white mb-1" style={{ fontWeight: style.fontWeight }}>
+                    {style.preview}
+                  </div>
+                  <div className="text-[10px] text-[var(--text-secondary)]">{style.name}</div>
+                  <div className="text-[9px] text-[var(--text-tertiary)]">{style.fontSize}px</div>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Quick Add Button */}
+          <button
+            onClick={() => handleAddText(textStyles[0])}
+            className="w-full h-10 bg-[var(--accent-turquoise)] text-white rounded-lg text-sm font-medium hover:bg-[var(--accent-turquoise)]/90 transition-colors flex items-center justify-center gap-2"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            Text zur Timeline hinzufügen
+          </button>
+
+          {/* Text Effects */}
+          {(activeSection.startsWith('texteffekte') || activeSection === 'text-hinzufuegen') && (
+            <div className="space-y-2 pt-4 border-t border-[var(--border-subtle)]">
+              <div className="text-xs text-[var(--text-tertiary)]">Texteffekte (auf ausgewählten Text anwenden)</div>
+              <div className="grid grid-cols-3 gap-2">
+                {textEffects.map(effect => (
+                  <button
+                    key={effect.id}
+                    onClick={() => {
+                      if (state.selectedClipId) {
+                        dispatch({
+                          type: 'UPDATE_CLIP_PROPS',
+                          payload: { clipId: state.selectedClipId, props: { textEffect: effect.id } }
+                        });
+                      }
+                    }}
+                    className="p-2 bg-[var(--bg-surface)] rounded border border-[var(--border-subtle)] hover:border-[var(--accent-turquoise)] transition-all"
+                  >
+                    <div className="text-xs text-[var(--text-primary)]">{effect.preview}</div>
+                    <div className="text-[9px] text-[var(--text-tertiary)]">{effect.name}</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Info */}
+          <div className="p-3 bg-[var(--bg-panel)] rounded-lg text-[10px] text-[var(--text-tertiary)]">
+            💡 Nach dem Hinzufügen: Wähle den Text-Clip in der Timeline aus und bearbeite ihn im Eigenschaften-Panel rechts.
+          </div>
+        </div>
+      );
+    }
+
     // Auto-Untertitel Content
     if (activeSection === 'ut-automatisch' || activeSection === 'auto-untertitel') {
       return (
