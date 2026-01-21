@@ -115,7 +115,7 @@ function TimeRuler({ pxPerSec, scrollLeft, totalWidth }) {
 }
 
 // ============================================
-// CLIP COMPONENT (Kompakt)
+// CLIP COMPONENT (Kompakt) mit Waveform
 // ============================================
 function Clip({ clip, track, pxPerSec, isSelected, onSelect, onTrim, onMove }) {
   const [action, setAction] = useState(null); // 'trimStart' | 'trimEnd' | 'move'
@@ -138,6 +138,16 @@ function Clip({ clip, track, pxPerSec, isSelected, onSelect, onTrim, onMove }) {
     setAction(type);
     startRef.current = { x: e.clientX, clipStart: clip.start, clipDuration: clip.duration };
     onSelect(clip.id);
+  };
+
+  // Generate pseudo-random waveform based on clip id
+  const generateWaveform = () => {
+    const bars = Math.floor(clipWidth / 3);
+    const seed = clip.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    return Array.from({ length: Math.max(10, bars) }, (_, i) => {
+      const noise = Math.sin(seed + i * 0.5) * 0.3 + Math.sin(i * 0.8) * 0.3;
+      return 0.3 + Math.abs(noise) * 0.7;
+    });
   };
 
   useEffect(() => {
