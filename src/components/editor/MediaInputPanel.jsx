@@ -750,8 +750,7 @@ export default function MediaInputPanel() {
     // Importieren Content
     if (activeSection === 'importieren' || activeSection === 'audio-importieren') {
       return (
-        <div className="space-y-4">
-          <div className="text-sm font-medium text-[var(--text-primary)] mb-3">Medien</div>
+        <div className="space-y-3">
           <input
             ref={fileInputRef}
             type="file"
@@ -760,21 +759,28 @@ export default function MediaInputPanel() {
             onChange={handleFileSelect}
             className="hidden"
           />
+          
+          {/* Import Button */}
           <button
             onClick={handleImportMedia}
-            className="w-full p-6 bg-[var(--bg-surface)] border border-dashed border-[var(--border-subtle)] rounded-lg hover:border-[var(--accent-turquoise)] transition-colors flex flex-col items-center justify-center gap-3"
+            className="w-full p-4 bg-[var(--bg-surface)] border border-dashed border-[var(--border-subtle)] rounded-lg hover:border-[var(--accent-turquoise)] transition-colors flex flex-col items-center justify-center gap-2"
           >
-            <Icon name="folder" size={48} className="text-[var(--text-tertiary)]" />
-            <span className="text-sm text-[var(--text-secondary)]">Medien importieren</span>
+            <Icon name="folder" size={32} className="text-[var(--text-tertiary)]" />
+            <span className="text-xs text-[var(--text-secondary)]">Medien importieren</span>
+            <span className="text-[9px] text-[var(--text-tertiary)]">Video, Audio, Bilder</span>
           </button>
-          <button className="w-full h-10 bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-lg text-sm flex items-center justify-center gap-2 hover:border-[var(--accent-turquoise)]">
-            <Icon name="image" size={16} />
-            Bild-zu-Video
-          </button>
-          <button className="w-full h-10 bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-lg text-sm flex items-center justify-center gap-2 hover:border-[var(--accent-turquoise)]">
-            <Icon name="text" size={16} />
-            Text-zu-Video
-          </button>
+          
+          {/* Quick Actions */}
+          <div className="grid grid-cols-2 gap-2">
+            <button className="h-9 bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded text-[10px] flex items-center justify-center gap-1.5 hover:border-[var(--accent-turquoise)]">
+              <Icon name="image" size={14} />
+              Bild-zu-Video
+            </button>
+            <button className="h-9 bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded text-[10px] flex items-center justify-center gap-1.5 hover:border-[var(--accent-turquoise)]">
+              <Icon name="text" size={14} />
+              Text-zu-Video
+            </button>
+          </div>
 
           {/* Imported Media Grid - DRAGGABLE */}
           {state.media.length > 0 && (
@@ -800,6 +806,15 @@ export default function MediaInputPanel() {
                   />
                 ))}
               </div>
+            </div>
+          )}
+          
+          {/* Empty State */}
+          {state.media.length === 0 && (
+            <div className="text-center py-6 text-[var(--text-tertiary)]">
+              <Icon name="video" size={40} className="mx-auto mb-2 opacity-30" />
+              <div className="text-xs">Noch keine Medien</div>
+              <div className="text-[10px]">Importiere Dateien um zu starten</div>
             </div>
           )}
         </div>
