@@ -6,7 +6,7 @@
  * - Rechter Bereich (flex-1): Content der ausgewählten Kategorie
  */
 
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { useEditor } from './EditorLayout';
 import Icon from './Icon';
 import { quickPrompt, generateImage, textToSpeech, generateMusicSuggestion, generateStoryboard, transcribeAudio } from '../../modules/ai/AIClient';
