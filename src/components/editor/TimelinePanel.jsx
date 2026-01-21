@@ -442,18 +442,37 @@ export default function TimelinePanel() {
   }, [dispatch, state.snapping]);
 
   const handleDrop = useCallback((e, trackId, dropTime) => {
-    const mediaId = e.dataTransfer.getData('mediaId');
-    if (!mediaId) return;
+    const mediaId = e.dataTransfer.getData('mediaId') || e.dataTransfer.getData('text/plain');
+    
+    console.log('[TimelinePanel] handleDrop called:', { mediaId, trackId, dropTime });
+    
+    if (!mediaId) {
+      console.warn('[TimelinePanel] No mediaId found in drop event');
+      return;
+    }
 
     const mediaItem = state.media.find(m => m.id === mediaId);
-    if (!mediaItem) return;
+    if (!mediaItem) {
+      console.warn('[TimelinePanel] Media item not found:', mediaId);
+      console.log('[TimelinePanel] Available media:', state.media.map(m => m.id));
+      return;
+    }
 
     const track = state.tracks.find(t => t.id === trackId);
-    if (!track) return;
+    if (!track) {
+      console.warn('[TimelinePanel] Track not found:', trackId);
+      return;
+    }
 
-    // Type check
-    if (track.type === 'audio' && mediaItem.type !== 'audio') return;
-    if (track.type === 'video' && mediaItem.type === 'audio') return;
+    // Type check - Video/Bild kann nur auf Video-Tracks, Audio nur auf Audio-Tracks
+    if (track.type === 'audio' && mediaItem.type !== 'audio') {
+      console.warn('[TimelinePanel] Cannot drop non-audio on audio track');
+      return;
+    }
+    if (track.type === 'video' && mediaItem.type === 'audio') {
+      console.warn('[TimelinePanel] Cannot drop audio on video track');
+      return;
+    }
 
     const newClip = {
       id: `clip_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
@@ -466,6 +485,7 @@ export default function TimelinePanel() {
       props: { opacity: 100, scale: 100, volume: mediaItem.type === 'audio' ? 100 : 0 }
     };
 
+    console.log('[TimelinePanel] Creating clip:', newClip);
     dispatch({ type: 'ADD_CLIP_TO_TRACK', payload: { trackId, clip: newClip } });
   }, [state.media, state.tracks, state.snapping, dispatch]);
 
