@@ -22,6 +22,7 @@ export default function NewProjectModal({ onClose, onCreate }) {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        console.log('[Modal] handleSubmit called');
         setCreating(true);
         setStructureReport(null);
 
@@ -34,6 +35,7 @@ export default function NewProjectModal({ onClose, onCreate }) {
             };
 
             const resolution = resolutionMap[formData.resolution] || { width: 1920, height: 1080 };
+            console.log('[Modal] isElectron:', electronAPI.env.isElectron);
 
             // NEU: Erstelle UUID-basiertes Projekt
             if (electronAPI.env.isElectron && window.electronAPI?.projectAPI) {
@@ -79,7 +81,8 @@ export default function NewProjectModal({ onClose, onCreate }) {
                 };
 
                 console.log('[Modal] Browser mode - Calling onCreate with:', projectData);
-                onCreate(projectData);
+                await onCreate(projectData);
+                console.log('[Modal] onCreate completed successfully');
                 // Modal wird vom onCreate-Handler geschlossen
             }
         } catch (error) {
