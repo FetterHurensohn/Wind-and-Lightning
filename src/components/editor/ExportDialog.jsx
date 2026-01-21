@@ -95,7 +95,7 @@ export default function ExportDialog({
     setProgress(0);
     setExportPhase('Vorbereitung...');
     
-    // Simuliere Export-Prozess
+    // Export-Phasen simulieren
     const phases = [
       { phase: 'Vorbereitung...', duration: 500 },
       { phase: 'Frames rendern...', duration: 3000 },
@@ -120,19 +120,41 @@ export default function ExportDialog({
       }
     }
     
-    // Export abgeschlossen
-    onExport?.({
+    // Export-Daten zusammenstellen
+    const exportConfig = {
       resolution,
+      width: selectedResolution?.width,
+      height: selectedResolution?.height,
       fps,
       format,
       codec,
       quality,
-    });
+      estimatedSize: estimatedSize(),
+      exportedAt: new Date().toISOString()
+    };
+    
+    // Speichere Export-Konfiguration als JSON (Demo)
+    try {
+      const configBlob = new Blob([JSON.stringify(exportConfig, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(configBlob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${project?.name || 'export'}_config.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.warn('Download-Fehler:', err);
+    }
+    
+    // Callback aufrufen
+    onExport?.(exportConfig);
     
     setExporting(false);
     setProgress(100);
     setExportPhase('Export abgeschlossen!');
-  }, [resolution, fps, format, codec, quality, onExport]);
+  }, [resolution, selectedResolution, fps, format, codec, quality, estimatedSize, project, onExport]);
   
   return (
     <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 animate-fadeIn">
