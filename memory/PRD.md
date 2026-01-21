@@ -16,69 +16,58 @@ German (Deutsch)
 
 ## What's Been Implemented
 
+### Advanced Track System (✅ Complete - 21.01.2026)
+**Four Track Types:**
+- **Video Track:** Blue background (bg-blue-500/20)
+- **Audio Track:** Green background (bg-green-500/20)
+- **Text Track:** Yellow background (bg-yellow-500/20)
+- **Sticker Track:** Pink background (bg-pink-500/20)
+
+**Track Control Buttons (each track):**
+- 🔊 **Mute/Unmute** (audio/video only) - Red when active
+- 👁 **Show/Hide** - Orange when active, track opacity 40%
+- 🔒 **Lock/Unlock** - Yellow when active, shows lock overlay
+- 🗑 **Delete** - Confirmation dialog
+
+**Track Features:**
+- **Volume/Opacity Slider:** Popup on hover for audio/video tracks
+- **Create New Tracks:** Click +Video/+Audio/+Text/+Sticker buttons
+- **Drag to Create:** Drag media above existing tracks to create new track
+
 ### Media to Timeline (✅ Complete)
-Three methods to add media:
-1. **+ Button:** Hover over media tile, click large turquoise + button
-2. **Double-Click:** Double-click on media tile
-3. **Drag-and-Drop:** Drag tile to timeline track
+- **+ Button:** Large turquoise button on hover
+- **Double-Click:** Add to end of last clip
+- **Drag-and-Drop:** Add at specific position
 
-### Text Overlay System (✅ Complete - 21.01.2026)
-- **Text Creation Panel:** 5 text styles (Titel 72px, Untertitel 48px, Fließtext 32px, Bildunterschrift 24px, Label 18px)
-- **Text Editing in Inspector:**
-  - Textinhalt (textarea)
-  - Schriftgröße (12-200px slider)
-  - Schriftstärke (Normal, Mittel, Halbfett, Fett, Extra Fett)
-  - Textfarbe (color picker)
-  - Hintergrundfarbe (color picker + Transparent button)
-  - Ausrichtung (Links, Mitte, Rechts)
-- **Text Effects:** Shadow, Outline, Glow, Neon, Gradient
+### Text Overlay System (✅ Complete)
+- 5 text styles (Titel, Untertitel, Fließtext, Bildunterschrift, Label)
+- Full text editing in Inspector
+- Text effects (Shadow, Outline, Glow, Neon, Gradient)
 
-### Visual Effect Rendering (✅ Complete - 21.01.2026)
-- **CSS Filter Effects:**
-  - blur (Weichzeichner)
-  - sharpen (Schärfen)
-  - glitch (animated)
-  - vhs, film-grain, vintage (Retro)
-  - glow, neon, duotone, chromatic (Angesagt)
-  - shake (animated)
-- **Vignette Effect:** Dark corners overlay via ::after pseudo-element
-- **Transition Animations:** fade, slide, zoom (CSS keyframes)
+### Visual Effect Rendering (✅ Complete)
+- CSS filter effects (blur, glow, neon, vintage, etc.)
+- Animated effects (shake, glitch)
+- Transition animations
 
 ### Timeline (✅ Complete)
-- 1-Hour Duration (3600 seconds)
-- Fine tick marks
-- Shift + Scroll = Horizontal scroll
-- Ctrl + Scroll = Zoom
+- 1-Hour duration, fine tick marks
+- Shift+Scroll horizontal, Ctrl+Scroll zoom
 - Clip trim handles
 
-### Inspector Panel (✅ Complete)
-- Transformation (Opacity, Scale, Rotation, Position)
-- Speed, Flip, Blend Mode, Audio
-- Color Correction (Brightness, Contrast, Saturation, Hue)
-- Effects section with X button
-- Transitions section with X button
-- **Full Text editing when text clip selected**
-
-### Videoeffekte (✅ Complete)
-- 12 effects in 3 categories (Basis, Retro, Angesagt)
-- Click to apply to selected clip
-- Visual rendering via CSS filters
-
-### Übergänge (✅ Complete)
-- 12 transitions (Fade, Dissolve, Wipe, Zoom, Slide, etc.)
-- Click to apply to selected clip
+### Videoeffekte & Übergänge (✅ Complete)
+- 12 video effects, 12 transitions
+- Apply to selected clip
 
 ### AI Features (✅ Complete)
 - KI-Bild, KI-Video, TTS, KI-Musik
-- Auto-Untertitel (Whisper)
-- KI-Assistent
+- Auto-Untertitel, KI-Assistent
 
 ---
 
 ## P1/P2/P3 Features Remaining
 
 ### P1 - High Priority
-- [ ] **Video export rendering (FFmpeg in Electron)**
+- [ ] Video export rendering (FFmpeg in Electron)
 - [ ] Sticker library integration
 
 ### P2 - Medium Priority
@@ -94,37 +83,37 @@ Three methods to add media:
 
 ## Changelog
 
+### 21.01.2026 - Advanced Track System
+- Implemented 4 track types (Video, Audio, Text, Sticker)
+- Added track control buttons (Mute, Hide, Lock, Delete)
+- Volume/Opacity slider popup on hover
+- Track label area expanded to 160px
+- Color-coded track backgrounds
+
 ### 21.01.2026 - Text Overlay & Visual Effects
-- Implemented Text creation panel with 5 text styles
-- Full text editing in Inspector (font, color, alignment, effects)
-- Visual effect rendering via CSS filters
-- CSS animations for shake, glitch effects
-- Vignette effect via pseudo-element
+- Text creation panel with 5 styles
+- Full text editing in Inspector
+- CSS filter effect rendering
 
-### 21.01.2026 - Add to Timeline Button
-- Large turquoise + button on hover over media tiles
-- Three ways to add media: + Button, Double-click, Drag-and-Drop
-
-### 21.01.2026 - Videoeffekte & Übergänge
-- 12 video effects with CSS filter rendering
-- 12 transitions stored on clips
+### 21.01.2026 - Media to Timeline
+- Large + button on hover over media tiles
+- Three methods: + Button, Double-click, Drag-and-Drop
 
 ---
 
 ## Key Files Reference
+- `/app/src/components/editor/TimelinePanel.jsx` - Track system, controls
 - `/app/src/components/editor/EditorLayout.jsx` - State management
-- `/app/src/components/editor/TimelinePanel.jsx` - Timeline
-- `/app/src/components/editor/MediaInputPanel.jsx` - Media panel, Text panel
+- `/app/src/components/editor/MediaInputPanel.jsx` - Media/Text panels
 - `/app/src/components/PreviewPanel.jsx` - Preview with effects
-- `/app/src/components/editor/InspectorPanel.jsx` - Properties & Text editing
-- `/app/src/index.css` - Effect CSS animations
+- `/app/src/components/editor/InspectorPanel.jsx` - Properties
 
 ---
 
 ## Test Status
-- **Last Test:** iteration_13.json (21.01.2026)
-- **Frontend Success Rate:** 100% (13/13 features)
-- **Verified:** + button, Text creation, Text editing, Effects rendering
+- **Last Test:** iteration_14.json (21.01.2026)
+- **Frontend Success Rate:** 100% (12/12 features)
+- **Verified:** Track types, control buttons, volume slider, hide/lock/delete
 
 ---
 
