@@ -6,6 +6,7 @@
 import React, { useState, useCallback } from 'react';
 import Icon from './editor/Icon';
 import { DEFAULT_SETTINGS, DEFAULT_SHORTCUTS, THEMES, LANGUAGES, settingsManager } from '../modules/settings';
+import { AI_PROVIDERS, AI_FUNCTION_MODELS, loadAISettings, saveAISettings } from '../modules/ai/AIModelSelector';
 
 const SECTIONS = [
   { id: 'general', name: 'Allgemein', icon: 'settings' },
