@@ -291,7 +291,7 @@ function Clip({ clip, track, pxPerSec, isSelected, onSelect, onTrim, onMove, onM
 // TRACK COMPONENT (Kompakt - 48px Höhe)
 // Mit Kontroll-Buttons: Löschen, Sperren, Ausblenden, Stumm, Gauge
 // ============================================
-function Track({ track, pxPerSec, selectedClipId, onClipSelect, onClipTrim, onClipMove, onDrop, onTrackUpdate, onTrackDelete, isFirst }) {
+function Track({ track, pxPerSec, selectedClipId, onClipSelect, onClipTrim, onClipMove, onMoveToNewTrack, onDrop, onTrackUpdate, onTrackDelete, isFirst }) {
   const [dragOver, setDragOver] = useState(false);
   const [showControls, setShowControls] = useState(false);
   const [waveformSize, setWaveformSize] = useState(track.waveformSize || 'medium'); // small, medium, large
