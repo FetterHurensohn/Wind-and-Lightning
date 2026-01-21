@@ -293,9 +293,32 @@ export function MusicGeneratorPanel({ onClose, onInsert }) {
   const [mood, setMood] = useState('upbeat');
   const [duration, setDuration] = useState(30);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [result, setResult] = useState(null);
 
   const genres = ['electronic', 'pop', 'rock', 'classical', 'jazz', 'hip-hop', 'ambient', 'cinematic'];
   const moods = ['upbeat', 'calm', 'dramatic', 'happy', 'sad', 'energetic', 'mysterious', 'romantic'];
+
+  const handleGenerate = async () => {
+    setLoading(true);
+    setError(null);
+    setResult(null);
+    
+    try {
+      const response = await generateMusicSuggestion({
+        genre,
+        mood,
+        duration,
+        description: prompt
+      });
+      setResult(response);
+    } catch (err) {
+      console.error('Music Generation Error:', err);
+      setError(err.message || 'Ein Fehler ist aufgetreten');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="bg-[var(--bg-panel)] rounded-xl border border-[var(--border-subtle)] w-[450px]" data-testid="music-generator-panel">
@@ -310,7 +333,14 @@ export function MusicGeneratorPanel({ onClose, onInsert }) {
       <div className="p-4 space-y-4">
         <div>
           <label className="text-xs text-[var(--text-secondary)] mb-2 block">Beschreibung (optional)</label>
-          <input type="text" value={prompt} onChange={(e) => setPrompt(e.target.value)} placeholder="z.B. Upbeat Intro für YouTube Video" className="w-full h-10 px-3 bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-lg text-sm text-[var(--text-primary)]" />
+          <input 
+            type="text" 
+            value={prompt} 
+            onChange={(e) => setPrompt(e.target.value)} 
+            placeholder="z.B. Upbeat Intro für YouTube Video" 
+            className="w-full h-10 px-3 bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-lg text-sm text-[var(--text-primary)]" 
+            data-testid="music-description-input"
+          />
         </div>
 
         <div className="grid grid-cols-2 gap-3">
@@ -333,9 +363,43 @@ export function MusicGeneratorPanel({ onClose, onInsert }) {
           <input type="range" value={duration} onChange={(e) => setDuration(Number(e.target.value))} min={10} max={180} className="w-full" />
         </div>
 
-        <button disabled={loading} className="w-full h-10 bg-orange-500 text-white rounded-lg text-sm font-medium hover:opacity-90 disabled:opacity-50 flex items-center justify-center gap-2">
-          <Icon name="music" size={14} /> Musik generieren
+        {/* Error Display */}
+        {error && (
+          <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
+            <div className="flex items-center gap-2 text-red-400 text-sm">
+              <Icon name="alertCircle" size={14} />
+              {error}
+            </div>
+          </div>
+        )}
+
+        <button 
+          onClick={handleGenerate}
+          disabled={loading} 
+          className="w-full h-10 bg-orange-500 text-white rounded-lg text-sm font-medium hover:opacity-90 disabled:opacity-50 flex items-center justify-center gap-2"
+          data-testid="generate-music-btn"
+        >
+          {loading ? <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Generiere...</> : <><Icon name="music" size={14} /> Musik-Vorschlag generieren</>}
         </button>
+
+        {/* Result */}
+        {result && (
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <label className="text-xs text-[var(--text-secondary)]">Musik-Vorschlag</label>
+              <button onClick={() => navigator.clipboard.writeText(result)} className="text-xs text-orange-400 hover:underline">Kopieren</button>
+            </div>
+            <div className="p-3 bg-[var(--bg-surface)] rounded-lg max-h-[200px] overflow-y-auto">
+              <pre className="text-sm text-[var(--text-primary)] whitespace-pre-wrap font-sans" data-testid="music-result">{result}</pre>
+            </div>
+            <div className="p-3 bg-orange-500/10 border border-orange-500/20 rounded-lg">
+              <div className="flex items-start gap-2 text-orange-400 text-xs">
+                <Icon name="info" size={14} className="mt-0.5 flex-shrink-0" />
+                <span>Für lizenzfreie Musik kannst du die obigen Vorschläge auf Plattformen wie Epidemic Sound, Artlist oder Pixabay Music suchen.</span>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
