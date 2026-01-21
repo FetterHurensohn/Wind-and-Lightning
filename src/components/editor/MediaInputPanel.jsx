@@ -468,12 +468,38 @@ export default function MediaInputPanel() {
           name: file.name,
           type: mediaType,
           size: file.size,
-          duration: 5,
+          duration: mediaType === 'image' ? 3 : 5,
           thumbnail: null,
           file: file,
           url: URL.createObjectURL(file)
         }
       });
+    });
+  };
+
+  // Demo-Medien hinzufügen (für Tests ohne Datei-Upload)
+  const addDemoMedia = (type) => {
+    const demoData = {
+      video: { name: 'Demo Video.mp4', duration: 10, color: '#3b82f6' },
+      image: { name: 'Demo Bild.jpg', duration: 3, color: '#8b5cf6' },
+      audio: { name: 'Demo Audio.mp3', duration: 15, color: '#22c55e' }
+    };
+    
+    const data = demoData[type] || demoData.video;
+    
+    dispatch({
+      type: 'ADD_MEDIA',
+      payload: {
+        id: `demo_${type}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        name: data.name,
+        type: type,
+        size: 1024 * 1024,
+        duration: data.duration,
+        thumbnail: null,
+        url: null,
+        color: data.color,
+        isDemo: true
+      }
     });
   };
 
