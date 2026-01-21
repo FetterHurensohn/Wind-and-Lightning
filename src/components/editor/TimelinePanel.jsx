@@ -517,26 +517,28 @@ function NewTrackDropZone({ type, onCreateTrack }) {
     }
   };
 
-  const getLabel = () => {
+  const getConfig = () => {
     switch (type) {
-      case 'audio': return '+ Neuer Audio Track';
-      case 'text': return '+ Neuer Text Track';
-      case 'sticker': return '+ Neuer Sticker Track';
-      default: return '+ Neuer Video Track';
+      case 'audio': return { label: '+Audio', color: 'text-green-400', bg: 'bg-green-500/10' };
+      case 'text': return { label: '+Text', color: 'text-yellow-400', bg: 'bg-yellow-500/10' };
+      case 'sticker': return { label: '+Sticker', color: 'text-pink-400', bg: 'bg-pink-500/10' };
+      default: return { label: '+Video', color: 'text-blue-400', bg: 'bg-blue-500/10' };
     }
   };
 
+  const config = getConfig();
+
   return (
     <div
-      className={`h-6 border-b border-dashed border-[var(--border-subtle)] flex items-center justify-center transition-colors cursor-pointer ${
-        dragOver ? 'bg-[var(--accent-turquoise)]/20 border-[var(--accent-turquoise)]' : 'hover:bg-[var(--bg-hover)]/50'
+      className={`flex-1 h-full flex items-center justify-center transition-colors cursor-pointer border-r border-dashed border-[var(--border-subtle)] last:border-r-0 ${
+        dragOver ? 'bg-[var(--accent-turquoise)]/30' : `hover:${config.bg}`
       }`}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
       onClick={() => onCreateTrack(type)}
     >
-      <span className="text-[9px] text-[var(--text-tertiary)]">{getLabel()}</span>
+      <span className={`text-[9px] ${config.color}`}>{config.label}</span>
     </div>
   );
 }
