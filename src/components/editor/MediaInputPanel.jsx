@@ -880,18 +880,27 @@ export default function MediaInputPanel() {
       ];
 
       const handleAddText = (style) => {
-        // Find or create video track
-        let videoTrack = state.tracks.find(t => t.type === 'video');
-        if (!videoTrack) {
-          const newTrackId = `track_${Date.now()}`;
-          videoTrack = { id: newTrackId, name: 'Video 1', type: 'video', clips: [] };
-          dispatch({ type: 'ADD_TRACK', payload: { track: videoTrack } });
+        // Find or create TEXT track (not video track!)
+        let textTrack = state.tracks.find(t => t.type === 'text');
+        if (!textTrack) {
+          const newTrackId = `text_track_${Date.now()}`;
+          textTrack = { 
+            id: newTrackId, 
+            name: 'Text 1', 
+            type: 'text', 
+            clips: [],
+            locked: false,
+            hidden: false,
+            muted: false,
+            gauge: 100
+          };
+          dispatch({ type: 'ADD_TRACK', payload: { track: textTrack, position: 0 } });
         }
 
-        // Calculate start position
+        // Calculate start position based on text track clips
         let startTime = state.currentTime || 0;
-        if (videoTrack.clips && videoTrack.clips.length > 0) {
-          const lastClip = videoTrack.clips.reduce((max, clip) => 
+        if (textTrack.clips && textTrack.clips.length > 0) {
+          const lastClip = textTrack.clips.reduce((max, clip) => 
             (clip.start + clip.duration) > (max.start + max.duration) ? clip : max
           );
           startTime = Math.max(startTime, lastClip.start + lastClip.duration);
@@ -921,10 +930,10 @@ export default function MediaInputPanel() {
           }
         };
 
-        dispatch({ type: 'ADD_CLIP_TO_TRACK', payload: { trackId: videoTrack.id, clip: textClip } });
+        dispatch({ type: 'ADD_CLIP_TO_TRACK', payload: { trackId: textTrack.id, clip: textClip } });
         dispatch({ type: 'SELECT_CLIP', payload: { clipId: textClip.id } });
         
-        console.log('[MediaInputPanel] Added text clip:', textClip);
+        console.log('[MediaInputPanel] Added text clip to TEXT track:', textClip);
       };
 
       return (
