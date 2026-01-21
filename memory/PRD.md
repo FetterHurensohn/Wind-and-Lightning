@@ -17,7 +17,7 @@ German (Deutsch)
 
 ## What's Been Implemented
 
-### Core UI (✅ Complete - Latest Update 21.01.2026)
+### Core UI (✅ Complete - 21.01.2026)
 
 #### Top Toolbar (CapCut-Style)
 - 11 Category Icons: Medien, Audio, Text, Sticker, Effekte, Übergänge, Untertitel, Filter, Anpassung, Vorlagen, KI-Avatar
@@ -26,70 +26,74 @@ German (Deutsch)
 - Clicking categories changes left sidebar navigation
 
 #### Left Sidebar (CapCut-Style MediaInputPanel)
-New two-column layout (180px navigation + content area):
+Two-column layout (180px navigation + content area):
 
-**Medien:**
-- Importieren, Deine, KI-Medien (KI-Bild, KI-Video, KI-Dialogszene), Speicher, Bibliothek, Dreamina
+**Medien:** Importieren, Deine, KI-Medien (KI-Bild, KI-Video, KI-Dialogszene), Speicher, Bibliothek, Dreamina
+**Audio:** Importieren, Deine, Musik, Soundeffekte, KI-Musik [NEU], Text-zu-Sprache [AI]
+**Text:** Text hinzufügen, Deine, Texteffekte, Textvorlage, Automatische UT [AI]
+**Untertitel:** Automatische UT [AI], Manuell hinzufügen, Song-Lyrics [AI], Untertitel-Stile
+**KI-Avatar:** Avatar erstellen [NEU], Bibliothek, Text-zu-Video [AI], Storyboard [AI]
 
-**Audio:**
-- Importieren, Deine, Musik, Soundeffekte, KI-Musik [NEU], Text-zu-Sprache [AI]
+### Timeline (✅ Complete - 21.01.2026)
 
-**Text:**
-- Text hinzufügen, Deine, Texteffekte, Textvorlage, Automatische UT [AI]
+#### Timeline Toolbar
+- Undo/Redo buttons
+- Split, Delete, Snap buttons
+- Transport controls: Skip back, Frame back, Play/Pause, Stop, Frame forward
+- Timecode display (current / total duration)
+- Zoom In/Out controls
 
-**Untertitel:**
-- Automatische UT [AI], Manuell hinzufügen, Song-Lyrics [AI], Untertitel-Stile
+#### Track System
+- Video and Audio tracks with labels (150px left column)
+- Mute/Lock icons per track
+- "+Video" and "+Audio" buttons to add new tracks
+- Empty state placeholder: "Medien hierher ziehen"
 
-**KI-Avatar:**
-- Avatar erstellen [NEU], Bibliothek, Text-zu-Video [AI], Storyboard [AI]
+#### Clip Features
+- Color-coded by type (Video=blue, Audio=green, Image=purple, Text=yellow)
+- Trim handles (left/right edges)
+- Drag-and-drop for repositioning
+- Selection highlight with white ring
+
+#### Playhead
+- Red vertical line with diamond head indicator
+- Updates position during playback
+
+#### Keyboard Shortcuts
+- Space: Play/Pause
+- B: Split clip at playhead
+- Delete/Backspace: Delete selected clip
+- Ctrl+Z: Undo
+- Ctrl+Y: Redo
+- Ctrl+C/V: Copy/Paste
+- Arrow Left/Right: Frame navigation
 
 ### AI Features (✅ Complete)
 
 #### 1. KI-Bild (Image Generation)
 - Seedream 4.0 Model integration
-- Prompt input field
-- Aspect ratio selector (9:16, 16:9, 1:1)
+- Prompt input, aspect ratio selector
 - Generate button with Emergent API
 
 #### 2. KI-Video (Video/Storyboard Generation)
 - Bild-zu-Video / Text-zu-Video tabs
 - Seedance 1.0 Fast Model
-- Duration (5s/10s) and aspect ratio settings
-- AI-powered storyboard generation
+- Duration and aspect ratio settings
 
 #### 3. Text-zu-Sprache (TTS)
 - OpenAI TTS integration
 - 5 voice options (Alloy, Echo, Nova, Onyx, Shimmer)
-- Character count display
-- Audio preview and download
 
 #### 4. KI-Musik Generator
 - Genre and mood based suggestions
-- AI-powered music recommendations
-- Integration with royalty-free platforms
 
 #### 5. Auto-Untertitel (Whisper)
 - OpenAI Whisper integration
-- Audio/Video file upload
-- Multi-language support (German, English, Spanish, etc.)
-- Subtitle style options
+- Multi-language support
 
 #### 6. KI-Assistent (In-Editor Chat)
 - Real-time AI chat assistant
 - Model selection (GPT-5.2, Claude, Gemini)
-- Quick suggestions for common tasks
-
-### Editor Layout (✅ Complete)
-- Top Toolbar with category navigation
-- Left Panel (500px) with CapCut-style sidebar
-- Preview Area with playback controls
-- Timeline (45% height) with tracks
-- Right Panel (280px) with Properties/KI-Assistent tabs
-
-### Dashboard (✅ Complete)
-- Feature tiles for all AI tools
-- Project management (create, open, delete)
-- Search and filter projects
 
 ---
 
@@ -104,15 +108,15 @@ New two-column layout (180px navigation + content area):
 │   │   └── editor/
 │   │       ├── TopToolbar.jsx       # Category navigation
 │   │       ├── MediaInputPanel.jsx  # CapCut-style left panel
+│   │       ├── TimelinePanel.jsx    # Complete timeline with tracks
 │   │       ├── EditorLayout.jsx     # Main layout
-│   │       ├── AIChat.jsx           # KI-Assistent
-│   │       └── ...
+│   │       └── AIChat.jsx           # KI-Assistent
 │   ├── hooks/
+│   │   ├── useTimelineZoom.js       # Zoom functionality
+│   │   └── useProjects.js           # Project management
 │   ├── modules/
-│   │   ├── ai/
-│   │   │   ├── AIClient.js          # AI API integration
-│   │   │   └── AIModelSelector.js
-│   │   └── ...
+│   │   └── ai/
+│   │       └── AIClient.js          # AI API integration
 │   └── ...
 └── electron/
 ```
@@ -122,33 +126,51 @@ New two-column layout (180px navigation + content area):
 ## P1/P2/P3 Features Remaining
 
 ### P1 - High Priority
-- [ ] Timeline clip manipulation (trim, split, move)
-- [ ] Media import drag-and-drop to timeline
-- [ ] Audio waveform visualization
-- [ ] Real video rendering/export
+- [ ] Real video/audio playback in preview
+- [ ] Actual file import and processing
+- [ ] Video export rendering (FFmpeg in Electron)
 
 ### P2 - Medium Priority
-- [ ] Effects & Filters library implementation
-- [ ] Transitions with presets
+- [ ] Effects & Filters library with preview
+- [ ] Transitions between clips
+- [ ] Audio waveform visualization
 - [ ] Keyframe animation system
-- [ ] Motion tracking
-- [ ] Green screen/chroma key
 
 ### P3 - Future/Backlog
+- [ ] Motion tracking
+- [ ] Green screen/chroma key
 - [ ] Cloud sync & collaboration
 - [ ] Direct social media upload
 - [ ] Templates marketplace
 - [ ] Mobile app version
-- [ ] Real-time collaboration
 
 ---
 
 ## Test Status
-- **Last Test:** iteration_4.json (21.01.2026)
+- **Last Test:** iteration_5.json (21.01.2026)
 - **Frontend Success Rate:** 100%
-- **All AI panels loading correctly**
-- **Category navigation working**
-- **Project creation and navigation working**
+- **All timeline features working**
+- **All AI panels verified**
+- **Track management working**
+
+---
+
+## Changelog
+
+### 21.01.2026 - Timeline Implementation
+- Completely rewrote TimelinePanel.jsx
+- Added Track component with labels (150px column)
+- Added Clip component with trim handles
+- Added TimeRuler with tick marks
+- Added Timeline Toolbar with transport controls
+- Added +Video/+Audio buttons for track management
+- Implemented keyboard shortcuts
+- Added drag-and-drop support
+
+### 21.01.2026 - CapCut UI Update
+- Rewrote TopToolbar.jsx with 11 categories
+- Rewrote MediaInputPanel.jsx with two-column layout
+- Integrated all AI features into sidebar
 
 ---
 
@@ -156,12 +178,4 @@ New two-column layout (180px navigation + content area):
 - Electron APIs not available
 - Projects stored in localStorage
 - Export generates config JSON (not actual video)
-
----
-
-## Changelog (Latest)
-- **21.01.2026:** Rewrote TopToolbar.jsx and MediaInputPanel.jsx to match CapCut UI
-  - Added 11-category top toolbar navigation
-  - Implemented two-column left sidebar with dynamic navigation
-  - Integrated all AI features into sidebar
-  - Added KI-Bild, KI-Video, TTS, KI-Musik, Auto-Untertitel panels
+- No real video playback (placeholder preview)
