@@ -17,68 +17,79 @@ German (Deutsch)
 
 ## What's Been Implemented
 
-### Core Features (✅ Complete)
+### Core UI (✅ Complete - Latest Update 21.01.2026)
 
-#### Dashboard
-- Feature tiles for all AI tools
-- Project management (create, open, delete, duplicate)
-- Search and filter projects
-- Grid/List view toggle
+#### Top Toolbar (CapCut-Style)
+- 11 Category Icons: Medien, Audio, Text, Sticker, Effekte, Übergänge, Untertitel, Filter, Anpassung, Vorlagen, KI-Avatar
+- Logo + Menu Dropdown
+- Project Name (editable) + Player Button
+- Clicking categories changes left sidebar navigation
 
-#### Editor Layout
-- Professional timeline with tracks
-- Preview area with playback controls
-- Left sidebar: Importieren, Medien, KI-Medien, Bibliothek
-- Right sidebar: Eigenschaften + KI-Assistent tabs
-- Top toolbar with editing tools
+#### Left Sidebar (CapCut-Style MediaInputPanel)
+New two-column layout (180px navigation + content area):
+
+**Medien:**
+- Importieren, Deine, KI-Medien (KI-Bild, KI-Video, KI-Dialogszene), Speicher, Bibliothek, Dreamina
+
+**Audio:**
+- Importieren, Deine, Musik, Soundeffekte, KI-Musik [NEU], Text-zu-Sprache [AI]
+
+**Text:**
+- Text hinzufügen, Deine, Texteffekte, Textvorlage, Automatische UT [AI]
+
+**Untertitel:**
+- Automatische UT [AI], Manuell hinzufügen, Song-Lyrics [AI], Untertitel-Stile
+
+**KI-Avatar:**
+- Avatar erstellen [NEU], Bibliothek, Text-zu-Video [AI], Storyboard [AI]
 
 ### AI Features (✅ Complete)
 
-#### 1. KI-Assistent (In-Editor Chat)
+#### 1. KI-Bild (Image Generation)
+- Seedream 4.0 Model integration
+- Prompt input field
+- Aspect ratio selector (9:16, 16:9, 1:1)
+- Generate button with Emergent API
+
+#### 2. KI-Video (Video/Storyboard Generation)
+- Bild-zu-Video / Text-zu-Video tabs
+- Seedance 1.0 Fast Model
+- Duration (5s/10s) and aspect ratio settings
+- AI-powered storyboard generation
+
+#### 3. Text-zu-Sprache (TTS)
+- OpenAI TTS integration
+- 5 voice options (Alloy, Echo, Nova, Onyx, Shimmer)
+- Character count display
+- Audio preview and download
+
+#### 4. KI-Musik Generator
+- Genre and mood based suggestions
+- AI-powered music recommendations
+- Integration with royalty-free platforms
+
+#### 5. Auto-Untertitel (Whisper)
+- OpenAI Whisper integration
+- Audio/Video file upload
+- Multi-language support (German, English, Spanish, etc.)
+- Subtitle style options
+
+#### 6. KI-Assistent (In-Editor Chat)
 - Real-time AI chat assistant
 - Model selection (GPT-5.2, Claude, Gemini)
 - Quick suggestions for common tasks
-- Context-aware help for video editing
 
-#### 2. Text-to-Video
-- Storyboard generation from text prompts
-- Style selection (Filmisch, Dokumentation, Social, etc.)
-- Duration and aspect ratio settings
-- AI-powered scene breakdown
+### Editor Layout (✅ Complete)
+- Top Toolbar with category navigation
+- Left Panel (500px) with CapCut-style sidebar
+- Preview Area with playback controls
+- Timeline (45% height) with tracks
+- Right Panel (280px) with Properties/KI-Assistent tabs
 
-#### 3. Auto-Untertitel (Auto-Captions)
-- OpenAI Whisper integration for transcription
-- Audio/video file upload
-- Multi-language support (12 languages)
-- Subtitle styling options (Standard, YouTube, Netflix, etc.)
-- Timing adjustments
-
-#### 4. Sprachausgabe (Text-to-Speech)
-- OpenAI TTS integration
-- 6 voice options (Alloy, Echo, Fable, Onyx, Nova, Shimmer)
-- Speed control (0.5x - 2x)
-- Preview and insert to timeline
-
-#### 5. Musik-Generator
-- AI-powered music suggestions
-- Genre selection (Electronic, Pop, Rock, etc.)
-- Mood selection (Upbeat, Calm, Dramatic, etc.)
-- Duration slider
-- Royalty-free music recommendations
-
-#### 6. Bild-Generator
-- AI image generation via DALL-E/GPT Image
-- Style presets (Realistic, Artistic, Anime, etc.)
-- Size options (1024x1024, Portrait, Landscape)
-- Direct insert to project
-
-### Export System (✅ Complete)
-- Resolution options: 480p to 8K
-- FPS options: 24, 25, 30, 50, 60
-- Formats: MP4, MOV, WebM, GIF
-- Codec selection: H.264, H.265, ProRes
-- Quality slider
-- Estimated file size display
+### Dashboard (✅ Complete)
+- Feature tiles for all AI tools
+- Project management (create, open, delete)
+- Search and filter projects
 
 ---
 
@@ -88,70 +99,69 @@ German (Deutsch)
 /app/
 ├── memory/                # Documentation System
 ├── src/
-│   ├── components/        # React UI Components
-│   │   ├── dashboard/     # Dashboard components
-│   │   └── editor/        # Editor components
-│   ├── hooks/             # Custom React hooks
-│   ├── modules/           # Business Logic
-│   │   ├── ai/           # AI integration (AIClient.js, AIService.js)
-│   │   ├── audio/        # Audio processing
-│   │   ├── core/         # Video editor core logic
-│   │   ├── effects/      # Effects and filters
-│   │   └── export/       # Export engine
-│   ├── styles/           # CSS/Tailwind styles
-│   └── utils/            # Helper functions
-└── electron/             # Electron main process
+│   ├── components/
+│   │   ├── dashboard/
+│   │   └── editor/
+│   │       ├── TopToolbar.jsx       # Category navigation
+│   │       ├── MediaInputPanel.jsx  # CapCut-style left panel
+│   │       ├── EditorLayout.jsx     # Main layout
+│   │       ├── AIChat.jsx           # KI-Assistent
+│   │       └── ...
+│   ├── hooks/
+│   ├── modules/
+│   │   ├── ai/
+│   │   │   ├── AIClient.js          # AI API integration
+│   │   │   └── AIModelSelector.js
+│   │   └── ...
+│   └── ...
+└── electron/
 ```
 
 ---
 
-## P0/P1/P2 Features Remaining
+## P1/P2/P3 Features Remaining
 
 ### P1 - High Priority
 - [ ] Timeline clip manipulation (trim, split, move)
-- [ ] Media import drag-and-drop
+- [ ] Media import drag-and-drop to timeline
 - [ ] Audio waveform visualization
-- [ ] Keyframe animation system
-- [ ] Real video rendering/export (currently config-only)
+- [ ] Real video rendering/export
 
 ### P2 - Medium Priority
 - [ ] Effects & Filters library implementation
 - [ ] Transitions with presets
+- [ ] Keyframe animation system
 - [ ] Motion tracking
 - [ ] Green screen/chroma key
-- [ ] Multi-cam editing
-- [ ] Speed ramping
 
 ### P3 - Future/Backlog
 - [ ] Cloud sync & collaboration
-- [ ] Direct social media upload (TikTok, YouTube, Instagram)
-- [ ] Templates & presets marketplace
+- [ ] Direct social media upload
+- [ ] Templates marketplace
 - [ ] Mobile app version
 - [ ] Real-time collaboration
-- [ ] AI scene detection
-- [ ] Auto-color grading
 
 ---
 
 ## Test Status
-- **Last Test:** iteration_3.json
+- **Last Test:** iteration_4.json (21.01.2026)
 - **Frontend Success Rate:** 100%
 - **All AI panels loading correctly**
+- **Category navigation working**
 - **Project creation and navigation working**
 
 ---
 
 ## Known Limitations (Browser Mode)
-- Electron APIs not available (file system access)
+- Electron APIs not available
 - Projects stored in localStorage
 - Export generates config JSON (not actual video)
-- Some features require Electron for full functionality
 
 ---
 
-## Next Development Steps
-1. Implement timeline clip manipulation
-2. Add media import functionality
-3. Connect effects library to UI
-4. Implement basic video preview
-5. Add actual export rendering (via FFmpeg in Electron)
+## Changelog (Latest)
+- **21.01.2026:** Rewrote TopToolbar.jsx and MediaInputPanel.jsx to match CapCut UI
+  - Added 11-category top toolbar navigation
+  - Implemented two-column left sidebar with dynamic navigation
+  - Integrated all AI features into sidebar
+  - Added KI-Bild, KI-Video, TTS, KI-Musik, Auto-Untertitel panels
