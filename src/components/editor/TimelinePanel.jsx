@@ -88,25 +88,61 @@ function TimeRuler({ pxPerSec, scrollLeft, totalWidth }) {
   const totalSeconds = Math.ceil(totalWidth / pxPerSec) + 10;
   
   // Dynamische Tick-Intervalle basierend auf Zoom
-  let interval = 1;
-  if (pxPerSec < 20) interval = 10;
-  else if (pxPerSec < 40) interval = 5;
-  else if (pxPerSec < 80) interval = 2;
+  // Major ticks (mit Label) und Minor ticks (ohne Label)
+  let majorInterval = 1;
+  let minorInterval = 0.5;
   
-  for (let i = 0; i <= totalSeconds; i += interval) {
+  if (pxPerSec < 5) {
+    majorInterval = 60; // 1 Minute
+    minorInterval = 10; // 10 Sekunden
+  } else if (pxPerSec < 10) {
+    majorInterval = 30;
+    minorInterval = 5;
+  } else if (pxPerSec < 20) {
+    majorInterval = 10;
+    minorInterval = 2;
+  } else if (pxPerSec < 40) {
+    majorInterval = 5;
+    minorInterval = 1;
+  } else if (pxPerSec < 80) {
+    majorInterval = 2;
+    minorInterval = 0.5;
+  } else {
+    majorInterval = 1;
+    minorInterval = 0.25;
+  }
+  
+  // Minor Ticks (kleine Striche ohne Label)
+  for (let i = 0; i <= totalSeconds; i += minorInterval) {
+    // Skip if this is a major tick position
+    if (i % majorInterval === 0) continue;
+    
     const x = i * pxPerSec;
     ticks.push(
-      <div key={i} className="absolute flex flex-col items-center" style={{ left: `${x}px` }}>
-        <div className="w-px h-2 bg-[var(--text-tertiary)]" />
+      <div key={`minor-${i}`} className="absolute" style={{ left: `${x}px` }}>
+        <div className="w-px h-1.5 bg-[var(--text-tertiary)] opacity-40" />
+      </div>
+    );
+  }
+  
+  // Major Ticks (mit Label)
+  for (let i = 0; i <= totalSeconds; i += majorInterval) {
+    const x = i * pxPerSec;
+    const minutes = Math.floor(i / 60);
+    const seconds = Math.floor(i % 60);
+    
+    ticks.push(
+      <div key={`major-${i}`} className="absolute flex flex-col items-center" style={{ left: `${x}px` }}>
+        <div className="w-px h-2.5 bg-[var(--text-tertiary)]" />
         <span className="text-[8px] text-[var(--text-tertiary)] font-mono mt-0.5">
-          {Math.floor(i / 60)}:{String(i % 60).padStart(2, '0')}
+          {minutes}:{String(seconds).padStart(2, '0')}
         </span>
       </div>
     );
   }
   
   return (
-    <div className="h-5 bg-[var(--bg-panel)] border-b border-[var(--border-subtle)] relative overflow-hidden" style={{ marginLeft: '120px' }}>
+    <div className="h-6 bg-[var(--bg-panel)] border-b border-[var(--border-subtle)] relative overflow-hidden" style={{ marginLeft: '120px' }}>
       <div className="absolute top-0 h-full" style={{ transform: `translateX(-${scrollLeft}px)` }}>
         {ticks}
       </div>
