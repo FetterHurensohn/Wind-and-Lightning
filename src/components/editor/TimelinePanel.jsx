@@ -72,7 +72,7 @@ function TimelineToolbar() {
       <button onClick={zoom.zoomOut} className="w-6 h-6 flex items-center justify-center rounded text-[var(--text-secondary)] hover:bg-[var(--bg-hover)]" title="Zoom Out (Ctrl+Scroll)">
         <Icon name="zoomOut" size={14} />
       </button>
-      <span className="text-[10px] text-[var(--text-tertiary)] w-8 text-center">{zoom.pxPerSec}</span>
+      <span className="text-[10px] text-[var(--text-tertiary)] w-8 text-center">{Math.round(zoom.pxPerSec) || 50}</span>
       <button onClick={zoom.zoomIn} className="w-6 h-6 flex items-center justify-center rounded text-[var(--text-secondary)] hover:bg-[var(--bg-hover)]" title="Zoom In (Ctrl+Scroll)">
         <Icon name="zoomIn" size={14} />
       </button>
