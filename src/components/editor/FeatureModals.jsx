@@ -410,19 +410,68 @@ export function MusicGeneratorPanel({ onClose, onInsert }) {
 // ============================================
 export function VoiceGeneratorPanel({ onClose, onInsert }) {
   const [text, setText] = useState('');
-  const [voice, setVoice] = useState('female-1');
+  const [voice, setVoice] = useState('alloy');
   const [speed, setSpeed] = useState(1);
-  const [pitch, setPitch] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [audioUrl, setAudioUrl] = useState(null);
+  const [isPlaying, setIsPlaying] = useState(false);
 
   const voices = [
-    { id: 'female-1', name: 'Anna (Weiblich)', lang: 'de' },
-    { id: 'female-2', name: 'Maria (Weiblich)', lang: 'de' },
-    { id: 'male-1', name: 'Thomas (Männlich)', lang: 'de' },
-    { id: 'male-2', name: 'Michael (Männlich)', lang: 'de' },
-    { id: 'en-female', name: 'Sarah (English)', lang: 'en' },
-    { id: 'en-male', name: 'James (English)', lang: 'en' }
+    { id: 'alloy', name: 'Alloy (Neutral)', lang: 'de/en' },
+    { id: 'echo', name: 'Echo (Männlich)', lang: 'de/en' },
+    { id: 'fable', name: 'Fable (Britisch)', lang: 'en' },
+    { id: 'onyx', name: 'Onyx (Tief)', lang: 'de/en' },
+    { id: 'nova', name: 'Nova (Weiblich)', lang: 'de/en' },
+    { id: 'shimmer', name: 'Shimmer (Sanft)', lang: 'de/en' }
   ];
+
+  const handleGenerate = async () => {
+    if (!text.trim()) return;
+    
+    setLoading(true);
+    setError(null);
+    setAudioUrl(null);
+    
+    try {
+      const audioBlob = await textToSpeech(text, {
+        voice: voice,
+        speed: speed,
+        format: 'mp3'
+      });
+      
+      const url = URL.createObjectURL(audioBlob);
+      setAudioUrl(url);
+    } catch (err) {
+      console.error('TTS Error:', err);
+      setError(err.message || 'Sprachausgabe fehlgeschlagen');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handlePreview = () => {
+    if (!audioUrl) return;
+    
+    const audio = new Audio(audioUrl);
+    audio.onended = () => setIsPlaying(false);
+    
+    if (isPlaying) {
+      audio.pause();
+      setIsPlaying(false);
+    } else {
+      audio.playbackRate = speed;
+      audio.play();
+      setIsPlaying(true);
+    }
+  };
+
+  const handleInsert = () => {
+    if (audioUrl) {
+      onInsert?.({ url: audioUrl, text, voice, speed });
+      onClose?.();
+    }
+  };
 
   return (
     <div className="bg-[var(--bg-panel)] rounded-xl border border-[var(--border-subtle)] w-[450px]" data-testid="voice-generator-panel">
@@ -437,7 +486,14 @@ export function VoiceGeneratorPanel({ onClose, onInsert }) {
       <div className="p-4 space-y-4">
         <div>
           <label className="text-xs text-[var(--text-secondary)] mb-2 block">Text zum Vorlesen</label>
-          <textarea value={text} onChange={(e) => setText(e.target.value)} placeholder="Gib deinen Text ein..." rows={4} className="w-full px-3 py-2 bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-lg text-sm text-[var(--text-primary)] placeholder-[var(--text-tertiary)] focus:outline-none focus:border-[var(--accent-turquoise)] resize-none" />
+          <textarea 
+            value={text} 
+            onChange={(e) => setText(e.target.value)} 
+            placeholder="Gib deinen Text ein..." 
+            rows={4} 
+            className="w-full px-3 py-2 bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-lg text-sm text-[var(--text-primary)] placeholder-[var(--text-tertiary)] focus:outline-none focus:border-[var(--accent-turquoise)] resize-none" 
+            data-testid="tts-text-input"
+          />
           <div className="text-right text-xs text-[var(--text-tertiary)] mt-1">{text.length} Zeichen</div>
         </div>
 
@@ -448,24 +504,58 @@ export function VoiceGeneratorPanel({ onClose, onInsert }) {
           </select>
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className="text-xs text-[var(--text-secondary)] mb-2 block">Geschwindigkeit: {speed.toFixed(1)}x</label>
-            <input type="range" value={speed} onChange={(e) => setSpeed(Number(e.target.value))} min={0.5} max={2} step={0.1} className="w-full" />
-          </div>
-          <div>
-            <label className="text-xs text-[var(--text-secondary)] mb-2 block">Tonhöhe: {pitch.toFixed(1)}</label>
-            <input type="range" value={pitch} onChange={(e) => setPitch(Number(e.target.value))} min={0.5} max={2} step={0.1} className="w-full" />
-          </div>
+        <div>
+          <label className="text-xs text-[var(--text-secondary)] mb-2 block">Geschwindigkeit: {speed.toFixed(1)}x</label>
+          <input type="range" value={speed} onChange={(e) => setSpeed(Number(e.target.value))} min={0.5} max={2} step={0.1} className="w-full" />
         </div>
 
+        {/* Error Display */}
+        {error && (
+          <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
+            <div className="flex items-center gap-2 text-red-400 text-sm">
+              <Icon name="alertCircle" size={14} />
+              {error}
+            </div>
+          </div>
+        )}
+
+        {/* Audio Preview */}
+        {audioUrl && (
+          <div className="p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-green-400">Audio generiert!</span>
+              <audio src={audioUrl} controls className="h-8" />
+            </div>
+          </div>
+        )}
+
         <div className="flex gap-2">
-          <button className="flex-1 h-10 bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-lg text-sm text-[var(--text-primary)] hover:bg-[var(--bg-hover)] flex items-center justify-center gap-2">
-            <Icon name="play" size={14} /> Vorschau
+          <button 
+            onClick={handlePreview}
+            disabled={!audioUrl}
+            className="flex-1 h-10 bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-lg text-sm text-[var(--text-primary)] hover:bg-[var(--bg-hover)] flex items-center justify-center gap-2 disabled:opacity-50"
+            data-testid="preview-audio-btn"
+          >
+            <Icon name={isPlaying ? 'pause' : 'play'} size={14} /> {isPlaying ? 'Stopp' : 'Vorschau'}
           </button>
-          <button disabled={!text.trim() || loading} className="flex-1 h-10 bg-green-500 text-white rounded-lg text-sm font-medium hover:opacity-90 disabled:opacity-50">
-            Audio einfügen
-          </button>
+          {audioUrl ? (
+            <button 
+              onClick={handleInsert}
+              className="flex-1 h-10 bg-green-500 text-white rounded-lg text-sm font-medium hover:opacity-90"
+              data-testid="insert-audio-btn"
+            >
+              Audio einfügen
+            </button>
+          ) : (
+            <button 
+              onClick={handleGenerate}
+              disabled={!text.trim() || loading} 
+              className="flex-1 h-10 bg-green-500 text-white rounded-lg text-sm font-medium hover:opacity-90 disabled:opacity-50 flex items-center justify-center gap-2"
+              data-testid="generate-tts-btn"
+            >
+              {loading ? <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Generiere...</> : 'Audio erstellen'}
+            </button>
+          )}
         </div>
       </div>
     </div>
