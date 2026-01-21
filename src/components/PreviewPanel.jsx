@@ -93,20 +93,34 @@ export default function PreviewPanel({
 
   const renderClipContent = (clip) => {
     const { mediaItem, type, title, props = {}, id, clipTime } = clip;
+    
+    // Transformations
     const opacity = (props.opacity ?? 100) / 100;
     const scale = (props.scale ?? 100) / 100;
     const rotation = props.rotation ?? 0;
+    const posX = props.posX ?? 0;
+    const posY = props.posY ?? 0;
+    const flipH = props.flipH ? -1 : 1;
+    const flipV = props.flipV ? -1 : 1;
     
-    const style = {
+    // Color Corrections
+    const brightness = props.brightness ?? 100;
+    const contrast = props.contrast ?? 100;
+    const saturation = props.saturation ?? 100;
+    const hue = props.hue ?? 0;
+    
+    const transformStyle = {
       opacity,
-      transform: `scale(${scale}) rotate(${rotation}deg)`
+      transform: `translate(${posX}px, ${posY}px) scale(${scale * flipH}, ${scale * flipV}) rotate(${rotation}deg)`,
+      filter: `brightness(${brightness}%) contrast(${contrast}%) saturate(${saturation}%) hue-rotate(${hue}deg)`,
+      mixBlendMode: props.blendMode || 'normal'
     };
 
     // Video Clip
     if (type === 'video' && mediaItem?.url) {
       if (videoErrors[id]) {
         return (
-          <div className="flex flex-col items-center justify-center text-[var(--text-tertiary)]" style={style}>
+          <div className="flex flex-col items-center justify-center text-[var(--text-tertiary)]" style={transformStyle}>
             <span className="text-4xl mb-2">🎥</span>
             <span className="text-xs">{title}</span>
           </div>
@@ -118,7 +132,7 @@ export default function PreviewPanel({
           ref={el => { if (el) videoRefs.current[id] = el; }}
           src={mediaItem.url}
           className="max-w-full max-h-full object-contain"
-          style={style}
+          style={transformStyle}
           muted
           playsInline
           onError={() => setVideoErrors(prev => ({ ...prev, [id]: true }))}
@@ -133,7 +147,7 @@ export default function PreviewPanel({
           src={mediaItem.thumbnail}
           alt={title}
           className="max-w-full max-h-full object-contain"
-          style={style}
+          style={transformStyle}
         />
       );
     }
@@ -145,7 +159,7 @@ export default function PreviewPanel({
     return (
       <div 
         className="w-full h-full flex flex-col items-center justify-center"
-        style={{ ...style, backgroundColor: `${bgColor}20` }}
+        style={{ ...transformStyle, backgroundColor: `${bgColor}20` }}
       >
         <div className={`text-5xl mb-3 ${iconColor}`}>
           {type === 'video' ? '🎬' : type === 'image' ? '🖼️' : '📄'}
