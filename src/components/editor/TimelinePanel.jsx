@@ -226,8 +226,9 @@ function Clip({ clip, track, pxPerSec, isSelected, onSelect, onTrim, onMove, onM
 
   // Generate pseudo-random waveform based on clip id
   const generateWaveform = () => {
+    if (!clip?.id) return null; // Guard against null/undefined clip.id
     const bars = Math.floor(clipWidth / 3);
-    const seed = clip.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    const seed = String(clip.id).split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
     return Array.from({ length: Math.max(10, bars) }, (_, i) => {
       const noise = Math.sin(seed + i * 0.5) * 0.3 + Math.sin(i * 0.8) * 0.3;
       return 0.3 + Math.abs(noise) * 0.7;
