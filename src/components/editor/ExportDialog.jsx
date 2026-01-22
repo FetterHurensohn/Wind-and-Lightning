@@ -321,6 +321,20 @@ export default function ExportDialog({
             </div>
           </div>
           
+          {/* Browser Version Info */}
+          <div className="p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
+            <div className="flex items-start gap-3">
+              <span className="text-xl">⚠️</span>
+              <div>
+                <div className="text-sm font-medium text-yellow-300">Browser-Version</div>
+                <div className="text-xs text-yellow-200/80 mt-1">
+                  Echter Video-Export ist nur in der Desktop-App (Electron) verfügbar. 
+                  In der Browser-Version wird eine Export-Vorschau angezeigt.
+                </div>
+              </div>
+            </div>
+          </div>
+          
           {/* Export Error */}
           {exportError && (
             <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-lg">
