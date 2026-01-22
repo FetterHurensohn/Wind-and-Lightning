@@ -116,16 +116,40 @@ German (Deutsch)
 
 ### P2 - Medium Priority
 - [x] GIPHY API integration for stickers ✅ (22.01.2026)
-- [ ] Cloud video processing for larger exports (Server-side FFmpeg for MP4/MOV)
+- [x] Server-side FFmpeg video export ✅ (22.01.2026)
 
 ### P3 - Future/Backlog
 - [ ] Motion tracking
 - [ ] Green screen/chroma key
 - [ ] Cloud sync & collaboration
+- [ ] Audio extraction and manipulation
+- [ ] Video templates library
 
 ---
 
 ## Changelog
+
+### 22.01.2026 - Server-side FFmpeg Video Export
+- **FastAPI Backend with FFmpeg:**
+  - New backend service at `/app/backend/server.py`
+  - Endpoints: `/api/health`, `/api/export/start`, `/api/export/status/{id}`, `/api/export/download/{id}`, `/api/export/demo`
+  - Supports MP4, MOV, WebM formats
+  - Codecs: H.264, H.265 (HEVC), VP9
+  - Resolution presets: 480p to 4K
+  - Quality control via CRF (1-100 mapped to CRF 51-10)
+  - Background job processing with status polling
+- **Frontend Integration:**
+  - New: `src/services/ServerExportService.js` - API client for server export
+  - Updated ExportDialog with export mode selector (Browser vs Server)
+  - Auto-detects server availability via health check
+  - Shows "Online/Offline" status badge
+  - Vite proxy configured for `/api` routes
+- **Files:**
+  - New: `/app/backend/server.py`
+  - New: `/app/backend/requirements.txt`
+  - New: `src/services/ServerExportService.js`
+  - Modified: `src/components/editor/ExportDialog.jsx`
+  - Modified: `vite.config.js` (added proxy)
 
 ### 22.01.2026 - GIPHY API Integration
 - **GIPHY Sticker Panel:**
