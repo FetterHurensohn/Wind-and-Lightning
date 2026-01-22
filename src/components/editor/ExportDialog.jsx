@@ -110,7 +110,71 @@ export default function ExportDialog({
     return `${sizeGB.toFixed(2)} GB`;
   }, [selectedResolution, quality, duration]);
   
-  const handleExport = useCallback(async () => {
+  // Server-seitiger Export
+  const handleServerExport = useCallback(async () => {
+    setExporting(true);
+    setProgress(0);
+    setExportError(null);
+    setExportPhase('Verbinde mit Server...');
+    
+    try {
+      // Starte Server-Export
+      const settings = {
+        resolution,
+        fps,
+        format,
+        codec,
+        quality,
+        duration: duration || 10
+      };
+      
+      const { jobId } = await ServerExport.startServerExport({
+        projectId: project?.id || 'demo',
+        tracks: tracks.map(t => ({
+          id: t.id,
+          name: t.name,
+          type: t.type,
+          clips: t.clips || [],
+          muted: t.muted || false,
+          hidden: t.hidden || false
+        })),
+        settings,
+        mediaFiles: {} // In Zukunft: gemappte Medien-Dateien
+      });
+      
+      setServerJobId(jobId);
+      setExportPhase('Export gestartet...');
+      
+      // Poll status
+      const finalStatus = await ServerExport.pollExportStatus(
+        jobId,
+        (status, prog, phase) => {
+          setProgress(prog);
+          setExportPhase(ServerExport.getPhaseLabel(phase));
+        },
+        500
+      );
+      
+      // Download
+      setExportPhase('Download wird gestartet...');
+      await ServerExport.downloadExport(jobId, `${project?.name || 'video'}_export.${format}`);
+      
+      setExportPhase('Export abgeschlossen!');
+      setProgress(100);
+      setExporting(false);
+      setExportComplete(true);
+      
+      onExport?.({ resolution, fps, format, codec, quality, mode: 'server' });
+      
+    } catch (error) {
+      console.error('Server export error:', error);
+      setExportError('Server-Export fehlgeschlagen: ' + error.message);
+      setExporting(false);
+    }
+  }, [resolution, fps, format, codec, quality, project, tracks, duration, onExport]);
+
+  // Client-seitiger Export (original)
+  const handleClientExport = useCallback(async () => {
     setExporting(true);
     setProgress(0);
     setExportError(null);
@@ -161,7 +225,8 @@ export default function ExportDialog({
         height: selectedResolution?.height,
         fps,
         format: 'webm',
-        quality
+        quality,
+        mode: 'client'
       });
       
     } catch (error) {
@@ -170,6 +235,15 @@ export default function ExportDialog({
       setExporting(false);
     }
   }, [resolution, selectedResolution, fps, format, codec, quality, project, onExport, tracks, media, duration]);
+  
+  // Hauptexport-Funktion
+  const handleExport = useCallback(async () => {
+    if (exportMode === 'server' && serverAvailable) {
+      await handleServerExport();
+    } else {
+      await handleClientExport();
+    }
+  }, [exportMode, serverAvailable, handleServerExport, handleClientExport]);
   
   // Erfolgs-Ansicht
   if (exportComplete) {
