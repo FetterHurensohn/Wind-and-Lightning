@@ -60,5 +60,5 @@
   "retest_needed": false,
   "should_main_agent_self_test": true,
 
-  "context_for_next_testing_agent": "Editor layout with 50/50 split verified. Upper half: Media Panel (360px) + Preview. Lower half: Timeline. Right panel (280px) spans full height. Sidebar (130px) is compact. Drag-drop functionality implemented: MediaTile has draggable=true and DRAG badge on hover, Track has drop handlers with visual highlight. To test drag-drop: import media files, then drag from Media Panel to Timeline tracks. Preview URL: https://clipforge-140.preview.emergentagent.com"
+  "context_for_next_testing_agent": "Editor layout with 50/50 split verified. Upper half: Media Panel (360px) + Preview. Lower half: Timeline. Right panel (280px) spans full height. Sidebar (130px) is compact. Drag-drop functionality implemented: MediaTile has draggable=true and DRAG badge on hover, Track has drop handlers with visual highlight. To test drag-drop: import media files, then drag from Media Panel to Timeline tracks. Preview URL: https://video-edit-pro-95.preview.emergentagent.com"
 }
