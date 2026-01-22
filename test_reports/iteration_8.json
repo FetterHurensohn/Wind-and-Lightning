@@ -52,5 +52,5 @@
   "retest_needed": false,
   "should_main_agent_self_test": true,
 
-  "context_for_next_testing_agent": "Drag-and-drop functionality fully tested and working. Flow: 1) Create project via 'Neues Projekt erstellen' modal, 2) Click +Video in timeline to add Video Track, 3) Click [data-testid='add-demo-video'] to add demo media, 4) Drag media tile from 'Importiert' section to Video 1 track, 5) Clip appears on timeline with title. Selection works - clicking clip shows white ring and populates Inspector panel with clip properties. Multiple clips can be added to same track. Preview URL: https://video-edit-pro-95.preview.emergentagent.com"
+  "context_for_next_testing_agent": "Drag-and-drop functionality fully tested and working. Flow: 1) Create project via 'Neues Projekt erstellen' modal, 2) Click +Video in timeline to add Video Track, 3) Click [data-testid='add-demo-video'] to add demo media, 4) Drag media tile from 'Importiert' section to Video 1 track, 5) Clip appears on timeline with title. Selection works - clicking clip shows white ring and populates Inspector panel with clip properties. Multiple clips can be added to same track. Preview URL: https://video-forge-146.preview.emergentagent.com"
 }

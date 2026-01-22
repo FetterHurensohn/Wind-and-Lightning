@@ -64,5 +64,5 @@
   "retest_needed": false,
   "should_main_agent_self_test": true,
 
-  "context_for_next_testing_agent": "Compact Timeline (200px) implementation complete and verified. All features working: Time Ruler with tick marks, Timeline Toolbar with Undo/Redo/Split/Delete/Snap, Transport controls, +Video/+Audio buttons, Track labels (120px left column), red Playhead, Zoom controls, Timecode display, Hint bar with shortcuts. Minor NaN display issue in zoom value. App runs in browser mode using localStorage. To test, create a new project via 'Neues Projekt erstellen' button. Preview URL: https://video-edit-pro-95.preview.emergentagent.com"
+  "context_for_next_testing_agent": "Compact Timeline (200px) implementation complete and verified. All features working: Time Ruler with tick marks, Timeline Toolbar with Undo/Redo/Split/Delete/Snap, Transport controls, +Video/+Audio buttons, Track labels (120px left column), red Playhead, Zoom controls, Timecode display, Hint bar with shortcuts. Minor NaN display issue in zoom value. App runs in browser mode using localStorage. To test, create a new project via 'Neues Projekt erstellen' button. Preview URL: https://video-forge-146.preview.emergentagent.com"
 }
