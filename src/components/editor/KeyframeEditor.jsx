@@ -1,343 +1,361 @@
 /**
- * KeyframeEditor.jsx - Keyframe Animation System (wie CapCut)
- * 
- * Ermöglicht Animation von:
- * - Position (X, Y)
- * - Scale
- * - Rotation
- * - Opacity
- * - Volume (für Audio)
+ * KeyframeEditor.jsx - Keyframe Animation Editor
  * 
  * Features:
- * - Timeline mit Keyframe-Punkten
- * - Easing-Kurven (Linear, Ease In/Out, Bezier)
- * - Keyframe hinzufügen/entfernen
- * - Werte interpolieren
+ * - Keyframes für alle animierbaren Eigenschaften
+ * - Easing-Funktionen (Linear, Ease-In, Ease-Out, Ease-In-Out)
+ * - Visuelles Keyframe-Timeline
+ * - Interpolation zwischen Keyframes
  */
 
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import Icon from './Icon';
 
-// Easing Functions
+// Easing-Funktionen
 const easingFunctions = {
-  linear: t => t,
-  easeIn: t => t * t,
-  easeOut: t => t * (2 - t),
-  easeInOut: t => t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t,
-  easeInCubic: t => t * t * t,
-  easeOutCubic: t => (--t) * t * t + 1,
-  easeInOutCubic: t => t < 0.5 ? 4 * t * t * t : (t - 1) * (2 * t - 2) * (2 * t - 2) + 1,
+  linear: (t) => t,
+  easeIn: (t) => t * t,
+  easeOut: (t) => t * (2 - t),
+  easeInOut: (t) => t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t,
+  easeInCubic: (t) => t * t * t,
+  easeOutCubic: (t) => (--t) * t * t + 1,
+  easeInOutCubic: (t) => t < 0.5 ? 4 * t * t * t : (t - 1) * (2 * t - 2) * (2 * t - 2) + 1,
+  bounce: (t) => {
+    const n1 = 7.5625;
+    const d1 = 2.75;
+    if (t < 1 / d1) return n1 * t * t;
+    if (t < 2 / d1) return n1 * (t -= 1.5 / d1) * t + 0.75;
+    if (t < 2.5 / d1) return n1 * (t -= 2.25 / d1) * t + 0.9375;
+    return n1 * (t -= 2.625 / d1) * t + 0.984375;
+  }
 };
 
-// Interpolate zwischen zwei Keyframes
-export function interpolateValue(keyframes, time, property) {
-  if (!keyframes || keyframes.length === 0) return null;
-  
-  // Sortiere Keyframes nach Zeit
-  const sorted = [...keyframes].sort((a, b) => a.time - b.time);
-  
-  // Finde umgebende Keyframes
-  let before = null;
-  let after = null;
-  
-  for (let i = 0; i < sorted.length; i++) {
-    if (sorted[i].time <= time) {
-      before = sorted[i];
-    }
-    if (sorted[i].time >= time && !after) {
-      after = sorted[i];
-    }
-  }
-  
-  // Edge Cases
-  if (!before) return after?.values?.[property] ?? null;
-  if (!after) return before?.values?.[property] ?? null;
-  if (before === after) return before.values?.[property] ?? null;
-  
-  // Interpolation
-  const t = (time - before.time) / (after.time - before.time);
-  const easing = easingFunctions[before.easing || 'linear'];
-  const easedT = easing(t);
-  
-  const startValue = before.values?.[property] ?? 0;
-  const endValue = after.values?.[property] ?? 0;
-  
-  return startValue + (endValue - startValue) * easedT;
-}
+// Animierbare Eigenschaften
+const animatableProperties = [
+  { id: 'posX', label: 'Position X', icon: 'arrowRight', unit: 'px', min: -1000, max: 1000, default: 0 },
+  { id: 'posY', label: 'Position Y', icon: 'arrowRight', unit: 'px', min: -1000, max: 1000, default: 0 },
+  { id: 'scale', label: 'Skalierung', icon: 'expand', unit: '%', min: 0, max: 500, default: 100 },
+  { id: 'rotation', label: 'Rotation', icon: 'refresh', unit: '°', min: -360, max: 360, default: 0 },
+  { id: 'opacity', label: 'Deckkraft', icon: 'eye', unit: '%', min: 0, max: 100, default: 100 },
+];
 
-// Property Row Component
-const PropertyRow = ({ 
-  label, 
-  property, 
-  value, 
-  keyframes, 
-  currentTime, 
-  clipStart,
-  clipDuration,
-  onValueChange, 
-  onAddKeyframe, 
-  onRemoveKeyframe,
-  min = 0,
-  max = 100,
-  step = 1,
-  unit = ''
-}) => {
-  const relativeTime = currentTime - clipStart;
-  const hasKeyframeAtTime = keyframes?.some(kf => Math.abs(kf.time - relativeTime) < 0.1);
+// Keyframe Punkt Komponente
+const KeyframePoint = ({ keyframe, isSelected, onClick, property, pxPerSec = 50 }) => {
+  const left = keyframe.time * pxPerSec;
   
   return (
-    <div className="flex items-center gap-2 h-8">
-      {/* Label */}
-      <div className="w-20 text-xs text-[var(--text-secondary)] truncate">{label}</div>
-      
-      {/* Value Input */}
-      <div className="flex-1 flex items-center gap-2">
-        <input
-          type="range"
-          min={min}
-          max={max}
-          step={step}
-          value={value}
-          onChange={(e) => onValueChange(property, parseFloat(e.target.value))}
-          className="flex-1 h-1 bg-[var(--bg-surface)] rounded appearance-none cursor-pointer
-            [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 
-            [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[var(--accent-turquoise)]"
-        />
-        <input
-          type="number"
-          value={value}
-          onChange={(e) => onValueChange(property, parseFloat(e.target.value))}
-          className="w-14 h-6 px-1 bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded text-xs text-center text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-turquoise)]"
-        />
-        <span className="text-xs text-[var(--text-tertiary)] w-4">{unit}</span>
-      </div>
-      
-      {/* Keyframe Button */}
-      <button
-        onClick={() => hasKeyframeAtTime ? onRemoveKeyframe(property, relativeTime) : onAddKeyframe(property, relativeTime, value)}
-        className={`w-6 h-6 flex items-center justify-center rounded transition-colors ${
-          hasKeyframeAtTime 
-            ? 'bg-[var(--accent-turquoise)] text-white' 
-            : 'bg-[var(--bg-surface)] text-[var(--text-tertiary)] hover:text-[var(--text-primary)]'
-        }`}
-        title={hasKeyframeAtTime ? 'Keyframe entfernen' : 'Keyframe hinzufügen'}
-      >
-        <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor">
-          <path d="M6 1L11 6L6 11L1 6L6 1Z" />
-        </svg>
-      </button>
-    </div>
+    <div
+      className={`absolute top-1/2 -translate-y-1/2 w-3 h-3 cursor-pointer transition-all ${
+        isSelected 
+          ? 'bg-[var(--accent-turquoise)] scale-125' 
+          : 'bg-yellow-400 hover:scale-110'
+      }`}
+      style={{ 
+        left: `${left}px`,
+        transform: 'translateY(-50%) rotate(45deg)',
+        marginLeft: '-6px'
+      }}
+      onClick={(e) => {
+        e.stopPropagation();
+        onClick(keyframe);
+      }}
+      title={`${property.label}: ${keyframe.value}${property.unit} @ ${keyframe.time.toFixed(2)}s`}
+    />
   );
 };
 
-// Keyframe Timeline Component
-const KeyframeTimeline = ({ 
-  keyframes, 
-  duration, 
-  currentTime, 
-  clipStart,
-  property,
+// Keyframe Row Komponente
+const KeyframeRow = ({ 
+  property, 
+  keyframes = [], 
+  clipDuration, 
+  currentTime,
+  pxPerSec,
+  selectedKeyframe,
   onSelectKeyframe,
-  onMoveKeyframe,
-  selectedKeyframe
+  onAddKeyframe,
+  currentValue
 }) => {
-  const relativeTime = currentTime - clipStart;
-  const pxPerSec = 100; // Pixel pro Sekunde
+  const hasKeyframes = keyframes.length > 0;
   
   return (
-    <div className="relative h-6 bg-[var(--bg-surface)] rounded overflow-hidden">
-      {/* Timeline Background */}
-      <div className="absolute inset-0">
-        {/* Time Markers */}
-        {Array.from({ length: Math.ceil(duration) + 1 }).map((_, i) => (
-          <div 
-            key={i}
-            className="absolute top-0 bottom-0 w-px bg-[var(--border-subtle)]"
-            style={{ left: `${(i / duration) * 100}%` }}
-          />
-        ))}
+    <div className="flex items-center h-8 border-b border-[var(--border-subtle)]">
+      {/* Property Label */}
+      <div className="w-32 px-3 flex items-center gap-2 flex-shrink-0 bg-[var(--bg-panel)]">
+        <Icon name={property.icon} size={12} className="text-[var(--text-tertiary)]" />
+        <span className="text-xs text-[var(--text-secondary)] truncate">{property.label}</span>
       </div>
       
-      {/* Keyframes */}
-      {keyframes?.filter(kf => kf.values?.[property] !== undefined).map((kf, idx) => (
-        <div
-          key={idx}
-          className={`absolute top-1/2 -translate-y-1/2 w-3 h-3 cursor-pointer transform rotate-45 transition-colors ${
-            selectedKeyframe === idx 
-              ? 'bg-[var(--accent-turquoise)] ring-2 ring-white' 
-              : 'bg-[var(--accent-purple)] hover:bg-[var(--accent-turquoise)]'
-          }`}
-          style={{ left: `${(kf.time / duration) * 100}%`, marginLeft: '-6px' }}
-          onClick={() => onSelectKeyframe(idx)}
-          title={`${kf.time.toFixed(2)}s: ${kf.values[property]}`}
-        />
-      ))}
+      {/* Keyframe Toggle */}
+      <button
+        onClick={() => onAddKeyframe(property.id, currentTime, currentValue)}
+        className={`w-6 h-6 flex items-center justify-center flex-shrink-0 ${
+          hasKeyframes ? 'text-yellow-400' : 'text-[var(--text-tertiary)] hover:text-yellow-400'
+        }`}
+        title="Keyframe hinzufügen"
+      >
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor">
+          <path d="M6 0L12 6L6 12L0 6L6 0Z" />
+        </svg>
+      </button>
       
-      {/* Current Time Indicator */}
+      {/* Keyframe Timeline */}
       <div 
-        className="absolute top-0 bottom-0 w-0.5 bg-red-500 z-10"
-        style={{ left: `${(relativeTime / duration) * 100}%` }}
-      />
+        className="flex-1 h-full relative bg-[var(--bg-surface)] overflow-hidden"
+        onClick={(e) => {
+          const rect = e.currentTarget.getBoundingClientRect();
+          const x = e.clientX - rect.left;
+          const time = x / pxPerSec;
+          if (time >= 0 && time <= clipDuration) {
+            onAddKeyframe(property.id, time, currentValue);
+          }
+        }}
+      >
+        {/* Timeline Grid */}
+        <div 
+          className="absolute inset-0 opacity-20"
+          style={{
+            backgroundImage: `repeating-linear-gradient(90deg, var(--border-subtle) 0px, var(--border-subtle) 1px, transparent 1px, transparent ${pxPerSec}px)`
+          }}
+        />
+        
+        {/* Current Time Indicator */}
+        <div 
+          className="absolute top-0 bottom-0 w-0.5 bg-red-500 z-10"
+          style={{ left: `${currentTime * pxPerSec}px` }}
+        />
+        
+        {/* Keyframes */}
+        {keyframes.map((kf, idx) => (
+          <KeyframePoint
+            key={idx}
+            keyframe={kf}
+            isSelected={selectedKeyframe?.property === property.id && selectedKeyframe?.time === kf.time}
+            onClick={() => onSelectKeyframe({ property: property.id, time: kf.time, ...kf })}
+            property={property}
+            pxPerSec={pxPerSec}
+          />
+        ))}
+        
+        {/* Interpolation Line */}
+        {keyframes.length >= 2 && (
+          <svg className="absolute inset-0 pointer-events-none" style={{ width: clipDuration * pxPerSec }}>
+            <polyline
+              points={keyframes.map(kf => `${kf.time * pxPerSec},16`).join(' ')}
+              fill="none"
+              stroke="rgba(250, 204, 21, 0.5)"
+              strokeWidth="2"
+            />
+          </svg>
+        )}
+      </div>
     </div>
   );
 };
 
 export default function KeyframeEditor({ 
   clip, 
-  currentTime,
+  currentTime, 
   onUpdateKeyframes,
   onClose 
 }) {
-  const [activeProperty, setActiveProperty] = useState('opacity');
   const [selectedKeyframe, setSelectedKeyframe] = useState(null);
-  const [keyframes, setKeyframes] = useState(clip?.keyframes || []);
+  const [pxPerSec, setPxPerSec] = useState(80);
   
-  // Berechne aktuelle Werte basierend auf Keyframes
-  const currentValues = useMemo(() => {
-    const relativeTime = currentTime - (clip?.start || 0);
-    return {
-      opacity: interpolateValue(keyframes, relativeTime, 'opacity') ?? clip?.props?.opacity ?? 100,
-      scale: interpolateValue(keyframes, relativeTime, 'scale') ?? clip?.props?.scale ?? 100,
-      rotation: interpolateValue(keyframes, relativeTime, 'rotation') ?? clip?.props?.rotation ?? 0,
-      posX: interpolateValue(keyframes, relativeTime, 'posX') ?? 0,
-      posY: interpolateValue(keyframes, relativeTime, 'posY') ?? 0,
-      volume: interpolateValue(keyframes, relativeTime, 'volume') ?? clip?.props?.volume ?? 100,
-    };
-  }, [keyframes, currentTime, clip]);
+  // Keyframes aus Clip extrahieren
+  const keyframes = clip?.keyframes || {};
+  const clipStart = clip?.start || 0;
+  const clipDuration = clip?.duration || 5;
+  const clipTime = Math.max(0, Math.min(currentTime - clipStart, clipDuration));
   
-  const handleValueChange = useCallback((property, value) => {
-    // Update lokaler State für Preview
-    // In echtem Szenario würde dies den Clip-State updaten
-  }, []);
-  
-  const handleAddKeyframe = useCallback((property, time, value) => {
-    const newKeyframe = {
-      time,
-      easing: 'easeInOut',
-      values: { [property]: value }
-    };
+  // Aktuellen interpolierten Wert für eine Property berechnen
+  const getInterpolatedValue = useCallback((propertyId) => {
+    const propKeyframes = keyframes[propertyId] || [];
+    const property = animatableProperties.find(p => p.id === propertyId);
+    const defaultValue = property?.default || 0;
     
-    // Prüfe ob bereits ein Keyframe an dieser Zeit existiert
-    const existingIndex = keyframes.findIndex(kf => Math.abs(kf.time - time) < 0.1);
-    
-    if (existingIndex >= 0) {
-      // Update existierenden Keyframe
-      const updated = [...keyframes];
-      updated[existingIndex] = {
-        ...updated[existingIndex],
-        values: { ...updated[existingIndex].values, [property]: value }
-      };
-      setKeyframes(updated);
-      onUpdateKeyframes?.(updated);
-    } else {
-      // Füge neuen Keyframe hinzu
-      const updated = [...keyframes, newKeyframe].sort((a, b) => a.time - b.time);
-      setKeyframes(updated);
-      onUpdateKeyframes?.(updated);
+    if (propKeyframes.length === 0) {
+      return clip?.props?.[propertyId] ?? defaultValue;
     }
+    
+    const sorted = [...propKeyframes].sort((a, b) => a.time - b.time);
+    
+    if (clipTime <= sorted[0].time) return sorted[0].value;
+    if (clipTime >= sorted[sorted.length - 1].time) return sorted[sorted.length - 1].value;
+    
+    for (let i = 0; i < sorted.length - 1; i++) {
+      const kf1 = sorted[i];
+      const kf2 = sorted[i + 1];
+      
+      if (clipTime >= kf1.time && clipTime <= kf2.time) {
+        const t = (clipTime - kf1.time) / (kf2.time - kf1.time);
+        const easing = easingFunctions[kf1.easing || 'linear'];
+        return kf1.value + (kf2.value - kf1.value) * easing(t);
+      }
+    }
+    
+    return defaultValue;
+  }, [keyframes, clipTime, clip]);
+  
+  // Keyframe hinzufügen
+  const handleAddKeyframe = useCallback((propertyId, time, value) => {
+    const propKeyframes = [...(keyframes[propertyId] || [])];
+    const existingIdx = propKeyframes.findIndex(kf => Math.abs(kf.time - time) < 0.05);
+    
+    if (existingIdx >= 0) {
+      propKeyframes[existingIdx] = { ...propKeyframes[existingIdx], value };
+    } else {
+      propKeyframes.push({ time, value, easing: 'easeInOut' });
+    }
+    
+    propKeyframes.sort((a, b) => a.time - b.time);
+    onUpdateKeyframes({ ...keyframes, [propertyId]: propKeyframes });
   }, [keyframes, onUpdateKeyframes]);
   
-  const handleRemoveKeyframe = useCallback((property, time) => {
-    const updated = keyframes.filter(kf => Math.abs(kf.time - time) >= 0.1);
-    setKeyframes(updated);
-    onUpdateKeyframes?.(updated);
+  // Keyframe löschen
+  const handleDeleteKeyframe = useCallback((propertyId, time) => {
+    const propKeyframes = (keyframes[propertyId] || []).filter(kf => kf.time !== time);
+    onUpdateKeyframes({ ...keyframes, [propertyId]: propKeyframes });
+    setSelectedKeyframe(null);
   }, [keyframes, onUpdateKeyframes]);
   
-  const properties = [
-    { key: 'opacity', label: 'Deckkraft', min: 0, max: 100, unit: '%' },
-    { key: 'scale', label: 'Skalierung', min: 10, max: 500, unit: '%' },
-    { key: 'rotation', label: 'Rotation', min: -360, max: 360, unit: '°' },
-    { key: 'posX', label: 'Position X', min: -1000, max: 1000, unit: 'px' },
-    { key: 'posY', label: 'Position Y', min: -1000, max: 1000, unit: 'px' },
-  ];
+  // Easing ändern
+  const handleChangeEasing = useCallback((easing) => {
+    if (!selectedKeyframe) return;
+    
+    const propKeyframes = [...(keyframes[selectedKeyframe.property] || [])];
+    const idx = propKeyframes.findIndex(kf => kf.time === selectedKeyframe.time);
+    
+    if (idx >= 0) {
+      propKeyframes[idx] = { ...propKeyframes[idx], easing };
+      onUpdateKeyframes({ ...keyframes, [selectedKeyframe.property]: propKeyframes });
+      setSelectedKeyframe({ ...selectedKeyframe, easing });
+    }
+  }, [selectedKeyframe, keyframes, onUpdateKeyframes]);
   
-  if (clip?.type === 'audio') {
-    properties.push({ key: 'volume', label: 'Lautstärke', min: 0, max: 200, unit: '%' });
-  }
+  if (!clip) return null;
   
   return (
-    <div className="bg-[var(--bg-panel)] rounded-lg border border-[var(--border-subtle)] overflow-hidden">
+    <div className="bg-[var(--bg-panel)] border border-[var(--border-subtle)] rounded-lg overflow-hidden shadow-xl">
       {/* Header */}
       <div className="h-10 px-4 flex items-center justify-between border-b border-[var(--border-subtle)]">
         <div className="flex items-center gap-2">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" className="text-[var(--accent-turquoise)]">
-            <path d="M8 2L14 8L8 14L2 8L8 2Z" />
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor" className="text-yellow-400">
+            <path d="M7 0L14 7L7 14L0 7L7 0Z" />
           </svg>
-          <span className="text-sm font-medium text-[var(--text-primary)]">Keyframe Animation</span>
-          <span className="text-xs text-[var(--text-tertiary)]">{clip?.title}</span>
+          <span className="text-sm font-medium text-[var(--text-primary)]">Keyframes</span>
+          <span className="text-xs text-[var(--text-tertiary)]">- {clip.title}</span>
         </div>
-        <button
-          onClick={onClose}
-          className="w-6 h-6 flex items-center justify-center rounded hover:bg-[var(--bg-hover)] transition-colors"
-        >
-          <Icon name="close" size={14} />
-        </button>
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1">
+            <button 
+              onClick={() => setPxPerSec(Math.max(20, pxPerSec - 20))}
+              className="w-6 h-6 flex items-center justify-center text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] rounded"
+            >
+              <Icon name="minus" size={12} />
+            </button>
+            <span className="text-xs text-[var(--text-tertiary)] w-12 text-center">{pxPerSec}px/s</span>
+            <button 
+              onClick={() => setPxPerSec(Math.min(200, pxPerSec + 20))}
+              className="w-6 h-6 flex items-center justify-center text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] rounded"
+            >
+              <Icon name="plus" size={12} />
+            </button>
+          </div>
+          <button 
+            onClick={onClose}
+            className="w-6 h-6 flex items-center justify-center text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] rounded"
+          >
+            <Icon name="close" size={14} />
+          </button>
+        </div>
       </div>
       
-      {/* Content */}
-      <div className="p-4 space-y-4">
-        {/* Property Controls */}
-        <div className="space-y-2">
-          {properties.map(prop => (
-            <PropertyRow
-              key={prop.key}
-              label={prop.label}
-              property={prop.key}
-              value={currentValues[prop.key]}
-              keyframes={keyframes}
-              currentTime={currentTime}
-              clipStart={clip?.start || 0}
-              clipDuration={clip?.duration || 5}
-              onValueChange={handleValueChange}
-              onAddKeyframe={handleAddKeyframe}
-              onRemoveKeyframe={handleRemoveKeyframe}
-              min={prop.min}
-              max={prop.max}
-              unit={prop.unit}
-            />
-          ))}
-        </div>
-        
-        {/* Keyframe Timeline */}
-        <div className="space-y-2">
-          <div className="text-xs text-[var(--text-secondary)] font-medium">Keyframe Timeline</div>
-          <div className="space-y-1">
-            {properties.map(prop => (
-              <div key={prop.key} className="flex items-center gap-2">
-                <div className="w-20 text-xs text-[var(--text-tertiary)] truncate">{prop.label}</div>
-                <div className="flex-1">
-                  <KeyframeTimeline
-                    keyframes={keyframes}
-                    duration={clip?.duration || 5}
-                    currentTime={currentTime}
-                    clipStart={clip?.start || 0}
-                    property={prop.key}
-                    onSelectKeyframe={setSelectedKeyframe}
-                    selectedKeyframe={selectedKeyframe}
-                  />
-                </div>
-              </div>
-            ))}
+      {/* Keyframe Rows */}
+      <div className="max-h-64 overflow-y-auto">
+        {animatableProperties.map(property => (
+          <KeyframeRow
+            key={property.id}
+            property={property}
+            keyframes={keyframes[property.id] || []}
+            clipDuration={clipDuration}
+            currentTime={clipTime}
+            pxPerSec={pxPerSec}
+            selectedKeyframe={selectedKeyframe}
+            onSelectKeyframe={setSelectedKeyframe}
+            onAddKeyframe={handleAddKeyframe}
+            currentValue={getInterpolatedValue(property.id)}
+          />
+        ))}
+      </div>
+      
+      {/* Selected Keyframe Details */}
+      {selectedKeyframe && (
+        <div className="p-3 border-t border-[var(--border-subtle)] bg-[var(--bg-surface)]">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs text-[var(--text-secondary)]">
+              {animatableProperties.find(p => p.id === selectedKeyframe.property)?.label} 
+              @ {selectedKeyframe.time.toFixed(2)}s
+            </span>
+            <button
+              onClick={() => handleDeleteKeyframe(selectedKeyframe.property, selectedKeyframe.time)}
+              className="text-xs text-red-400 hover:text-red-300"
+            >
+              Löschen
+            </button>
           </div>
-        </div>
-        
-        {/* Easing Selector */}
-        <div className="flex items-center gap-4">
-          <span className="text-xs text-[var(--text-secondary)]">Easing:</span>
-          <div className="flex gap-1">
-            {['linear', 'easeIn', 'easeOut', 'easeInOut'].map(easing => (
+          
+          <div className="flex flex-wrap gap-1">
+            {Object.keys(easingFunctions).map(easing => (
               <button
                 key={easing}
-                className="px-2 py-1 text-xs rounded bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] transition-colors"
+                onClick={() => handleChangeEasing(easing)}
+                className={`px-2 py-1 text-[10px] rounded transition-colors ${
+                  selectedKeyframe.easing === easing
+                    ? 'bg-[var(--accent-turquoise)] text-white'
+                    : 'bg-[var(--bg-panel)] text-[var(--text-secondary)] hover:bg-[var(--bg-hover)]'
+                }`}
               >
-                {easing === 'linear' ? 'Linear' : 
-                 easing === 'easeIn' ? 'Ease In' :
-                 easing === 'easeOut' ? 'Ease Out' : 'Ease In/Out'}
+                {easing}
               </button>
             ))}
           </div>
         </div>
+      )}
+      
+      {/* Footer Hint */}
+      <div className="px-3 py-2 bg-[var(--bg-main)] border-t border-[var(--border-subtle)]">
+        <p className="text-[10px] text-[var(--text-tertiary)]">
+          💡 Klicke auf die Timeline, um Keyframes hinzuzufügen. Wähle einen Keyframe, um das Easing zu ändern.
+        </p>
       </div>
     </div>
   );
+}
+
+// Export Interpolation Helper
+export { easingFunctions, animatableProperties };
+
+export function interpolateKeyframes(keyframes, propertyId, time, defaultValue = 0) {
+  const propKeyframes = keyframes?.[propertyId] || [];
+  
+  if (propKeyframes.length === 0) return defaultValue;
+  
+  const sorted = [...propKeyframes].sort((a, b) => a.time - b.time);
+  
+  if (time <= sorted[0].time) return sorted[0].value;
+  if (time >= sorted[sorted.length - 1].time) return sorted[sorted.length - 1].value;
+  
+  for (let i = 0; i < sorted.length - 1; i++) {
+    const kf1 = sorted[i];
+    const kf2 = sorted[i + 1];
+    
+    if (time >= kf1.time && time <= kf2.time) {
+      const t = (time - kf1.time) / (kf2.time - kf1.time);
+      const easing = easingFunctions[kf1.easing || 'linear'];
+      return kf1.value + (kf2.value - kf1.value) * easing(t);
+    }
+  }
+  
+  return defaultValue;
 }
