@@ -98,7 +98,8 @@ export default function PreviewPanel({
             clipTime: currentTime - clipStart,
             transitionIn,
             transitionOut,
-            transitionProgress
+            transitionProgress,
+            keyframes: clip.keyframes // Include keyframes for animation
           });
         }
       });
