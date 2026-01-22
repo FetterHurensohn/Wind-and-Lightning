@@ -301,7 +301,7 @@ function Clip({ clip, track, pxPerSec, isSelected, onSelect, onTrim, onMove, onM
       <div className="absolute left-0 top-0 bottom-0 w-1.5 cursor-ew-resize hover:bg-white/30 rounded-l z-10" onMouseDown={(e) => handleMouseDown(e, 'trimStart')} />
       
       {/* Audio Waveform - echte oder generierte */}
-      {(clip.type === 'audio' || clip.type === 'video') && (
+      {(clip.type === 'audio' || clip.type === 'video') && (realWaveform || waveform) && (
         <div className="absolute inset-x-1.5 top-2 bottom-2 flex items-end gap-px pointer-events-none overflow-hidden">
           {(realWaveform || waveform).map((height, i) => (
             <div
