@@ -16,6 +16,12 @@ export default defineConfig({
     strictPort: false,
     host: '0.0.0.0',
     allowedHosts: ['localhost', '.preview.emergentagent.com'],
+    proxy: {
+      '/api': {
+        target: 'http://localhost:8001',
+        changeOrigin: true,
+      }
+    }
   },
   build: {
     outDir: 'dist',
