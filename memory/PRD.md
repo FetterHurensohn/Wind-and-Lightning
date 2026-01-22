@@ -111,12 +111,12 @@ German (Deutsch)
 ## P1/P2/P3 Features Remaining
 
 ### P1 - High Priority
-- [ ] Keyframe animation system
-- [ ] Real audio waveform generation
+- [x] Keyframe animation system ✅ (22.01.2026)
+- [x] Real audio waveform generation ✅ (22.01.2026)
 
 ### P2 - Medium Priority
 - [ ] GIPHY API integration for stickers
-- [ ] Cloud video processing for larger exports
+- [ ] Cloud video processing for larger exports (Server-side FFmpeg for MP4/MOV)
 
 ### P3 - Future/Backlog
 - [ ] Motion tracking
@@ -126,6 +126,19 @@ German (Deutsch)
 ---
 
 ## Changelog
+
+### 22.01.2026 - Keyframe Animation & Audio Waveform
+- **Keyframe Animation System:**
+  - Diamond keyframe buttons next to animatable properties (Opacity, Scale, Rotation, Position X/Y)
+  - Click to add keyframe at current clip time
+  - Yellow badge shows existing keyframes with time and value
+  - Interpolation in PreviewPanel for smooth animation during playback
+  - Easing functions support (easeInOut)
+- **Audio Waveform Generation:**
+  - Pseudo-random waveform bars displayed in video and audio clips
+  - Real waveform support for actual audio files via Web Audio API
+  - Visual representation in timeline clips
+- **Bug Fix:** Fixed null waveform error when adding video clips to timeline
 
 ### 22.01.2026 - Visual Transitions & Video Export
 - **Visual Transitions:** 12 transition types (fade, dissolve, wipe, zoom, slide, rotate, flip) with easing
