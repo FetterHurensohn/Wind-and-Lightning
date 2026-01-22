@@ -82,13 +82,12 @@ German (Deutsch)
 ## P1/P2/P3 Features Remaining
 
 ### P1 - High Priority
-- [ ] Video export rendering (FFmpeg)
-- [ ] Visual transitions rendering (cross-fade, wipe)
-
-### P2 - Medium Priority
 - [ ] Keyframe animation system
 - [ ] Real audio waveform generation
+
+### P2 - Medium Priority
 - [ ] GIPHY API integration for stickers
+- [ ] Cloud video processing for larger exports
 
 ### P3 - Future/Backlog
 - [ ] Motion tracking
@@ -99,20 +98,29 @@ German (Deutsch)
 
 ## Changelog
 
+### 22.01.2026 - Visual Transitions & Video Export
+- **Visual Transitions:** 12 transition types (fade, dissolve, wipe, zoom, slide, rotate, flip) with easing
+- **Video Export Dialog:**
+  - Resolution options (480p to 8K)
+  - FPS options (24, 25, 30, 50, 60 fps)
+  - Format options (MP4, MOV, WebM, GIF)
+  - Codec selection (H.264, H.265, VP9, ProRes)
+  - Quality slider
+  - FFmpeg.wasm toggle (demo vs real export)
+  - Progress phases display
+
 ### 22.01.2026 - Sticker Library & Track Controls
 - **Sticker Library:** 6 categories (Angesagt, Emojis, Tiere, Essen, Symbole, Formen)
-- **Sticker Inspector:** Size slider (24-256px), animation dropdown, quick replace grid
+- **Sticker Inspector:** Size slider (24-256px), 6 animations, quick replace grid
 - **Track Controls Connected:**
   - Mute: Muted tracks have no audio in preview
   - Hide: Hidden tracks not rendered in preview
   - Lock: Locked tracks show overlay, prevent editing
-- **Sticker rendering in PreviewPanel** with animations (bounce, pulse, spin, shake, swing)
 
 ### 21.01.2026 - Clip Management Fixes
 - Text clips now go to Text track instead of Video track
 - Clips swap positions when overlapping (no more overlap!)
 - Vertical drag (>30px) creates new track above/below
-- Turquoise indicator during vertical drag
 
 ### 21.01.2026 - Advanced Track System
 - 4 track types (Video, Audio, Text, Sticker)
@@ -122,15 +130,17 @@ German (Deutsch)
 ---
 
 ## Key Files Reference
-- `/app/src/components/editor/TimelinePanel.jsx` - Track system, clip swapping, track controls
-- `/app/src/components/editor/EditorLayout.jsx` - MOVE_CLIP with swap logic, UPDATE_TRACK
-- `/app/src/components/editor/MediaInputPanel.jsx` - Sticker library (lines 1269-1380)
-- `/app/src/components/editor/InspectorPanel.jsx` - Sticker section (lines 443-520)
-- `/app/src/components/PreviewPanel.jsx` - Track hide/mute logic (lines 26-55)
+- `/app/src/components/editor/TimelinePanel.jsx` - Track system, clip management
+- `/app/src/components/editor/EditorLayout.jsx` - Reducer, state management
+- `/app/src/components/editor/MediaInputPanel.jsx` - Sticker library, Transitions
+- `/app/src/components/editor/InspectorPanel.jsx` - Sticker section
+- `/app/src/components/editor/ExportDialog.jsx` - Export dialog with FFmpeg toggle
+- `/app/src/services/VideoExportService.js` - FFmpeg.wasm export service
+- `/app/src/components/PreviewPanel.jsx` - Track hide/mute, transition rendering
 
 ---
 
 ## Test Status
-- **Last Test:** iteration_16.json (22.01.2026)
-- **Frontend Success Rate:** 100% (7/7 features)
-- **Verified:** Sticker library, track controls (mute/hide/lock), text/sticker track routing
+- **Last Test:** iteration_17.json (22.01.2026)
+- **Frontend Success Rate:** 100% (9/9 features)
+- **Verified:** Visual transitions, Export dialog, Sticker library, Track controls
