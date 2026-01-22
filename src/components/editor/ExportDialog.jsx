@@ -128,7 +128,8 @@ export default function ExportDialog({
     if (useRealExport) {
       // Echter FFmpeg.wasm Export
       try {
-        const blob = await videoExportService.exportVideo(exportConfig, ({ phase, progress: p }) => {
+        const exportService = await getVideoExportService();
+        const blob = await exportService.exportVideo(exportConfig, ({ phase, progress: p }) => {
           setExportPhase(phase);
           setProgress(p);
         });
