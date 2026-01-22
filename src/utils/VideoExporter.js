@@ -9,7 +9,8 @@ export class VideoExporter {
     this.width = config.width || 1920;
     this.height = config.height || 1080;
     this.fps = config.fps || 30;
-    this.duration = config.duration || 10;
+    // Maximale Dauer auf 5 Sekunden begrenzen für Browser-Export
+    this.duration = Math.min(config.duration || 5, 5);
     this.tracks = config.tracks || [];
     this.media = config.media || [];
     this.quality = config.quality || 0.8;
