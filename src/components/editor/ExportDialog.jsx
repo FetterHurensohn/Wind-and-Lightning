@@ -78,6 +78,20 @@ export default function ExportDialog({
   const [exportPhase, setExportPhase] = useState('');
   const [exportError, setExportError] = useState(null);
   const [exportComplete, setExportComplete] = useState(false);
+  const [exportMode, setExportMode] = useState('client'); // 'client' | 'server'
+  const [serverAvailable, setServerAvailable] = useState(false);
+  const [serverJobId, setServerJobId] = useState(null);
+  
+  // Check server availability on mount
+  useEffect(() => {
+    ServerExport.checkServerExportAvailable().then(available => {
+      setServerAvailable(available);
+      // Auto-select server export if available and format is MP4/MOV
+      if (available && (format === 'mp4' || format === 'mov')) {
+        setExportMode('server');
+      }
+    });
+  }, []);
   
   const selectedResolution = RESOLUTIONS.find(r => r.id === resolution);
   const availableCodecs = CODECS[format] || [];
