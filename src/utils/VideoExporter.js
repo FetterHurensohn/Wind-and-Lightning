@@ -135,30 +135,32 @@ export class VideoExporter {
   }
 
   async renderFrames(loadedMedia) {
-    const totalFrames = Math.ceil(this.duration * this.fps);
-    const frameDuration = 1000 / this.fps;
+    // Für schnelleren Export: nur 15 fps im Browser
+    const effectiveFps = Math.min(this.fps, 15);
+    const totalFrames = Math.ceil(this.duration * effectiveFps);
+    const frameDuration = 1000 / effectiveFps;
     
     for (let frame = 0; frame < totalFrames; frame++) {
-      const currentTime = frame / this.fps;
+      const currentTime = frame / effectiveFps;
       
       // Update Progress
       const progress = 10 + (frame / totalFrames) * 85;
       this.onProgress({ 
-        phase: `Frame ${frame + 1}/${totalFrames} wird gerendert...`, 
+        phase: `Frame ${frame + 1}/${totalFrames}...`, 
         progress 
       });
       
       // Rendere Frame
       this.renderFrame(currentTime, loadedMedia);
       
-      // Warte auf nächsten Frame
-      await new Promise(resolve => setTimeout(resolve, frameDuration / 2));
+      // Kürzere Pause für schnelleren Export
+      await new Promise(resolve => setTimeout(resolve, frameDuration / 3));
     }
     
     this.onProgress({ phase: 'Finalisierung...', progress: 95 });
     
     // Warte kurz für letzten Frame
-    await new Promise(resolve => setTimeout(resolve, 500));
+    await new Promise(resolve => setTimeout(resolve, 300));
   }
 
   renderFrame(currentTime, loadedMedia) {
