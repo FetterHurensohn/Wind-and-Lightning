@@ -172,17 +172,19 @@ German (Deutsch)
 ---
 
 ## Key Files Reference
-- `/app/src/components/editor/TimelinePanel.jsx` - Track system, clip management
-- `/app/src/components/editor/EditorLayout.jsx` - Reducer, state management
+- `/app/src/components/editor/TimelinePanel.jsx` - Track system, clip management, waveform display
+- `/app/src/components/editor/EditorLayout.jsx` - Reducer, state management, UPDATE_CLIP_KEYFRAMES
 - `/app/src/components/editor/MediaInputPanel.jsx` - Sticker library, Transitions
-- `/app/src/components/editor/InspectorPanel.jsx` - Sticker section
-- `/app/src/components/editor/ExportDialog.jsx` - Export dialog with FFmpeg toggle
-- `/app/src/services/VideoExportService.js` - FFmpeg.wasm export service
-- `/app/src/components/PreviewPanel.jsx` - Track hide/mute, transition rendering
+- `/app/src/components/editor/InspectorPanel.jsx` - Keyframe diamonds, property sliders with keyframe support
+- `/app/src/components/editor/KeyframeEditor.jsx` - animatableProperties, interpolateKeyframes function
+- `/app/src/components/editor/AudioWaveform.jsx` - Real audio waveform generation via Web Audio API
+- `/app/src/components/editor/ExportDialog.jsx` - Export dialog with client-side MediaRecorder
+- `/app/src/utils/VideoExporter.js` - Client-side video rendering with MediaRecorder API
+- `/app/src/components/PreviewPanel.jsx` - Track hide/mute, transition rendering, keyframe interpolation
 
 ---
 
 ## Test Status
-- **Last Test:** iteration_17.json (22.01.2026)
+- **Last Test:** iteration_18.json (22.01.2026)
 - **Frontend Success Rate:** 100% (9/9 features)
-- **Verified:** Visual transitions, Export dialog, Sticker library, Track controls
+- **Verified:** Keyframe animation, Audio waveform, Dashboard project creation, Demo media, Track controls, Export dialog
