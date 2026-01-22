@@ -144,12 +144,86 @@ export default function ExportDialog({
     setExportPhase('Export abgeschlossen!');
     setProgress(100);
     setExporting(false);
-    
-    // Zeige Info-Alert
-    alert(`✅ Export-Vorschau abgeschlossen!\n\n📋 Export-Einstellungen:\n• Auflösung: ${resolution} (${selectedResolution?.width}x${selectedResolution?.height})\n• Format: ${format.toUpperCase()}\n• Codec: ${codec.toUpperCase()}\n• FPS: ${fps}\n• Qualität: ${quality}%\n\n⚠️ Hinweis: Echter Video-Export ist nur in der Desktop-App (Electron) verfügbar.\n\nIn der Browser-Version wird eine Vorschau der Export-Einstellungen angezeigt.`);
+    setExportComplete(true);
     
     onExport?.(exportConfig);
   }, [resolution, selectedResolution, fps, format, codec, quality, estimatedSize, project, onExport, tracks, media, duration]);
+  
+  // Erfolgs-Ansicht
+  if (exportComplete) {
+    return (
+      <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 animate-fadeIn">
+        <div className="bg-[var(--bg-panel)] rounded-xl w-[500px] overflow-hidden shadow-2xl border border-[var(--border-subtle)] animate-scaleIn">
+          {/* Success Header */}
+          <div className="p-8 text-center">
+            <div className="w-20 h-20 mx-auto mb-4 bg-green-500/20 rounded-full flex items-center justify-center">
+              <svg className="w-10 h-10 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <h2 className="text-xl font-semibold text-[var(--text-primary)] mb-2">Export-Vorschau abgeschlossen!</h2>
+            <p className="text-sm text-[var(--text-secondary)]">Deine Export-Einstellungen wurden verarbeitet.</p>
+          </div>
+          
+          {/* Export Summary */}
+          <div className="px-8 pb-6">
+            <div className="bg-[var(--bg-surface)] rounded-lg p-4 space-y-2">
+              <div className="flex justify-between text-sm">
+                <span className="text-[var(--text-tertiary)]">Auflösung:</span>
+                <span className="text-[var(--text-primary)] font-medium">{resolution} ({selectedResolution?.width}x{selectedResolution?.height})</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-[var(--text-tertiary)]">Format:</span>
+                <span className="text-[var(--text-primary)] font-medium">{format.toUpperCase()}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-[var(--text-tertiary)]">Codec:</span>
+                <span className="text-[var(--text-primary)] font-medium">{codec.toUpperCase()}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-[var(--text-tertiary)]">Bildrate:</span>
+                <span className="text-[var(--text-primary)] font-medium">{fps} fps</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-[var(--text-tertiary)]">Qualität:</span>
+                <span className="text-[var(--text-primary)] font-medium">{quality}%</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-[var(--text-tertiary)]">Geschätzte Größe:</span>
+                <span className="text-[var(--text-primary)] font-medium">{estimatedSize()}</span>
+              </div>
+            </div>
+          </div>
+          
+          {/* Browser Notice */}
+          <div className="px-8 pb-6">
+            <div className="p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
+              <div className="flex items-start gap-3">
+                <span className="text-xl">⚠️</span>
+                <div>
+                  <div className="text-sm font-medium text-yellow-300">Browser-Version</div>
+                  <div className="text-xs text-yellow-200/80 mt-1">
+                    Echter Video-Export mit Download ist nur in der <strong>Desktop-App (Electron)</strong> verfügbar.
+                    In der Browser-Version wird eine Vorschau der Export-Einstellungen angezeigt.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          {/* Footer */}
+          <div className="h-16 px-6 flex items-center justify-center border-t border-[var(--border-subtle)]">
+            <button
+              onClick={onClose}
+              className="px-8 h-10 rounded-lg bg-[var(--accent-turquoise)] text-white text-sm font-medium hover:opacity-90 transition-all"
+            >
+              Schließen
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
   
   return (
     <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 animate-fadeIn">
