@@ -1,10 +1,15 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
-import path from 'path'
+import { resolve } from 'path'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react({
+      // Use React's automatic JSX runtime
+      jsxRuntime: 'automatic'
+    })
+  ],
   base: './', // Relative paths for Electron
   server: {
     port: 3000,
@@ -16,24 +21,22 @@ export default defineConfig({
     outDir: 'dist',
     assetsDir: 'assets',
     emptyOutDir: true,
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          // Force React into a single vendor chunk
-          'vendor-react': ['react', 'react-dom', 'scheduler']
-        }
-      }
+    commonjsOptions: {
+      include: [/node_modules/],
+      transformMixedEsModules: true
     }
   },
   resolve: {
-    dedupe: ['react', 'react-dom', 'scheduler'],
     alias: {
-      'react': path.resolve('./node_modules/react'),
-      'react-dom': path.resolve('./node_modules/react-dom')
-    }
+      'react': resolve(__dirname, 'node_modules/react'),
+      'react-dom': resolve(__dirname, 'node_modules/react-dom')
+    },
+    dedupe: ['react', 'react-dom']
   },
   optimizeDeps: {
-    include: ['react', 'react-dom', 'scheduler'],
-    force: true
+    include: ['react', 'react-dom'],
+    esbuildOptions: {
+      jsx: 'automatic'
+    }
   }
 })
