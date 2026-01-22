@@ -13,6 +13,7 @@ import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { useEditor } from './EditorLayout';
 import { secondsToTimecode } from '../../utils/timecode';
 import Icon from './Icon';
+import AudioWaveform from './AudioWaveform';
 
 // ============================================
 // TIMELINE TOOLBAR (Kompakt)
