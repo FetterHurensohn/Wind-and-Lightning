@@ -101,111 +101,60 @@ export default function ExportDialog({
     setExportError(null);
     setExportPhase('Vorbereitung...');
     
-    const exportConfig = {
-      resolution,
-      width: selectedResolution?.width,
-      height: selectedResolution?.height,
-      fps,
-      format,
-      codec,
-      quality,
-      tracks,
-      media,
-      duration,
-      estimatedSize: estimatedSize(),
-      exportedAt: new Date().toISOString()
-    };
-    
-    // Export-Phasen
-    const phases = [
-      { phase: 'Vorbereitung...', duration: 300 },
-      { phase: 'Projekt wird verpackt...', duration: 500 },
-      { phase: 'Datei wird erstellt...', duration: 400 },
-    ];
-    
-    let elapsed = 0;
-    const totalDuration = phases.reduce((sum, p) => sum + p.duration, 0);
-    
-    for (const p of phases) {
-      setExportPhase(p.phase);
-      
-      const steps = 10;
-      const stepDuration = p.duration / steps;
-      
-      for (let i = 0; i < steps; i++) {
-        await new Promise(resolve => setTimeout(resolve, stepDuration));
-        elapsed += stepDuration;
-        setProgress((elapsed / totalDuration) * 100);
-      }
-    }
-    
-    // Erstelle und downloade Projektdatei
     try {
+      // Erstelle Video-Exporter
+      const exporter = new VideoExporter({
+        width: selectedResolution?.width || 1920,
+        height: selectedResolution?.height || 1080,
+        fps,
+        duration: duration || 10,
+        tracks,
+        media,
+        quality: quality / 100,
+        onProgress: ({ phase, progress: p }) => {
+          setExportPhase(phase);
+          setProgress(p);
+        }
+      });
+      
+      // Exportiere Video
+      const videoBlob = await exporter.export();
+      
       setExportPhase('Download wird gestartet...');
+      setProgress(98);
       
-      // Erstelle eine vollständige Projektdatei
-      const projectData = {
-        version: '2.0',
-        exportedAt: new Date().toISOString(),
-        projectName: project?.name || 'Mein Projekt',
-        exportSettings: {
-          resolution: `${selectedResolution?.width}x${selectedResolution?.height}`,
-          format: format.toUpperCase(),
-          codec: codec.toUpperCase(),
-          fps,
-          quality: `${quality}%`
-        },
-        timeline: {
-          duration,
-          tracks: tracks.map(track => ({
-            id: track.id,
-            name: track.name,
-            type: track.type,
-            clips: track.clips?.map(clip => ({
-              id: clip.id,
-              type: clip.type,
-              title: clip.title,
-              start: clip.start,
-              duration: clip.duration,
-              mediaId: clip.mediaId
-            })) || []
-          }))
-        },
-        media: media.map(m => ({
-          id: m.id,
-          name: m.name,
-          type: m.type,
-          duration: m.duration
-        })),
-        note: 'Diese Projektdatei kann in der Desktop-App geöffnet werden, um das Video zu exportieren.'
-      };
-      
-      // Erstelle und downloade die Datei
-      const jsonStr = JSON.stringify(projectData, null, 2);
-      const blob = new Blob([jsonStr], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      
+      // Download Video
+      const url = URL.createObjectURL(videoBlob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `${project?.name || 'projekt'}_export.capcut`;
+      a.download = `${project?.name || 'video'}_export.webm`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+      
+      // Cleanup nach kurzer Verzögerung
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
       
       setExportPhase('Export abgeschlossen!');
       setProgress(100);
       setExporting(false);
       setExportComplete(true);
       
-    } catch (err) {
-      console.error('Export error:', err);
-      setExportError('Export fehlgeschlagen: ' + err.message);
+      onExport?.({
+        resolution,
+        width: selectedResolution?.width,
+        height: selectedResolution?.height,
+        fps,
+        format: 'webm',
+        quality
+      });
+      
+    } catch (error) {
+      console.error('Export error:', error);
+      setExportError('Export fehlgeschlagen: ' + error.message);
       setExporting(false);
     }
-    
-    onExport?.(exportConfig);
-  }, [resolution, selectedResolution, fps, format, codec, quality, estimatedSize, project, onExport, tracks, media, duration]);
+  }, [resolution, selectedResolution, fps, format, codec, quality, project, onExport, tracks, media, duration]);
   
   // Erfolgs-Ansicht
   if (exportComplete) {
