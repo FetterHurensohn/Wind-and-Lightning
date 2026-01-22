@@ -276,7 +276,7 @@ function Clip({ clip, track, pxPerSec, isSelected, onSelect, onTrim, onMove, onM
     };
   }, [action, clip, track, pxPerSec, onTrim, onMove, onMoveToNewTrack, dragY]);
 
-  const waveform = clip.type === 'audio' ? generateWaveform() : null;
+  const waveform = (clip.type === 'audio' || clip.type === 'video') ? generateWaveform() : null;
 
   // Visual feedback for vertical drag
   const dragIndicator = action === 'move' && Math.abs(dragY) > 30 ? (
