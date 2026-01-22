@@ -26,9 +26,6 @@ import { useModal } from '../hooks/useModal';
 import { useToast } from '../hooks/useToast';
 
 export default function Dashboard({ onOpenProject }) {
-    console.log('[Dashboard] Component rendering');
-    console.log('[Dashboard] React type:', typeof React);
-    
     const {
         projects: allProjects,
         loading,
@@ -38,8 +35,6 @@ export default function Dashboard({ onOpenProject }) {
         duplicate,
         getById
     } = useProjects();
-    
-    console.log('[Dashboard] useProjects returned:', { projectsCount: allProjects?.length, loading });
     
     const modal = useModal();
     const toast = useToast();
