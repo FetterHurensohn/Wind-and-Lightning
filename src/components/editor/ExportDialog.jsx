@@ -62,6 +62,8 @@ const CODECS = {
 export default function ExportDialog({ 
   project,
   duration,
+  tracks = [],
+  media = [],
   onExport,
   onClose 
 }) {
@@ -73,6 +75,8 @@ export default function ExportDialog({
   const [exporting, setExporting] = useState(false);
   const [progress, setProgress] = useState(0);
   const [exportPhase, setExportPhase] = useState('');
+  const [exportError, setExportError] = useState(null);
+  const [useRealExport, setUseRealExport] = useState(false); // Toggle zwischen Demo und echtem Export
   
   const selectedResolution = RESOLUTIONS.find(r => r.id === resolution);
   const availableCodecs = CODECS[format] || [];
