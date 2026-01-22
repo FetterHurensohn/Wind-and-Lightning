@@ -1327,6 +1327,117 @@ export default function MediaInputPanel() {
       );
     }
 
+    // Sticker Content
+    if (activeSection.startsWith('sticker')) {
+      // Sticker-Bibliothek mit Kategorien
+      const stickerCategories = {
+        angesagt: ['⭐', '🔥', '❤️', '😂', '🎉', '✨', '💯', '🙌', '👏', '🤩', '💪', '🚀', '💥', '🌟', '🏆', '💎'],
+        emojis: ['😀', '😃', '😄', '😁', '😅', '😂', '🤣', '😊', '😇', '🙂', '😉', '😍', '🥰', '😘', '😗', '😋', '😛', '🤪', '😜', '🤑', '🤗', '🤭', '🤫', '🤔'],
+        tiere: ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼', '🐨', '🐯', '🦁', '🐮', '🐷', '🐸', '🐵', '🐔', '🐧', '🐦', '🦆', '🦅', '🦉', '🦇', '🐺', '🐗'],
+        essen: ['🍎', '🍐', '🍊', '🍋', '🍌', '🍉', '🍇', '🍓', '🍈', '🍒', '🍑', '🥭', '🍍', '🥥', '🥝', '🍅', '🥑', '🍆', '🥦', '🥬', '🌽', '🌶️', '🍔', '🍟', '🍕', '🌭', '🍿', '🧁', '🍰', '🍫', '🍬', '🍭'],
+        symbole: ['❤️', '🧡', '💛', '💚', '💙', '💜', '🖤', '🤍', '🤎', '💔', '❣️', '💕', '💖', '💗', '💘', '💝', '⭐', '🌟', '✨', '💫', '🔥', '💥', '⚡', '🌈', '☀️', '🌙', '⛅', '☁️', '❄️', '💧', '🎵', '🎶'],
+        formen: ['⬛', '⬜', '🔴', '🟠', '🟡', '🟢', '🔵', '🟣', '🟤', '⚫', '⚪', '🔶', '🔷', '🔸', '🔹', '🔺', '🔻', '💠', '🔘', '🔲', '🔳', '▪️', '▫️', '◾', '◽', '◼️', '◻️']
+      };
+      
+      // Bestimme aktive Kategorie
+      const category = activeSection.replace('sticker-', '') || 'angesagt';
+      const stickers = stickerCategories[category] || stickerCategories.angesagt;
+      
+      const handleAddSticker = (emoji) => {
+        // Find or create STICKER track
+        let stickerTrack = state.tracks.find(t => t.type === 'sticker');
+        if (!stickerTrack) {
+          const newTrackId = `sticker_track_${Date.now()}`;
+          stickerTrack = { 
+            id: newTrackId, 
+            name: 'Sticker 1', 
+            type: 'sticker', 
+            clips: [],
+            locked: false,
+            hidden: false,
+            muted: false,
+            gauge: 100
+          };
+          dispatch({ type: 'ADD_TRACK', payload: { track: stickerTrack, position: 0 } });
+        }
+
+        // Calculate start position
+        let startTime = state.currentTime || 0;
+        if (stickerTrack.clips && stickerTrack.clips.length > 0) {
+          const lastClip = stickerTrack.clips.reduce((max, clip) => 
+            (clip.start + clip.duration) > (max.start + max.duration) ? clip : max
+          );
+          startTime = Math.max(startTime, lastClip.start + lastClip.duration);
+        }
+
+        const stickerClip = {
+          id: `sticker_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+          type: 'sticker',
+          title: emoji,
+          start: startTime,
+          duration: 3,
+          props: {
+            emoji: emoji,
+            fontSize: 64,
+            posX: 0,
+            posY: 0,
+            opacity: 100,
+            scale: 100,
+            rotation: 0,
+            animation: 'none'
+          }
+        };
+
+        dispatch({ type: 'ADD_CLIP_TO_TRACK', payload: { trackId: stickerTrack.id, clip: stickerClip } });
+        dispatch({ type: 'SELECT_CLIP', payload: stickerClip.id });
+        
+        console.log('[MediaInputPanel] Added sticker to STICKER track:', stickerClip);
+      };
+
+      return (
+        <div className="space-y-4">
+          <div className="text-sm font-medium text-[var(--text-primary)]">Sticker & Emojis</div>
+          <SearchBar 
+            placeholder="Sticker suchen..." 
+            value={searchQuery} 
+            onChange={setSearchQuery} 
+          />
+          
+          {/* Kategorie-Name */}
+          <div className="text-xs text-[var(--text-tertiary)] capitalize">
+            {category === 'angesagt' ? '🔥 Angesagt' : 
+             category === 'emojis' ? '😀 Emojis' :
+             category === 'tiere' ? '🐶 Tiere' :
+             category === 'essen' ? '🍔 Essen' :
+             category === 'symbole' ? '❤️ Symbole' :
+             category === 'formen' ? '🔷 Formen' : '⭐ Alle'}
+          </div>
+          
+          {/* Sticker Grid */}
+          <div className="grid grid-cols-6 gap-2">
+            {stickers
+              .filter(s => !searchQuery || s.includes(searchQuery))
+              .map((emoji, idx) => (
+                <button
+                  key={`${emoji}-${idx}`}
+                  onClick={() => handleAddSticker(emoji)}
+                  className="aspect-square bg-[var(--bg-surface)] rounded-lg border border-[var(--border-subtle)] hover:border-[var(--accent-turquoise)] hover:bg-[var(--accent-turquoise)]/10 transition-all flex items-center justify-center text-2xl"
+                  title={`${emoji} hinzufügen`}
+                  data-testid={`sticker-${idx}`}
+                >
+                  {emoji}
+                </button>
+              ))}
+          </div>
+          
+          {/* Info */}
+          <div className="p-3 bg-[var(--bg-panel)] rounded-lg text-[10px] text-[var(--text-tertiary)]">
+            💡 Klicke auf einen Sticker, um ihn zur Timeline hinzuzufügen. Bearbeite Position und Größe im Eigenschaften-Panel.
+          </div>
+        </div>
+      );
+    }
+
     // Default: Empty State
     return (
       <div className="flex flex-col items-center justify-center h-full p-8 text-center">
