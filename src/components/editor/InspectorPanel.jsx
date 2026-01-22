@@ -230,37 +230,60 @@ export default function InspectorPanel({
             <span className="text-[var(--text-tertiary)]">Dauer</span>
             <span className="text-[var(--text-primary)] font-mono">{selectedClip.duration?.toFixed(2)}s</span>
           </div>
+          <div className="flex items-center justify-between text-xs mt-1">
+            <span className="text-[var(--text-tertiary)]">Clip-Zeit</span>
+            <span className="text-[var(--text-primary)] font-mono text-yellow-400">{clipTime.toFixed(2)}s</span>
+          </div>
         </div>
         
-        {/* Transform Section */}
+        {/* Transform Section - Mit Keyframe-Unterstützung */}
         <Section title="Transformation" icon="adjustment">
           <PropertySlider
             label="Deckkraft"
+            propertyId="opacity"
             value={props.opacity ?? 100}
             min={0}
             max={100}
             unit="%"
             onChange={(v) => updateClipProperty('opacity', v)}
+            keyframes={selectedClip.keyframes}
+            onAddKeyframe={handleAddKeyframe}
+            currentTime={clipTime}
           />
           <PropertySlider
             label="Skalierung"
+            propertyId="scale"
             value={props.scale ?? 100}
             min={10}
             max={500}
             unit="%"
             onChange={(v) => updateClipProperty('scale', v)}
+            keyframes={selectedClip.keyframes}
+            onAddKeyframe={handleAddKeyframe}
+            currentTime={clipTime}
           />
           <PropertySlider
             label="Rotation"
+            propertyId="rotation"
             value={props.rotation ?? 0}
             min={-360}
             max={360}
             unit="°"
             onChange={(v) => updateClipProperty('rotation', v)}
+            keyframes={selectedClip.keyframes}
+            onAddKeyframe={handleAddKeyframe}
+            currentTime={clipTime}
           />
           <div className="grid grid-cols-2 gap-2">
             <div>
-              <span className="text-xs text-[var(--text-tertiary)] block mb-1">Position X</span>
+              <div className="flex items-center gap-1.5 mb-1">
+                <span className="text-xs text-[var(--text-tertiary)]">Position X</span>
+                <KeyframeDiamond 
+                  hasKeyframes={selectedClip.keyframes?.posX?.length > 0}
+                  onClick={() => handleAddKeyframe('posX', clipTime, props.posX ?? 0)}
+                  title="Keyframe für Position X"
+                />
+              </div>
               <input
                 type="number"
                 value={props.posX ?? 0}
@@ -269,7 +292,14 @@ export default function InspectorPanel({
               />
             </div>
             <div>
-              <span className="text-xs text-[var(--text-tertiary)] block mb-1">Position Y</span>
+              <div className="flex items-center gap-1.5 mb-1">
+                <span className="text-xs text-[var(--text-tertiary)]">Position Y</span>
+                <KeyframeDiamond 
+                  hasKeyframes={selectedClip.keyframes?.posY?.length > 0}
+                  onClick={() => handleAddKeyframe('posY', clipTime, props.posY ?? 0)}
+                  title="Keyframe für Position Y"
+                />
+              </div>
               <input
                 type="number"
                 value={props.posY ?? 0}
