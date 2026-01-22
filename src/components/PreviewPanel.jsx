@@ -387,7 +387,7 @@ export default function PreviewPanel({
       );
     }
     
-    // Sticker Clip
+    // Sticker Clip (Emoji or GIPHY)
     if (type === 'sticker') {
       const stickerStyle = {
         ...transformStyle,
@@ -395,6 +395,27 @@ export default function PreviewPanel({
         lineHeight: 1
       };
       
+      // GIPHY Sticker - render as image
+      if (props.isGiphy && props.url) {
+        const giphyStyle = {
+          ...transformStyle,
+          width: props.width ? `${props.width * (scale || 1)}px` : 'auto',
+          height: props.height ? `${props.height * (scale || 1)}px` : 'auto',
+          maxWidth: '100%',
+          maxHeight: '100%'
+        };
+        
+        return (
+          <img
+            src={props.url}
+            alt={title || 'GIPHY Sticker'}
+            className={`object-contain ${effectClasses}`}
+            style={giphyStyle}
+          />
+        );
+      }
+      
+      // Emoji Sticker
       return (
         <div 
           className={`flex items-center justify-center ${effectClasses}`}
