@@ -115,13 +115,11 @@ export default function ExportDialog({
       exportedAt: new Date().toISOString()
     };
     
-    // Demo-Export (simuliert)
+    // Export-Phasen
     const phases = [
-      { phase: 'Vorbereitung...', duration: 500 },
-      { phase: 'Frames rendern...', duration: 2000 },
-      { phase: 'Audio mischen...', duration: 1000 },
-      { phase: 'Video kodieren...', duration: 2000 },
-      { phase: 'Finalisierung...', duration: 500 },
+      { phase: 'Vorbereitung...', duration: 300 },
+      { phase: 'Projekt wird verpackt...', duration: 500 },
+      { phase: 'Datei wird erstellt...', duration: 400 },
     ];
     
     let elapsed = 0;
@@ -130,7 +128,7 @@ export default function ExportDialog({
     for (const p of phases) {
       setExportPhase(p.phase);
       
-      const steps = 20;
+      const steps = 10;
       const stepDuration = p.duration / steps;
       
       for (let i = 0; i < steps; i++) {
@@ -140,11 +138,70 @@ export default function ExportDialog({
       }
     }
     
-    // Demo: Zeige Erfolgs-Nachricht (echter Export benötigt Electron/FFmpeg)
-    setExportPhase('Export abgeschlossen!');
-    setProgress(100);
-    setExporting(false);
-    setExportComplete(true);
+    // Erstelle und downloade Projektdatei
+    try {
+      setExportPhase('Download wird gestartet...');
+      
+      // Erstelle eine vollständige Projektdatei
+      const projectData = {
+        version: '2.0',
+        exportedAt: new Date().toISOString(),
+        projectName: project?.name || 'Mein Projekt',
+        exportSettings: {
+          resolution: `${selectedResolution?.width}x${selectedResolution?.height}`,
+          format: format.toUpperCase(),
+          codec: codec.toUpperCase(),
+          fps,
+          quality: `${quality}%`
+        },
+        timeline: {
+          duration,
+          tracks: tracks.map(track => ({
+            id: track.id,
+            name: track.name,
+            type: track.type,
+            clips: track.clips?.map(clip => ({
+              id: clip.id,
+              type: clip.type,
+              title: clip.title,
+              start: clip.start,
+              duration: clip.duration,
+              mediaId: clip.mediaId
+            })) || []
+          }))
+        },
+        media: media.map(m => ({
+          id: m.id,
+          name: m.name,
+          type: m.type,
+          duration: m.duration
+        })),
+        note: 'Diese Projektdatei kann in der Desktop-App geöffnet werden, um das Video zu exportieren.'
+      };
+      
+      // Erstelle und downloade die Datei
+      const jsonStr = JSON.stringify(projectData, null, 2);
+      const blob = new Blob([jsonStr], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${project?.name || 'projekt'}_export.capcut`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      
+      setExportPhase('Export abgeschlossen!');
+      setProgress(100);
+      setExporting(false);
+      setExportComplete(true);
+      
+    } catch (err) {
+      console.error('Export error:', err);
+      setExportError('Export fehlgeschlagen: ' + err.message);
+      setExporting(false);
+    }
     
     onExport?.(exportConfig);
   }, [resolution, selectedResolution, fps, format, codec, quality, estimatedSize, project, onExport, tracks, media, duration]);
