@@ -68,11 +68,12 @@ German (Deutsch)
 
 ### P1 - High Priority
 - [ ] Video export rendering (FFmpeg)
-- [ ] Sticker library integration
+- [ ] Visual transitions rendering (cross-fade, wipe)
 
 ### P2 - Medium Priority
 - [ ] Keyframe animation system
 - [ ] Real audio waveform generation
+- [ ] GIPHY API integration for stickers
 
 ### P3 - Future/Backlog
 - [ ] Motion tracking
@@ -82,6 +83,15 @@ German (Deutsch)
 ---
 
 ## Changelog
+
+### 22.01.2026 - Sticker Library & Track Controls
+- **Sticker Library:** 6 categories (Angesagt, Emojis, Tiere, Essen, Symbole, Formen)
+- **Sticker Inspector:** Size slider (24-256px), animation dropdown, quick replace grid
+- **Track Controls Connected:**
+  - Mute: Muted tracks have no audio in preview
+  - Hide: Hidden tracks not rendered in preview
+  - Lock: Locked tracks show overlay, prevent editing
+- **Sticker rendering in PreviewPanel** with animations (bounce, pulse, spin, shake, swing)
 
 ### 21.01.2026 - Clip Management Fixes
 - Text clips now go to Text track instead of Video track
@@ -97,13 +107,15 @@ German (Deutsch)
 ---
 
 ## Key Files Reference
-- `/app/src/components/editor/TimelinePanel.jsx` - Track system, clip swapping
-- `/app/src/components/editor/EditorLayout.jsx` - MOVE_CLIP with swap logic
-- `/app/src/components/editor/MediaInputPanel.jsx` - Text to Text track
+- `/app/src/components/editor/TimelinePanel.jsx` - Track system, clip swapping, track controls
+- `/app/src/components/editor/EditorLayout.jsx` - MOVE_CLIP with swap logic, UPDATE_TRACK
+- `/app/src/components/editor/MediaInputPanel.jsx` - Sticker library (lines 1269-1380)
+- `/app/src/components/editor/InspectorPanel.jsx` - Sticker section (lines 443-520)
+- `/app/src/components/PreviewPanel.jsx` - Track hide/mute logic (lines 26-55)
 
 ---
 
 ## Test Status
-- **Last Test:** iteration_15.json (21.01.2026)
-- **Frontend Success Rate:** 100% (9/9 features)
-- **Verified:** Text track routing, clip swapping, vertical drag
+- **Last Test:** iteration_16.json (22.01.2026)
+- **Frontend Success Rate:** 100% (7/7 features)
+- **Verified:** Sticker library, track controls (mute/hide/lock), text/sticker track routing
