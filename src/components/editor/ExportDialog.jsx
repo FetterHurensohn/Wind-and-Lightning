@@ -12,7 +12,16 @@
 
 import React, { useState, useCallback } from 'react';
 import Icon from './Icon';
-import { videoExportService } from '../../services/VideoExportService';
+
+// Lazy load VideoExportService to avoid SSR/hydration issues
+let videoExportService = null;
+const getVideoExportService = async () => {
+  if (!videoExportService) {
+    const module = await import('../../services/VideoExportService');
+    videoExportService = module.videoExportService;
+  }
+  return videoExportService;
+};
 
 // Resolution Presets
 const RESOLUTIONS = [
