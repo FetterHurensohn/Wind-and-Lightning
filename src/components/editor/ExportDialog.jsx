@@ -75,6 +75,7 @@ export default function ExportDialog({
   const [progress, setProgress] = useState(0);
   const [exportPhase, setExportPhase] = useState('');
   const [exportError, setExportError] = useState(null);
+  const [exportComplete, setExportComplete] = useState(false);
   
   const selectedResolution = RESOLUTIONS.find(r => r.id === resolution);
   const availableCodecs = CODECS[format] || [];
