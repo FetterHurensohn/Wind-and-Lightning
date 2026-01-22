@@ -9,7 +9,8 @@ import Dashboard from './components/Dashboard';
 import EditorLayout from './components/editor/EditorLayout';
 
 export default function App() {
-  const [currentView, setCurrentView] = useState('dashboard'); // 'dashboard' | 'editor'
+  // Start directly in editor for web preview testing
+  const [currentView, setCurrentView] = useState('editor');
   const [currentProjectPath, setCurrentProjectPath] = useState(null);
 
   const handleOpenEditor = (projectPath) => {
