@@ -192,13 +192,14 @@ German (Deutsch)
 ## Key Files Reference
 - `/app/src/components/editor/TimelinePanel.jsx` - Track system, clip management, waveform display
 - `/app/src/components/editor/EditorLayout.jsx` - Reducer, state management, UPDATE_CLIP_KEYFRAMES
-- `/app/src/components/editor/MediaInputPanel.jsx` - Sticker library, Transitions
+- `/app/src/components/editor/MediaInputPanel.jsx` - Sticker library, Transitions, GIPHY integration
+- `/app/src/components/editor/GiphyPanel.jsx` - GIPHY API integration with search and trending
 - `/app/src/components/editor/InspectorPanel.jsx` - Keyframe diamonds, property sliders with keyframe support
 - `/app/src/components/editor/KeyframeEditor.jsx` - animatableProperties, interpolateKeyframes function
 - `/app/src/components/editor/AudioWaveform.jsx` - Real audio waveform generation via Web Audio API
 - `/app/src/components/editor/ExportDialog.jsx` - Export dialog with client-side MediaRecorder
 - `/app/src/utils/VideoExporter.js` - Client-side video rendering with MediaRecorder API
-- `/app/src/components/PreviewPanel.jsx` - Track hide/mute, transition rendering, keyframe interpolation
+- `/app/src/components/PreviewPanel.jsx` - Track hide/mute, transition rendering, keyframe interpolation, GIPHY sticker rendering
 
 ---
 
@@ -206,3 +207,4 @@ German (Deutsch)
 - **Last Test:** iteration_18.json (22.01.2026)
 - **Frontend Success Rate:** 100% (9/9 features)
 - **Verified:** Keyframe animation, Audio waveform, Dashboard project creation, Demo media, Track controls, Export dialog
+- **Requires API Key:** GIPHY integration requires user's own API key from developers.giphy.com
