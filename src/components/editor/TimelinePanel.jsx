@@ -154,13 +154,17 @@ function TimeRuler({ pxPerSec, scrollLeft, totalWidth }) {
 // ============================================
 // CLIP COMPONENT (Kompakt) mit Waveform
 // ============================================
-function Clip({ clip, track, pxPerSec, isSelected, onSelect, onTrim, onMove, onMoveToNewTrack, trackMuted, trackHidden, waveformSize }) {
+function Clip({ clip, track, pxPerSec, isSelected, onSelect, onTrim, onMove, onMoveToNewTrack, trackMuted, trackHidden, waveformSize, media }) {
   const [action, setAction] = useState(null); // 'move', 'trimStart', 'trimEnd'
   const [dragY, setDragY] = useState(0);
+  const [realWaveform, setRealWaveform] = useState(null);
   const startRef = useRef({ x: 0, y: 0, clipStart: 0, clipDuration: 0 });
 
   const clipWidth = Math.max(30, clip.duration * pxPerSec);
   const clipLeft = clip.start * pxPerSec;
+  
+  // Finde das Media-Item für diesen Clip
+  const mediaItem = media?.find(m => m.id === clip.mediaId);
 
   const getColor = () => {
     switch (clip.type) {
@@ -172,6 +176,45 @@ function Clip({ clip, track, pxPerSec, isSelected, onSelect, onTrim, onMove, onM
       default: return 'from-cyan-500/80 to-cyan-600/80';
     }
   };
+
+  // Generiere echte Wellenform für Audio/Video-Clips
+  useEffect(() => {
+    if ((clip.type === 'audio' || clip.type === 'video') && mediaItem?.url) {
+      // Async Wellenform-Generierung
+      const generateRealWaveform = async () => {
+        try {
+          const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+          const response = await fetch(mediaItem.url);
+          const arrayBuffer = await response.arrayBuffer();
+          const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+          
+          const channelData = audioBuffer.getChannelData(0);
+          const samples = Math.min(Math.max(Math.floor(clipWidth / 3), 20), 200);
+          const blockSize = Math.floor(channelData.length / samples);
+          const waveformData = [];
+          
+          for (let i = 0; i < samples; i++) {
+            const start = i * blockSize;
+            let sum = 0;
+            for (let j = 0; j < blockSize; j++) {
+              sum += Math.abs(channelData[start + j] || 0);
+            }
+            waveformData.push(sum / blockSize);
+          }
+          
+          const max = Math.max(...waveformData);
+          const normalized = waveformData.map(v => v / (max || 1));
+          
+          setRealWaveform(normalized);
+          audioContext.close();
+        } catch (error) {
+          console.warn('Waveform generation failed:', error);
+        }
+      };
+      
+      generateRealWaveform();
+    }
+  }, [clip.type, mediaItem?.url, clipWidth]);
 
   const handleMouseDown = (e, type) => {
     e.stopPropagation();
