@@ -333,6 +333,9 @@ const NAVIGATION_CONFIG = {
       ]},
       { id: 'sticker-angesagt', label: 'Angesagt' },
       { id: 'sticker-emojis', label: 'Emojis' },
+      { id: 'sticker-tiere', label: 'Tiere' },
+      { id: 'sticker-essen', label: 'Essen' },
+      { id: 'sticker-symbole', label: 'Symbole' },
       { id: 'sticker-giphy', label: 'GIPHY' },
       { id: 'sticker-formen', label: 'Formen' }
     ]
