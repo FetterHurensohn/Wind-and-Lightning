@@ -117,9 +117,9 @@ export default function ExportDialog({
     // Demo-Export (simuliert)
     const phases = [
       { phase: 'Vorbereitung...', duration: 500 },
-      { phase: 'Frames rendern...', duration: 3000 },
+      { phase: 'Frames rendern...', duration: 2000 },
       { phase: 'Audio mischen...', duration: 1000 },
-      { phase: 'Video kodieren...', duration: 4000 },
+      { phase: 'Video kodieren...', duration: 2000 },
       { phase: 'Finalisierung...', duration: 500 },
     ];
     
@@ -139,25 +139,15 @@ export default function ExportDialog({
       }
     }
     
-    // Speichere Export-Konfiguration als JSON (Demo)
-    try {
-      const configBlob = new Blob([JSON.stringify(exportConfig, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(configBlob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${project?.name || 'export'}_config.json`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    } catch (err) {
-      console.warn('Download-Fehler:', err);
-    }
+    // Demo: Zeige Erfolgs-Nachricht (echter Export benötigt Electron/FFmpeg)
+    setExportPhase('Export abgeschlossen!');
+    setProgress(100);
+    setExporting(false);
+    
+    // Zeige Info-Alert
+    alert(`✅ Export-Vorschau abgeschlossen!\n\n📋 Export-Einstellungen:\n• Auflösung: ${resolution} (${selectedResolution?.width}x${selectedResolution?.height})\n• Format: ${format.toUpperCase()}\n• Codec: ${codec.toUpperCase()}\n• FPS: ${fps}\n• Qualität: ${quality}%\n\n⚠️ Hinweis: Echter Video-Export ist nur in der Desktop-App (Electron) verfügbar.\n\nIn der Browser-Version wird eine Vorschau der Export-Einstellungen angezeigt.`);
     
     onExport?.(exportConfig);
-    setExporting(false);
-    setProgress(100);
-    setExportPhase('Export abgeschlossen!');
   }, [resolution, selectedResolution, fps, format, codec, quality, estimatedSize, project, onExport, tracks, media, duration]);
   
   return (
