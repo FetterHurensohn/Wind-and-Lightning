@@ -16,19 +16,34 @@ German (Deutsch)
 
 ## What's Been Implemented
 
+### Sticker Library (✅ Complete - 22.01.2026)
+**6 Sticker Categories:**
+- 🔥 Angesagt (Popular)
+- 😀 Emojis
+- 🐶 Tiere
+- 🍔 Essen
+- ❤️ Symbole
+- 🔷 Formen
+
+**Sticker Features:**
+- Click to add to dedicated Sticker track (pink)
+- Inspector panel: Size slider (24-256px), animations, quick replace
+- 6 animations: bounce, pulse, spin, shake, swing
+
+### Track Controls (✅ Complete - 22.01.2026)
+**Functional Controls:**
+- 🔊 **Mute:** Muted tracks have no audio in preview
+- 👁 **Hide:** Hidden tracks not rendered in preview
+- 🔒 **Lock:** Locked tracks show overlay, prevent editing
+- 🗑 **Delete:** Remove track with confirmation
+- 🎚 **Volume/Opacity slider:** Hover to adjust
+
 ### Advanced Track System (✅ Complete - 21.01.2026)
 **Four Track Types:**
 - **Video Track:** Blue background, blue clips
 - **Audio Track:** Green background, green clips
 - **Text Track:** Yellow background, yellow clips (text clips go here!)
 - **Sticker Track:** Pink background, pink clips
-
-**Track Control Buttons:**
-- 🔊 Mute/Unmute (audio/video)
-- 👁 Show/Hide (toggle opacity)
-- 🔒 Lock/Unlock (prevent editing)
-- 🗑 Delete (with confirmation)
-- Volume/Opacity slider on hover
 
 **Clip Management (✅ Fixed - 21.01.2026):**
 - **Text to Text Track:** Text clips now go to Text track, not Video track
