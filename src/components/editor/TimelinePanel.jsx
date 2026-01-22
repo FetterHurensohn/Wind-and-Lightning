@@ -327,6 +327,20 @@ function Clip({ clip, track, pxPerSec, isSelected, onSelect, onTrim, onMove, onM
         </div>
       )}
       
+      {/* GIPHY Sticker Thumbnail */}
+      {clip.type === 'sticker' && clip.props?.isGiphy && clip.props?.thumbnail && (
+        <div className="absolute left-1.5 top-5 bottom-1 w-10 overflow-hidden rounded pointer-events-none">
+          <img src={clip.props.thumbnail} alt="" className="w-full h-full object-contain" />
+        </div>
+      )}
+      
+      {/* Emoji Sticker Display */}
+      {clip.type === 'sticker' && !clip.props?.isGiphy && clip.props?.emoji && (
+        <div className="absolute left-1.5 top-5 bottom-1 w-8 flex items-center justify-center pointer-events-none text-xl">
+          {clip.props.emoji}
+        </div>
+      )}
+      
       {/* Trim Right */}
       <div className="absolute right-0 top-0 bottom-0 w-1.5 cursor-ew-resize hover:bg-white/30 rounded-r z-10" onMouseDown={(e) => handleMouseDown(e, 'trimEnd')} />
     </div>
