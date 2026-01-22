@@ -12,16 +12,8 @@ import { projectAPI } from '../electron';
 const STORAGE_KEY = 'capcut_dashboard_projects_v1';
 
 export function useProjects() {
-  console.log('[useProjects] Hook called, React useState type:', typeof useState);
-  
-  if (typeof useState !== 'function') {
-    console.error('[useProjects] ERROR: useState is not a function!', useState);
-  }
-  
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
-  
-  console.log('[useProjects] State initialized successfully');
 
   // Load projects from file system (Electron) or localStorage (browser fallback)
   useEffect(() => {
