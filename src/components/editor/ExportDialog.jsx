@@ -168,38 +168,38 @@ export default function ExportDialog({
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
             </div>
-            <h2 className="text-xl font-semibold text-[var(--text-primary)] mb-2">Projektdatei exportiert!</h2>
-            <p className="text-sm text-[var(--text-secondary)]">Die Datei wurde in deinen Downloads-Ordner gespeichert.</p>
+            <h2 className="text-xl font-semibold text-[var(--text-primary)] mb-2">Video exportiert!</h2>
+            <p className="text-sm text-[var(--text-secondary)]">Dein Video wurde erfolgreich erstellt und heruntergeladen.</p>
           </div>
           
           {/* Downloaded File Info */}
           <div className="px-8 pb-4">
             <div className="bg-[var(--bg-surface)] rounded-lg p-4 flex items-center gap-4">
               <div className="w-12 h-12 bg-[var(--accent-turquoise)]/20 rounded-lg flex items-center justify-center">
-                <Icon name="export" size={24} className="text-[var(--accent-turquoise)]" />
+                <Icon name="video" size={24} className="text-[var(--accent-turquoise)]" />
               </div>
               <div className="flex-1">
-                <div className="text-sm font-medium text-[var(--text-primary)]">{project?.name || 'projekt'}_export.capcut</div>
-                <div className="text-xs text-[var(--text-tertiary)]">Projektdatei • Soeben heruntergeladen</div>
+                <div className="text-sm font-medium text-[var(--text-primary)]">{project?.name || 'video'}_export.webm</div>
+                <div className="text-xs text-[var(--text-tertiary)]">WebM Video • Soeben heruntergeladen</div>
               </div>
             </div>
           </div>
           
           {/* Export Summary */}
           <div className="px-8 pb-6">
-            <div className="text-xs text-[var(--text-tertiary)] mb-2">Export-Einstellungen:</div>
+            <div className="text-xs text-[var(--text-tertiary)] mb-2">Export-Details:</div>
             <div className="bg-[var(--bg-surface)] rounded-lg p-4 grid grid-cols-2 gap-2">
               <div className="flex justify-between text-sm">
                 <span className="text-[var(--text-tertiary)]">Auflösung:</span>
-                <span className="text-[var(--text-primary)]">{resolution}</span>
+                <span className="text-[var(--text-primary)]">{selectedResolution?.width}x{selectedResolution?.height}</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-[var(--text-tertiary)]">Format:</span>
-                <span className="text-[var(--text-primary)]">{format.toUpperCase()}</span>
+                <span className="text-[var(--text-primary)]">WebM</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-[var(--text-tertiary)]">Codec:</span>
-                <span className="text-[var(--text-primary)]">{codec.toUpperCase()}</span>
+                <span className="text-[var(--text-tertiary)]">Bildrate:</span>
+                <span className="text-[var(--text-primary)]">{fps} fps</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-[var(--text-tertiary)]">Qualität:</span>
@@ -208,15 +208,16 @@ export default function ExportDialog({
             </div>
           </div>
           
-          {/* Info Notice */}
+          {/* Tip */}
           <div className="px-8 pb-6">
             <div className="p-4 bg-blue-500/10 border border-blue-500/30 rounded-lg">
               <div className="flex items-start gap-3">
                 <span className="text-xl">💡</span>
                 <div>
-                  <div className="text-sm font-medium text-blue-300">So verwendest du die Projektdatei:</div>
+                  <div className="text-sm font-medium text-blue-300">Tipp</div>
                   <div className="text-xs text-blue-200/80 mt-1">
-                    Öffne die <strong>.capcut</strong> Datei in der Desktop-App, um das fertige Video als MP4, MOV oder WebM zu exportieren.
+                    Das WebM-Format ist kompatibel mit Chrome, Firefox und modernen Video-Playern. 
+                    Du kannst es mit kostenlosen Tools wie HandBrake in MP4 konvertieren.
                   </div>
                 </div>
               </div>
