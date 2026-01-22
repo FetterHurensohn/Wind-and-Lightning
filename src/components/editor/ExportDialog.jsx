@@ -98,34 +98,9 @@ export default function ExportDialog({
   const handleExport = useCallback(async () => {
     setExporting(true);
     setProgress(0);
+    setExportError(null);
     setExportPhase('Vorbereitung...');
     
-    // Export-Phasen simulieren
-    const phases = [
-      { phase: 'Vorbereitung...', duration: 500 },
-      { phase: 'Frames rendern...', duration: 3000 },
-      { phase: 'Audio mischen...', duration: 1000 },
-      { phase: 'Video kodieren...', duration: 4000 },
-      { phase: 'Finalisierung...', duration: 500 },
-    ];
-    
-    let elapsed = 0;
-    const totalDuration = phases.reduce((sum, p) => sum + p.duration, 0);
-    
-    for (const p of phases) {
-      setExportPhase(p.phase);
-      
-      const steps = 20;
-      const stepDuration = p.duration / steps;
-      
-      for (let i = 0; i < steps; i++) {
-        await new Promise(resolve => setTimeout(resolve, stepDuration));
-        elapsed += stepDuration;
-        setProgress((elapsed / totalDuration) * 100);
-      }
-    }
-    
-    // Export-Daten zusammenstellen
     const exportConfig = {
       resolution,
       width: selectedResolution?.width,
@@ -134,32 +109,88 @@ export default function ExportDialog({
       format,
       codec,
       quality,
+      tracks,
+      media,
+      duration,
       estimatedSize: estimatedSize(),
       exportedAt: new Date().toISOString()
     };
     
-    // Speichere Export-Konfiguration als JSON (Demo)
-    try {
-      const configBlob = new Blob([JSON.stringify(exportConfig, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(configBlob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${project?.name || 'export'}_config.json`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    } catch (err) {
-      console.warn('Download-Fehler:', err);
+    if (useRealExport) {
+      // Echter FFmpeg.wasm Export
+      try {
+        const blob = await videoExportService.exportVideo(exportConfig, ({ phase, progress: p }) => {
+          setExportPhase(phase);
+          setProgress(p);
+        });
+        
+        // Download Video
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${project?.name || 'export'}.${format}`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        onExport?.(exportConfig);
+        setExporting(false);
+        setProgress(100);
+        setExportPhase('Export abgeschlossen!');
+      } catch (error) {
+        console.error('[ExportDialog] Export error:', error);
+        setExportError(error.message);
+        setExporting(false);
+        setExportPhase('Export fehlgeschlagen');
+      }
+    } else {
+      // Demo-Export (simuliert)
+      const phases = [
+        { phase: 'Vorbereitung...', duration: 500 },
+        { phase: 'Frames rendern...', duration: 3000 },
+        { phase: 'Audio mischen...', duration: 1000 },
+        { phase: 'Video kodieren...', duration: 4000 },
+        { phase: 'Finalisierung...', duration: 500 },
+      ];
+      
+      let elapsed = 0;
+      const totalDuration = phases.reduce((sum, p) => sum + p.duration, 0);
+      
+      for (const p of phases) {
+        setExportPhase(p.phase);
+        
+        const steps = 20;
+        const stepDuration = p.duration / steps;
+        
+        for (let i = 0; i < steps; i++) {
+          await new Promise(resolve => setTimeout(resolve, stepDuration));
+          elapsed += stepDuration;
+          setProgress((elapsed / totalDuration) * 100);
+        }
+      }
+      
+      // Speichere Export-Konfiguration als JSON (Demo)
+      try {
+        const configBlob = new Blob([JSON.stringify(exportConfig, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(configBlob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${project?.name || 'export'}_config.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      } catch (err) {
+        console.warn('Download-Fehler:', err);
+      }
+      
+      onExport?.(exportConfig);
+      setExporting(false);
+      setProgress(100);
+      setExportPhase('Export abgeschlossen!');
     }
-    
-    // Callback aufrufen
-    onExport?.(exportConfig);
-    
-    setExporting(false);
-    setProgress(100);
-    setExportPhase('Export abgeschlossen!');
-  }, [resolution, selectedResolution, fps, format, codec, quality, estimatedSize, project, onExport]);
+  }, [resolution, selectedResolution, fps, format, codec, quality, estimatedSize, project, onExport, useRealExport, tracks, media, duration]);
   
   return (
     <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 animate-fadeIn">
