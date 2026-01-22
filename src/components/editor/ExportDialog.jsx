@@ -6,12 +6,13 @@
  * - FPS-Auswahl (24, 25, 30, 50, 60)
  * - Format-Auswahl (MP4, MOV, WebM, GIF)
  * - Qualitätseinstellung
- * - Export-Progress
+ * - Echter Video-Export mit Canvas + MediaRecorder
  * - Vorschau
  */
 
 import React, { useState, useCallback } from 'react';
 import Icon from './Icon';
+import { VideoExporter } from '../../utils/VideoExporter';
 
 // Resolution Presets
 const RESOLUTIONS = [
