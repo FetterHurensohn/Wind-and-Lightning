@@ -361,6 +361,62 @@ export default function ExportDialog({
             </div>
           </div>
           
+          {/* Export Mode Selector */}
+          <div>
+            <label className="text-sm font-medium text-[var(--text-primary)] mb-3 block">Export-Methode</label>
+            <div className="grid grid-cols-2 gap-3">
+              {/* Client-side Export */}
+              <button
+                onClick={() => setExportMode('client')}
+                className={`p-4 rounded-lg border text-left transition-all ${
+                  exportMode === 'client'
+                    ? 'border-[var(--accent-turquoise)] bg-[var(--accent-turquoise)]/10'
+                    : 'border-[var(--border-subtle)] bg-[var(--bg-surface)] hover:border-[var(--border-normal)]'
+                }`}
+              >
+                <div className="flex items-center gap-2 mb-2">
+                  <Icon name="browser" size={18} className={exportMode === 'client' ? 'text-[var(--accent-turquoise)]' : 'text-[var(--text-tertiary)]'} />
+                  <span className={`text-sm font-medium ${exportMode === 'client' ? 'text-[var(--accent-turquoise)]' : 'text-[var(--text-primary)]'}`}>
+                    Browser-Export
+                  </span>
+                </div>
+                <p className="text-xs text-[var(--text-tertiary)]">
+                  Schnell, aber nur WebM-Format. Gut für kurze Videos.
+                </p>
+              </button>
+              
+              {/* Server-side Export */}
+              <button
+                onClick={() => serverAvailable && setExportMode('server')}
+                disabled={!serverAvailable}
+                className={`p-4 rounded-lg border text-left transition-all ${
+                  exportMode === 'server'
+                    ? 'border-[var(--accent-purple)] bg-[var(--accent-purple)]/10'
+                    : serverAvailable 
+                      ? 'border-[var(--border-subtle)] bg-[var(--bg-surface)] hover:border-[var(--border-normal)]'
+                      : 'border-[var(--border-subtle)] bg-[var(--bg-surface)] opacity-50 cursor-not-allowed'
+                }`}
+              >
+                <div className="flex items-center gap-2 mb-2">
+                  <Icon name="server" size={18} className={exportMode === 'server' ? 'text-[var(--accent-purple)]' : 'text-[var(--text-tertiary)]'} />
+                  <span className={`text-sm font-medium ${exportMode === 'server' ? 'text-[var(--accent-purple)]' : 'text-[var(--text-primary)]'}`}>
+                    Server-Export (FFmpeg)
+                  </span>
+                  {serverAvailable ? (
+                    <span className="px-1.5 py-0.5 bg-green-500/20 text-green-400 text-[9px] rounded">Online</span>
+                  ) : (
+                    <span className="px-1.5 py-0.5 bg-red-500/20 text-red-400 text-[9px] rounded">Offline</span>
+                  )}
+                </div>
+                <p className="text-xs text-[var(--text-tertiary)]">
+                  {serverAvailable 
+                    ? 'MP4, MOV, WebM mit professioneller Qualität.' 
+                    : 'Server nicht erreichbar. Bitte Browser-Export verwenden.'}
+                </p>
+              </button>
+            </div>
+          </div>
+          
           {/* Resolution */}
           <div>
             <label className="text-sm font-medium text-[var(--text-primary)] mb-3 block">Auflösung</label>
