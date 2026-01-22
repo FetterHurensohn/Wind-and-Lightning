@@ -6,33 +6,70 @@
  * - Video: Speed, Flip, Stabilisierung
  * - Audio: Lautstärke, Fade In/Out
  * - Text: Schriftart, Farbe, Animation
- * - Keyframes Button
+ * - Keyframes Button mit Keyframe-Icons
  */
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { useEditor } from './EditorLayout';
 import Icon from './Icon';
 
-// Property Slider Component
-const PropertySlider = ({ label, value, min, max, step = 1, unit = '', onChange }) => (
-  <div className="space-y-1">
-    <div className="flex items-center justify-between">
-      <span className="text-xs text-[var(--text-secondary)]">{label}</span>
-      <span className="text-xs text-[var(--text-primary)]">{value}{unit}</span>
-    </div>
-    <input
-      type="range"
-      min={min}
-      max={max}
-      step={step}
-      value={value}
-      onChange={(e) => onChange(parseFloat(e.target.value))}
-      className="w-full h-1.5 bg-[var(--bg-surface)] rounded appearance-none cursor-pointer
-        [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 
-        [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[var(--accent-turquoise)]"
-    />
-  </div>
+// Keyframe Diamond Icon Component
+const KeyframeDiamond = ({ hasKeyframes, onClick, title }) => (
+  <button
+    onClick={onClick}
+    className={`w-4 h-4 flex items-center justify-center transition-all hover:scale-110 ${
+      hasKeyframes ? 'text-yellow-400' : 'text-[var(--text-tertiary)] hover:text-yellow-400'
+    }`}
+    title={title}
+  >
+    <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor">
+      <path d="M5 0L10 5L5 10L0 5L5 0Z" />
+    </svg>
+  </button>
 );
+
+// Property Slider Component with Keyframe support
+const PropertySlider = ({ label, value, min, max, step = 1, unit = '', onChange, propertyId, keyframes, onAddKeyframe, currentTime }) => {
+  const hasKeyframes = keyframes && keyframes[propertyId] && keyframes[propertyId].length > 0;
+  
+  return (
+    <div className="space-y-1">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-1.5">
+          <span className="text-xs text-[var(--text-secondary)]">{label}</span>
+          {onAddKeyframe && (
+            <KeyframeDiamond 
+              hasKeyframes={hasKeyframes}
+              onClick={() => onAddKeyframe(propertyId, currentTime, value)}
+              title={hasKeyframes ? `${keyframes[propertyId].length} Keyframe(s) - Klicken zum Hinzufügen` : 'Keyframe hinzufügen'}
+            />
+          )}
+        </div>
+        <span className="text-xs text-[var(--text-primary)]">{Math.round(value * 10) / 10}{unit}</span>
+      </div>
+      <input
+        type="range"
+        min={min}
+        max={max}
+        step={step}
+        value={value}
+        onChange={(e) => onChange(parseFloat(e.target.value))}
+        className="w-full h-1.5 bg-[var(--bg-surface)] rounded appearance-none cursor-pointer
+          [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 
+          [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[var(--accent-turquoise)]"
+      />
+      {hasKeyframes && (
+        <div className="flex gap-1 mt-1">
+          {keyframes[propertyId].map((kf, idx) => (
+            <span key={idx} className="text-[8px] text-yellow-400/70 bg-yellow-400/10 px-1 rounded">
+              {kf.time.toFixed(1)}s: {Math.round(kf.value)}{unit}
+            </span>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
 
 // Section Component
 const Section = ({ title, icon, children, defaultOpen = true }) => {
