@@ -290,7 +290,7 @@ export default function PreviewPanel({
   }, [currentTime, tracks, media]);
 
   const renderClipContent = (clip) => {
-    const { mediaItem, type, title, props = {}, id, clipTime, effects = [], transition, trackMuted, trackGauge } = clip;
+    const { mediaItem, type, title, props = {}, id, clipTime, effects = [], transition, trackMuted, trackGauge, transitionIn, transitionOut, transitionProgress } = clip;
     
     // Transformations - Track Gauge beeinflusst Opacity
     const trackOpacityMultiplier = (trackGauge ?? 100) / 100;
@@ -316,12 +316,30 @@ export default function PreviewPanel({
     const baseFilter = `brightness(${brightness}%) contrast(${contrast}%) saturate(${saturation}%) hue-rotate(${hue}deg)`;
     const combinedFilter = effectsFilter ? `${baseFilter} ${effectsFilter}` : baseFilter;
     
-    const transformStyle = {
+    // Base transform style
+    let transformStyle = {
       opacity,
       transform: `translate(${posX}px, ${posY}px) scale(${scale * flipH}, ${scale * flipV}) rotate(${rotation}deg)`,
       filter: combinedFilter,
       mixBlendMode: props.blendMode || 'normal'
     };
+    
+    // Wende Transition-Styles an (überschreibt teilweise base styles)
+    const transitionStyles = getTransitionStyles(clip);
+    if (Object.keys(transitionStyles).length > 0) {
+      // Kombiniere opacity
+      if (transitionStyles.opacity !== undefined) {
+        transformStyle.opacity = opacity * transitionStyles.opacity;
+      }
+      // Kombiniere transform
+      if (transitionStyles.transform) {
+        transformStyle.transform = `${transformStyle.transform} ${transitionStyles.transform}`;
+      }
+      // clipPath für Wipe-Effekte
+      if (transitionStyles.clipPath) {
+        transformStyle.clipPath = transitionStyles.clipPath;
+      }
+    }
 
     // Video Clip
     if (type === 'video' && mediaItem?.url) {
