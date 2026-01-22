@@ -180,6 +180,13 @@ export default function PreviewPanel({
     return classes.join(' ');
   };
 
+  // Easing-Funktion für flüssige Übergänge (muss VOR getTransitionStyles definiert sein)
+  const easeInOutCubic = (t) => {
+    return t < 0.5
+      ? 4 * t * t * t
+      : 1 - Math.pow(-2 * t + 2, 3) / 2;
+  };
+
   // Berechne Transition-Styles basierend auf Transition-Typ und Progress
   const getTransitionStyles = (clip) => {
     const { transitionIn, transitionOut, transitionProgress } = clip;
@@ -247,13 +254,6 @@ export default function PreviewPanel({
     }
     
     return styles;
-  };
-
-  // Easing-Funktion für flüssige Übergänge
-  const easeInOutCubic = (t) => {
-    return t < 0.5
-      ? 4 * t * t * t
-      : 1 - Math.pow(-2 * t + 2, 3) / 2;
   };
 
   // Audio Clips für Wiedergabe (berücksichtigt Mute)
