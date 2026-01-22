@@ -6,12 +6,13 @@
  * - FPS-Auswahl (24, 25, 30, 50, 60)
  * - Format-Auswahl (MP4, MOV, WebM, GIF)
  * - Qualitätseinstellung
- * - Export-Progress
+ * - Export-Progress mit echtem FFmpeg.wasm
  * - Vorschau
  */
 
 import React, { useState, useCallback } from 'react';
 import Icon from './Icon';
+import { videoExportService } from '../../services/VideoExportService';
 
 // Resolution Presets
 const RESOLUTIONS = [
