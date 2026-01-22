@@ -441,6 +441,65 @@ export default function InspectorPanel({
           </>
         )}
         
+        {/* Sticker Specific */}
+        {selectedClip.type === 'sticker' && (
+          <Section title="Sticker" icon="image" defaultOpen={true}>
+            <div className="space-y-3">
+              {/* Current Sticker Preview */}
+              <div className="flex items-center justify-center p-4 bg-[var(--bg-surface)] rounded-lg">
+                <span className="text-6xl">{props.emoji || '⭐'}</span>
+              </div>
+              
+              {/* Sticker Size */}
+              <PropertySlider
+                label="Sticker-Größe"
+                value={props.fontSize ?? 64}
+                min={24}
+                max={256}
+                unit="px"
+                onChange={(v) => updateClipProperty('fontSize', v)}
+              />
+              
+              {/* Animation */}
+              <div>
+                <div className="text-[10px] text-[var(--text-tertiary)] mb-1">Animation</div>
+                <select
+                  value={props.animation || 'none'}
+                  onChange={(e) => updateClipProperty('animation', e.target.value)}
+                  className="w-full h-8 px-2 bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded text-xs text-[var(--text-primary)] focus:outline-none"
+                >
+                  <option value="none">Keine</option>
+                  <option value="bounce">Hüpfen</option>
+                  <option value="pulse">Pulsieren</option>
+                  <option value="spin">Drehen</option>
+                  <option value="shake">Schütteln</option>
+                  <option value="swing">Schwingen</option>
+                </select>
+              </div>
+              
+              {/* Quick Replace */}
+              <div>
+                <div className="text-[10px] text-[var(--text-tertiary)] mb-2">Schnell ersetzen</div>
+                <div className="grid grid-cols-6 gap-1">
+                  {['⭐', '🔥', '❤️', '😂', '🎉', '✨', '💯', '🙌', '👏', '🤩', '💪', '🚀'].map((emoji, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => updateClipProperty('emoji', emoji)}
+                      className={`aspect-square rounded text-xl flex items-center justify-center transition-colors ${
+                        props.emoji === emoji 
+                          ? 'bg-[var(--accent-turquoise)] text-white' 
+                          : 'bg-[var(--bg-surface)] hover:bg-[var(--bg-hover)]'
+                      }`}
+                    >
+                      {emoji}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </Section>
+        )}
+        
         {/* Color Correction */}
         <Section title="Farbkorrektur" icon="filter" defaultOpen={false}>
           <PropertySlider
