@@ -144,6 +144,16 @@ export default function TopToolbar({ onBackToDashboard, onExport }) {
         <button className="h-7 px-3 bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)]">
           Player
         </button>
+        
+        {/* Export Button - Prominent */}
+        <button 
+          onClick={handleExportClick}
+          className="h-8 px-4 bg-[var(--accent-turquoise)] hover:bg-[var(--accent-turquoise-hover)] rounded-lg text-sm font-medium text-white flex items-center gap-2 transition-colors"
+          data-testid="export-button"
+        >
+          <Icon name="export" size={16} />
+          Exportieren
+        </button>
       </div>
     </header>
   );
