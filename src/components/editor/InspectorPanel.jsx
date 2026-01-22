@@ -127,7 +127,7 @@ export default function InspectorPanel({
       <div className="h-10 px-3 flex items-center justify-between border-b border-[var(--border-subtle)]">
         <div className="flex items-center gap-2">
           <Icon 
-            name={selectedClip.type === 'video' ? 'video' : selectedClip.type === 'audio' ? 'audio' : 'image'} 
+            name={selectedClip.type === 'video' ? 'video' : selectedClip.type === 'audio' ? 'audio' : selectedClip.type === 'text' ? 'text' : selectedClip.type === 'sticker' ? 'sticker' : 'image'} 
             size={14} 
             className="text-[var(--accent-turquoise)]" 
           />
