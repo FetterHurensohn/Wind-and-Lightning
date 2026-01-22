@@ -16,6 +16,35 @@ German (Deutsch)
 
 ## What's Been Implemented
 
+### Visual Transitions (✅ Complete - 22.01.2026)
+**12 Transition Types:**
+- Überblendung (Fade)
+- Auflösen (Dissolve)
+- Wischen Links/Rechts/Hoch/Runter (Wipe)
+- Zoom Rein/Raus
+- Schieben Links/Rechts (Slide)
+- Drehen (Rotate)
+- Umklappen (Flip)
+
+**Transition Features:**
+- Applied via Übergänge tab to selected clip
+- Visual rendering with easing in PreviewPanel
+- Duration configurable
+
+### Video Export (✅ Complete - 22.01.2026)
+**Export Dialog:**
+- Resolution: 480p, 720p HD, 1080p Full HD, 1440p 2K, 4K Ultra HD (Pro), 8K (Pro)
+- FPS: 24, 25, 30, 50, 60 fps
+- Format: MP4, MOV, WebM, GIF
+- Codec: H.264, H.265 (HEVC), VP9, ProRes
+- Quality slider (10-100%)
+- Estimated file size display
+
+**FFmpeg.wasm Integration:**
+- Toggle between demo and real export
+- Progress phases: Vorbereitung, Frames rendern, Audio mischen, Video kodieren, Finalisierung
+- Downloads actual video file (in Electron app)
+
 ### Sticker Library (✅ Complete - 22.01.2026)
 **6 Sticker Categories:**
 - 🔥 Angesagt (Popular)
