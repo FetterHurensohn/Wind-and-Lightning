@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import path from 'path'
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -25,9 +26,14 @@ export default defineConfig({
     }
   },
   resolve: {
-    dedupe: ['react', 'react-dom', 'scheduler']
+    dedupe: ['react', 'react-dom', 'scheduler'],
+    alias: {
+      'react': path.resolve('./node_modules/react'),
+      'react-dom': path.resolve('./node_modules/react-dom')
+    }
   },
   optimizeDeps: {
-    include: ['react', 'react-dom', 'scheduler']
+    include: ['react', 'react-dom', 'scheduler'],
+    force: true
   }
 })
