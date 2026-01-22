@@ -6,10 +6,12 @@
  * - Unterstützt Video, Bild und Text-Clips
  * - Video-Wiedergabe mit autoPlay und Synchronisation
  * - Layer-System (höhere Tracks = Vordergrund)
+ * - Keyframe-Animation mit Interpolation
  */
 
 import React, { useMemo, useRef, useEffect, useState } from 'react';
 import { secondsToTimecode } from '../utils/timecode';
+import { interpolateKeyframes, animatableProperties } from './editor/KeyframeEditor';
 
 export default function PreviewPanel({
   currentTime = 0,
