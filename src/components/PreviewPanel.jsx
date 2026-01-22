@@ -24,6 +24,7 @@ export default function PreviewPanel({
 
   // Finde alle Clips, die zur aktuellen Zeit aktiv sind
   // Berücksichtigt Track-Kontrollen: hidden, muted
+  // Erweitert um Transition-Informationen
   const activeClips = useMemo(() => {
     const clips = [];
     
@@ -34,12 +35,54 @@ export default function PreviewPanel({
       // Überspringe versteckte Tracks (hidden = true)
       if (track.hidden) return;
       
-      track.clips?.forEach(clip => {
+      // Sortiere Clips nach Startzeit für Transition-Berechnung
+      const sortedClips = [...(track.clips || [])].sort((a, b) => a.start - b.start);
+      
+      sortedClips.forEach((clip, clipIndex) => {
         const clipStart = clip.start;
         const clipEnd = clip.start + clip.duration;
         
+        // Prüfe ob dieser Clip aktiv ist
         if (currentTime >= clipStart && currentTime < clipEnd) {
           const mediaItem = media.find(m => m.id === clip.mediaId);
+          
+          // Berechne Transition-Daten
+          let transitionIn = null;
+          let transitionOut = null;
+          let transitionProgress = 0;
+          
+          // Transition vom vorherigen Clip (Einblendung)
+          if (clipIndex > 0) {
+            const prevClip = sortedClips[clipIndex - 1];
+            const prevEnd = prevClip.start + prevClip.duration;
+            const overlap = prevEnd - clipStart;
+            
+            if (overlap > 0 && clip.transition) {
+              const transitionDuration = clip.transition.duration || 0.5;
+              const timeIntoClip = currentTime - clipStart;
+              
+              if (timeIntoClip < transitionDuration) {
+                transitionIn = clip.transition;
+                transitionProgress = timeIntoClip / transitionDuration;
+              }
+            }
+          }
+          
+          // Transition zum nächsten Clip (Ausblendung)
+          if (clipIndex < sortedClips.length - 1) {
+            const nextClip = sortedClips[clipIndex + 1];
+            const overlap = clipEnd - nextClip.start;
+            
+            if (overlap > 0 && nextClip.transition) {
+              const transitionDuration = nextClip.transition.duration || 0.5;
+              const timeToEnd = clipEnd - currentTime;
+              
+              if (timeToEnd < transitionDuration) {
+                transitionOut = nextClip.transition;
+                transitionProgress = 1 - (timeToEnd / transitionDuration);
+              }
+            }
+          }
           
           clips.push({
             ...clip,
@@ -50,8 +93,10 @@ export default function PreviewPanel({
             trackGauge: track.gauge ?? 100,
             mediaItem,
             zIndex: trackIndex,
-            // Relative Zeit im Clip (für Video-Seek)
-            clipTime: currentTime - clipStart
+            clipTime: currentTime - clipStart,
+            transitionIn,
+            transitionOut,
+            transitionProgress
           });
         }
       });
