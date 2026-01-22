@@ -292,15 +292,31 @@ export default function PreviewPanel({
   }, [currentTime, tracks, media]);
 
   const renderClipContent = (clip) => {
-    const { mediaItem, type, title, props = {}, id, clipTime, effects = [], transition, trackMuted, trackGauge, transitionIn, transitionOut, transitionProgress } = clip;
+    const { mediaItem, type, title, props = {}, id, clipTime, effects = [], transition, trackMuted, trackGauge, transitionIn, transitionOut, transitionProgress, keyframes } = clip;
+    
+    // === KEYFRAME ANIMATION ===
+    // Wenn Keyframes vorhanden, interpoliere Werte basierend auf clipTime
+    const getAnimatedValue = (propertyId, defaultValue) => {
+      if (keyframes && keyframes[propertyId] && keyframes[propertyId].length > 0) {
+        return interpolateKeyframes(keyframes, propertyId, clipTime, defaultValue);
+      }
+      return props[propertyId] ?? defaultValue;
+    };
+    
+    // Animierbare Properties aus Keyframes oder Props
+    const animatedPosX = getAnimatedValue('posX', 0);
+    const animatedPosY = getAnimatedValue('posY', 0);
+    const animatedScale = getAnimatedValue('scale', 100);
+    const animatedRotation = getAnimatedValue('rotation', 0);
+    const animatedOpacity = getAnimatedValue('opacity', 100);
     
     // Transformations - Track Gauge beeinflusst Opacity
     const trackOpacityMultiplier = (trackGauge ?? 100) / 100;
-    const opacity = ((props.opacity ?? 100) / 100) * trackOpacityMultiplier;
-    const scale = (props.scale ?? 100) / 100;
-    const rotation = props.rotation ?? 0;
-    const posX = props.posX ?? 0;
-    const posY = props.posY ?? 0;
+    const opacity = (animatedOpacity / 100) * trackOpacityMultiplier;
+    const scale = animatedScale / 100;
+    const rotation = animatedRotation;
+    const posX = animatedPosX;
+    const posY = animatedPosY;
     const flipH = props.flipH ? -1 : 1;
     const flipV = props.flipV ? -1 : 1;
     
