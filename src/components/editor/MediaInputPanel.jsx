@@ -1330,7 +1330,67 @@ export default function MediaInputPanel() {
 
     // Sticker Content
     if (activeSection.startsWith('sticker')) {
-      // Sticker-Bibliothek mit Kategorien
+      // GIPHY Integration - wenn sticker-giphy ausgewählt
+      if (activeSection === 'sticker-giphy') {
+        const handleGiphySticker = (stickerData) => {
+          // Find or create STICKER track
+          let stickerTrack = state.tracks.find(t => t.type === 'sticker');
+          if (!stickerTrack) {
+            const newTrackId = `sticker_track_${Date.now()}`;
+            stickerTrack = { 
+              id: newTrackId, 
+              name: 'Sticker 1', 
+              type: 'sticker', 
+              clips: [],
+              locked: false,
+              hidden: false,
+              muted: false,
+              gauge: 100
+            };
+            dispatch({ type: 'ADD_TRACK', payload: { track: stickerTrack, position: 0 } });
+          }
+
+          // Calculate start position
+          let startTime = state.currentTime || 0;
+          if (stickerTrack.clips && stickerTrack.clips.length > 0) {
+            const lastClip = stickerTrack.clips.reduce((max, clip) => 
+              (clip.start + clip.duration) > (max.start + max.duration) ? clip : max
+            );
+            startTime = Math.max(startTime, lastClip.start + lastClip.duration);
+          }
+
+          const giphyClip = {
+            id: stickerData.id || `giphy_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+            type: 'sticker',
+            title: stickerData.title || 'GIPHY Sticker',
+            start: startTime,
+            duration: 3,
+            props: {
+              isGiphy: true,
+              giphyId: stickerData.giphyId,
+              url: stickerData.url,
+              thumbnail: stickerData.thumbnail,
+              width: stickerData.width || 200,
+              height: stickerData.height || 200,
+              posX: 0,
+              posY: 0,
+              opacity: 100,
+              scale: 100,
+              rotation: 0,
+              animation: 'none'
+            }
+          };
+
+          dispatch({ type: 'ADD_CLIP_TO_TRACK', payload: { trackId: stickerTrack.id, clip: giphyClip } });
+          dispatch({ type: 'SELECT_CLIP', payload: giphyClip.id });
+          
+          console.log('[MediaInputPanel] Added GIPHY sticker:', giphyClip);
+        };
+
+        return <GiphyPanel onAddSticker={handleGiphySticker} />;
+      }
+      
+      // Sticker-Bibliothek mit Kategorien (Emoji-Sticker)
       const stickerCategories = {
         angesagt: ['⭐', '🔥', '❤️', '😂', '🎉', '✨', '💯', '🙌', '👏', '🤩', '💪', '🚀', '💥', '🌟', '🏆', '💎'],
         emojis: ['😀', '😃', '😄', '😁', '😅', '😂', '🤣', '😊', '😇', '🙂', '😉', '😍', '🥰', '😘', '😗', '😋', '😛', '🤪', '😜', '🤑', '🤗', '🤭', '🤫', '🤔'],
