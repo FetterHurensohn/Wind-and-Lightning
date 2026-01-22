@@ -23,12 +23,16 @@ export default function PreviewPanel({
   const [videoErrors, setVideoErrors] = useState({});
 
   // Finde alle Clips, die zur aktuellen Zeit aktiv sind
+  // Berücksichtigt Track-Kontrollen: hidden, muted
   const activeClips = useMemo(() => {
     const clips = [];
     
     tracks.forEach((track, trackIndex) => {
       // Überspringe Audio Tracks (nur Video/Bild anzeigen)
       if (track.type === 'audio') return;
+      
+      // Überspringe versteckte Tracks (hidden = true)
+      if (track.hidden) return;
       
       track.clips?.forEach(clip => {
         const clipStart = clip.start;
@@ -41,6 +45,9 @@ export default function PreviewPanel({
             ...clip,
             trackIndex,
             trackId: track.id,
+            trackType: track.type,
+            trackMuted: track.muted,
+            trackGauge: track.gauge ?? 100,
             mediaItem,
             zIndex: trackIndex,
             // Relative Zeit im Clip (für Video-Seek)
@@ -128,11 +135,45 @@ export default function PreviewPanel({
     return classes.join(' ');
   };
 
-  const renderClipContent = (clip) => {
-    const { mediaItem, type, title, props = {}, id, clipTime, effects = [], transition } = clip;
+  // Audio Clips für Wiedergabe (berücksichtigt Mute)
+  const activeAudioClips = useMemo(() => {
+    const audioClips = [];
     
-    // Transformations
-    const opacity = (props.opacity ?? 100) / 100;
+    tracks.forEach((track, trackIndex) => {
+      // Nur Audio und Video Tracks mit Audio
+      if (track.type !== 'audio' && track.type !== 'video') return;
+      
+      // Überspringe stumm geschaltete Tracks
+      if (track.muted) return;
+      
+      track.clips?.forEach(clip => {
+        const clipStart = clip.start;
+        const clipEnd = clip.start + clip.duration;
+        
+        if (currentTime >= clipStart && currentTime < clipEnd) {
+          const mediaItem = media.find(m => m.id === clip.mediaId);
+          if (mediaItem && (mediaItem.type === 'audio' || mediaItem.type === 'video')) {
+            audioClips.push({
+              ...clip,
+              trackId: track.id,
+              trackGauge: track.gauge ?? 100,
+              mediaItem,
+              clipTime: currentTime - clipStart
+            });
+          }
+        }
+      });
+    });
+    
+    return audioClips;
+  }, [currentTime, tracks, media]);
+
+  const renderClipContent = (clip) => {
+    const { mediaItem, type, title, props = {}, id, clipTime, effects = [], transition, trackMuted, trackGauge } = clip;
+    
+    // Transformations - Track Gauge beeinflusst Opacity
+    const trackOpacityMultiplier = (trackGauge ?? 100) / 100;
+    const opacity = ((props.opacity ?? 100) / 100) * trackOpacityMultiplier;
     const scale = (props.scale ?? 100) / 100;
     const rotation = props.rotation ?? 0;
     const posX = props.posX ?? 0;
@@ -172,16 +213,37 @@ export default function PreviewPanel({
         );
       }
       
+      // Video-Audio wird über trackMuted gesteuert
+      const videoVolume = trackMuted ? 0 : ((props.volume ?? 100) * (trackGauge ?? 100) / 10000);
+      
       return (
         <video
           ref={el => { if (el) videoRefs.current[id] = el; }}
           src={mediaItem.url}
           className={`max-w-full max-h-full object-contain ${effectClasses}`}
           style={transformStyle}
-          muted
+          muted={trackMuted}
           playsInline
           onError={() => setVideoErrors(prev => ({ ...prev, [id]: true }))}
         />
+      );
+    }
+    
+    // Sticker Clip
+    if (type === 'sticker') {
+      const stickerStyle = {
+        ...transformStyle,
+        fontSize: `${(props.fontSize || 64)}px`,
+        lineHeight: 1
+      };
+      
+      return (
+        <div 
+          className={`flex items-center justify-center ${effectClasses}`}
+          style={stickerStyle}
+        >
+          {props.emoji || props.text || '⭐'}
+        </div>
       );
     }
 
