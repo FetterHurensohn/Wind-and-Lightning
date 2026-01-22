@@ -5,14 +5,10 @@
  * Unterstützt: MP4, MOV, WebM mit verschiedenen Codecs
  */
 
-// API Base URL - verwendet REACT_APP_BACKEND_URL oder Fallback
+// API Base URL - verwendet den gleichen Origin (da Backend über /api proxy läuft)
 const getApiBaseUrl = () => {
-  // In production, use the environment variable
-  if (typeof import.meta !== 'undefined' && import.meta.env?.VITE_API_URL) {
-    return import.meta.env.VITE_API_URL;
-  }
-  // Fallback for development
-  return window.location.origin;
+  // Backend API ist unter /api erreichbar (Kubernetes Ingress Proxy)
+  return '';
 };
 
 const API_BASE = getApiBaseUrl();
