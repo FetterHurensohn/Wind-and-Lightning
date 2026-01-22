@@ -804,8 +804,8 @@ export default function EditorLayout({ projectPath, onBackToDashboard }) {
 
   const handleExport = (exportSettings) => {
     console.log('Export with settings:', exportSettings);
-    // Hier würde der tatsächliche Export stattfinden
-    setShowExportDialog(false);
+    // Dialog bleibt offen - wird vom ExportDialog selbst geschlossen
+    // Die Erfolgs-Ansicht wird im ExportDialog angezeigt
   };
 
   const handleApplyTransition = (transition) => {
