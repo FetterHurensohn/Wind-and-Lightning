@@ -180,6 +180,82 @@ export default function PreviewPanel({
     return classes.join(' ');
   };
 
+  // Berechne Transition-Styles basierend auf Transition-Typ und Progress
+  const getTransitionStyles = (clip) => {
+    const { transitionIn, transitionOut, transitionProgress } = clip;
+    
+    if (!transitionIn && !transitionOut) return {};
+    
+    const transition = transitionIn || transitionOut;
+    const progress = transitionIn ? transitionProgress : (1 - transitionProgress);
+    const eased = easeInOutCubic(progress);
+    
+    const styles = {};
+    
+    switch (transition.id) {
+      case 'fade':
+      case 'dissolve':
+        styles.opacity = eased;
+        break;
+        
+      case 'wipe-left':
+        styles.clipPath = `inset(0 ${(1 - eased) * 100}% 0 0)`;
+        break;
+        
+      case 'wipe-right':
+        styles.clipPath = `inset(0 0 0 ${(1 - eased) * 100}%)`;
+        break;
+        
+      case 'wipe-up':
+        styles.clipPath = `inset(0 0 ${(1 - eased) * 100}% 0)`;
+        break;
+        
+      case 'wipe-down':
+        styles.clipPath = `inset(${(1 - eased) * 100}% 0 0 0)`;
+        break;
+        
+      case 'zoom-in':
+        styles.transform = `scale(${0.5 + eased * 0.5})`;
+        styles.opacity = eased;
+        break;
+        
+      case 'zoom-out':
+        styles.transform = `scale(${1.5 - eased * 0.5})`;
+        styles.opacity = eased;
+        break;
+        
+      case 'slide-left':
+        styles.transform = `translateX(${(1 - eased) * 100}%)`;
+        break;
+        
+      case 'slide-right':
+        styles.transform = `translateX(${(eased - 1) * 100}%)`;
+        break;
+        
+      case 'rotate':
+        styles.transform = `rotate(${(1 - eased) * 90}deg)`;
+        styles.opacity = eased;
+        break;
+        
+      case 'flip':
+        styles.transform = `perspective(1000px) rotateY(${(1 - eased) * 90}deg)`;
+        styles.opacity = eased;
+        break;
+        
+      default:
+        styles.opacity = eased;
+    }
+    
+    return styles;
+  };
+
+  // Easing-Funktion für flüssige Übergänge
+  const easeInOutCubic = (t) => {
+    return t < 0.5
+      ? 4 * t * t * t
+      : 1 - Math.pow(-2 * t + 2, 3) / 2;
+  };
+
   // Audio Clips für Wiedergabe (berücksichtigt Mute)
   const activeAudioClips = useMemo(() => {
     const audioClips = [];
