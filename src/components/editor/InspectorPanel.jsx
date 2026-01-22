@@ -115,10 +115,10 @@ export default function InspectorPanel({
   onOpenSpeed,
   onOpenText
 }) {
-  const { state, dispatch } = useEditor();
+  const { state, dispatch, playhead } = useEditor();
   
   // Finde ausgewählten Clip
-  const selectedClip = React.useMemo(() => {
+  const selectedClip = useMemo(() => {
     if (!state.selectedClipId) return null;
     for (const track of state.tracks) {
       const clip = track.clips?.find(c => c.id === state.selectedClipId);
@@ -127,6 +127,12 @@ export default function InspectorPanel({
     return null;
   }, [state.selectedClipId, state.tracks]);
   
+  // Clip-relative Zeit für Keyframes
+  const clipTime = useMemo(() => {
+    if (!selectedClip) return 0;
+    return Math.max(0, playhead.currentTime - selectedClip.start);
+  }, [selectedClip, playhead.currentTime]);
+  
   const updateClipProperty = useCallback((property, value) => {
     if (!selectedClip) return;
     dispatch({
@@ -134,6 +140,33 @@ export default function InspectorPanel({
       payload: { clipId: selectedClip.id, property, value }
     });
   }, [selectedClip, dispatch]);
+  
+  // Keyframe hinzufügen Handler
+  const handleAddKeyframe = useCallback((propertyId, time, value) => {
+    if (!selectedClip) return;
+    
+    const keyframes = { ...(selectedClip.keyframes || {}) };
+    const propKeyframes = [...(keyframes[propertyId] || [])];
+    
+    // Prüfe ob bereits ein Keyframe an dieser Zeit existiert
+    const existingIdx = propKeyframes.findIndex(kf => Math.abs(kf.time - clipTime) < 0.05);
+    
+    if (existingIdx >= 0) {
+      // Update existing keyframe
+      propKeyframes[existingIdx] = { ...propKeyframes[existingIdx], value };
+    } else {
+      // Add new keyframe
+      propKeyframes.push({ time: clipTime, value, easing: 'easeInOut' });
+    }
+    
+    propKeyframes.sort((a, b) => a.time - b.time);
+    keyframes[propertyId] = propKeyframes;
+    
+    dispatch({
+      type: 'UPDATE_CLIP_KEYFRAMES',
+      payload: { clipId: selectedClip.id, keyframes }
+    });
+  }, [selectedClip, clipTime, dispatch]);
   
   // Keine Auswahl
   if (!selectedClip) {
