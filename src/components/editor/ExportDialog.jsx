@@ -218,50 +218,55 @@ export default function ExportDialog({
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
             </div>
-            <h2 className="text-xl font-semibold text-[var(--text-primary)] mb-2">Export-Vorschau abgeschlossen!</h2>
-            <p className="text-sm text-[var(--text-secondary)]">Deine Export-Einstellungen wurden verarbeitet.</p>
+            <h2 className="text-xl font-semibold text-[var(--text-primary)] mb-2">Projektdatei exportiert!</h2>
+            <p className="text-sm text-[var(--text-secondary)]">Die Datei wurde in deinen Downloads-Ordner gespeichert.</p>
           </div>
           
-          {/* Export Summary */}
-          <div className="px-8 pb-6">
-            <div className="bg-[var(--bg-surface)] rounded-lg p-4 space-y-2">
-              <div className="flex justify-between text-sm">
-                <span className="text-[var(--text-tertiary)]">Auflösung:</span>
-                <span className="text-[var(--text-primary)] font-medium">{resolution} ({selectedResolution?.width}x{selectedResolution?.height})</span>
+          {/* Downloaded File Info */}
+          <div className="px-8 pb-4">
+            <div className="bg-[var(--bg-surface)] rounded-lg p-4 flex items-center gap-4">
+              <div className="w-12 h-12 bg-[var(--accent-turquoise)]/20 rounded-lg flex items-center justify-center">
+                <Icon name="export" size={24} className="text-[var(--accent-turquoise)]" />
               </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-[var(--text-tertiary)]">Format:</span>
-                <span className="text-[var(--text-primary)] font-medium">{format.toUpperCase()}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-[var(--text-tertiary)]">Codec:</span>
-                <span className="text-[var(--text-primary)] font-medium">{codec.toUpperCase()}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-[var(--text-tertiary)]">Bildrate:</span>
-                <span className="text-[var(--text-primary)] font-medium">{fps} fps</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-[var(--text-tertiary)]">Qualität:</span>
-                <span className="text-[var(--text-primary)] font-medium">{quality}%</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-[var(--text-tertiary)]">Geschätzte Größe:</span>
-                <span className="text-[var(--text-primary)] font-medium">{estimatedSize()}</span>
+              <div className="flex-1">
+                <div className="text-sm font-medium text-[var(--text-primary)]">{project?.name || 'projekt'}_export.capcut</div>
+                <div className="text-xs text-[var(--text-tertiary)]">Projektdatei • Soeben heruntergeladen</div>
               </div>
             </div>
           </div>
           
-          {/* Browser Notice */}
+          {/* Export Summary */}
           <div className="px-8 pb-6">
-            <div className="p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
+            <div className="text-xs text-[var(--text-tertiary)] mb-2">Export-Einstellungen:</div>
+            <div className="bg-[var(--bg-surface)] rounded-lg p-4 grid grid-cols-2 gap-2">
+              <div className="flex justify-between text-sm">
+                <span className="text-[var(--text-tertiary)]">Auflösung:</span>
+                <span className="text-[var(--text-primary)]">{resolution}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-[var(--text-tertiary)]">Format:</span>
+                <span className="text-[var(--text-primary)]">{format.toUpperCase()}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-[var(--text-tertiary)]">Codec:</span>
+                <span className="text-[var(--text-primary)]">{codec.toUpperCase()}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-[var(--text-tertiary)]">Qualität:</span>
+                <span className="text-[var(--text-primary)]">{quality}%</span>
+              </div>
+            </div>
+          </div>
+          
+          {/* Info Notice */}
+          <div className="px-8 pb-6">
+            <div className="p-4 bg-blue-500/10 border border-blue-500/30 rounded-lg">
               <div className="flex items-start gap-3">
-                <span className="text-xl">⚠️</span>
+                <span className="text-xl">💡</span>
                 <div>
-                  <div className="text-sm font-medium text-yellow-300">Browser-Version</div>
-                  <div className="text-xs text-yellow-200/80 mt-1">
-                    Echter Video-Export mit Download ist nur in der <strong>Desktop-App (Electron)</strong> verfügbar.
-                    In der Browser-Version wird eine Vorschau der Export-Einstellungen angezeigt.
+                  <div className="text-sm font-medium text-blue-300">So verwendest du die Projektdatei:</div>
+                  <div className="text-xs text-blue-200/80 mt-1">
+                    Öffne die <strong>.capcut</strong> Datei in der Desktop-App, um das fertige Video als MP4, MOV oder WebM zu exportieren.
                   </div>
                 </div>
               </div>
