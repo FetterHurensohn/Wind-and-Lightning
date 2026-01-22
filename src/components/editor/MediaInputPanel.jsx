@@ -9,6 +9,7 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { useEditor } from './EditorLayout';
 import Icon from './Icon';
+import GiphyPanel from './GiphyPanel';
 import { quickPrompt, generateImage, textToSpeech, generateMusicSuggestion, generateStoryboard, transcribeAudio } from '../../modules/ai/AIClient';
 import { ModelSelector } from './AIModelSelectorUI';
 import { loadAISettings } from '../../modules/ai/AIModelSelector';
