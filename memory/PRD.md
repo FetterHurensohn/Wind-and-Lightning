@@ -221,8 +221,10 @@ German (Deutsch)
 - `/app/src/components/editor/InspectorPanel.jsx` - Keyframe diamonds, property sliders with keyframe support
 - `/app/src/components/editor/KeyframeEditor.jsx` - animatableProperties, interpolateKeyframes function
 - `/app/src/components/editor/AudioWaveform.jsx` - Real audio waveform generation via Web Audio API
-- `/app/src/components/editor/ExportDialog.jsx` - Export dialog with client-side MediaRecorder
+- `/app/src/components/editor/ExportDialog.jsx` - Export dialog with client & server export modes
 - `/app/src/utils/VideoExporter.js` - Client-side video rendering with MediaRecorder API
+- `/app/src/services/ServerExportService.js` - Server-side FFmpeg export API client
+- `/app/backend/server.py` - FastAPI backend for FFmpeg video export
 - `/app/src/components/PreviewPanel.jsx` - Track hide/mute, transition rendering, keyframe interpolation, GIPHY sticker rendering
 
 ---
@@ -230,5 +232,6 @@ German (Deutsch)
 ## Test Status
 - **Last Test:** iteration_18.json (22.01.2026)
 - **Frontend Success Rate:** 100% (9/9 features)
+- **Backend API:** FFmpeg export tested via curl (demo export completes in <1s)
 - **Verified:** Keyframe animation, Audio waveform, Dashboard project creation, Demo media, Track controls, Export dialog
 - **Requires API Key:** GIPHY integration requires user's own API key from developers.giphy.com
