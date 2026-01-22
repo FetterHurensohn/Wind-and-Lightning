@@ -331,36 +331,6 @@ export default function ExportDialog({
             </div>
           </div>
           
-          {/* Export Mode Toggle */}
-          <div className="p-4 bg-[var(--bg-surface)] rounded-lg">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="text-sm font-medium text-[var(--text-primary)]">FFmpeg.wasm Export</div>
-                <div className="text-xs text-[var(--text-tertiary)]">
-                  {useRealExport 
-                    ? 'Echter Video-Export (kann länger dauern)' 
-                    : 'Schneller Demo-Export (nur Konfiguration)'
-                  }
-                </div>
-              </div>
-              <button
-                onClick={() => setUseRealExport(!useRealExport)}
-                className={`w-12 h-6 rounded-full transition-colors relative ${
-                  useRealExport ? 'bg-[var(--accent-turquoise)]' : 'bg-[var(--bg-main)]'
-                }`}
-              >
-                <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${
-                  useRealExport ? 'translate-x-7' : 'translate-x-1'
-                }`} />
-              </button>
-            </div>
-            {useRealExport && (
-              <div className="mt-2 p-2 bg-yellow-500/10 border border-yellow-500/30 rounded text-xs text-yellow-300">
-                ⚠️ FFmpeg.wasm muss beim ersten Export geladen werden (~30MB). Dies kann einige Sekunden dauern.
-              </div>
-            )}
-          </div>
-          
           {/* Export Error */}
           {exportError && (
             <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-lg">
